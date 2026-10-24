@@ -189,20 +189,99 @@ export default function AddCardModal({
   const [audioGuide, setAudioGuide] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRandomFill = async () => {
+  // Client-Side Deck Buffer Pattern (Reduces server load by 95% & delivers 0ms clicks)
+  const [buffer, setBuffer] = useState<Array<{
+    primary_text: string;
+    phonetic: string | null;
+    furigana_html: string | null;
+    meaning_id: string;
+    example_source: string;
+    example_meaning: string;
+    audio_guide: string | null;
+  }>>([]);
+  const [seenWords, setSeenWords] = useState<string[]>([]);
+  const [isFetchingBatch, setIsFetchingBatch] = useState(false);
+
+  const resetForm = () => {
+    setPrimaryText('');
+    setPhonetic('');
+    setFuriganaHtml('');
+    setMeaningId('');
+    setExampleSource('');
+    setExampleMeaning('');
+    setAudioGuide('');
+    setBuffer([]);
+    setSeenWords([]);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  const fetchNextBatch = async (currentSeen: string[]) => {
+    if (isFetchingBatch) return;
+    setIsFetchingBatch(true);
     try {
-      const res = await fetch(`/api/vocabulary-bank/random?lang=${langCode}`);
+      const excludeParam = currentSeen.slice(-30).map(encodeURIComponent).join(',');
+      const res = await fetch(`/api/vocabulary-bank/random?lang=${langCode}&batch=20&exclude=${excludeParam}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.item) {
-          const item = data.item;
-          setPrimaryText(item.primary_text || '');
-          setPhonetic(item.phonetic || '');
-          setFuriganaHtml(item.furigana_html || '');
-          setMeaningId(item.meaning_id || '');
-          setExampleSource(item.example_source || '');
-          setExampleMeaning(item.example_meaning || '');
-          setAudioGuide(item.audio_guide || '');
+        if (data.items && data.items.length > 0) {
+          setBuffer((prev) => [...prev, ...data.items]);
+        }
+      }
+    } catch (e) {
+      console.error('Silent batch prefetch error:', e);
+    } finally {
+      setIsFetchingBatch(false);
+    }
+  };
+
+  const applyCardToForm = (item: {
+    primary_text: string;
+    phonetic: string | null;
+    furigana_html: string | null;
+    meaning_id: string;
+    example_source: string;
+    example_meaning: string;
+    audio_guide: string | null;
+  }) => {
+    setPrimaryText(item.primary_text || '');
+    setPhonetic(item.phonetic || '');
+    setFuriganaHtml(item.furigana_html || '');
+    setMeaningId(item.meaning_id || '');
+    setExampleSource(item.example_source || '');
+    setExampleMeaning(item.example_meaning || '');
+    setAudioGuide(item.audio_guide || '');
+    setSeenWords((prev) => [...prev, item.primary_text]);
+  };
+
+  const handleRandomFill = async () => {
+    // 1. Instant 0ms pop from client buffer if available
+    if (buffer.length > 0) {
+      const nextItem = buffer[0];
+      const remainingBuffer = buffer.slice(1);
+      setBuffer(remainingBuffer);
+      applyCardToForm(nextItem);
+
+      // Trigger silent background prefetch when buffer runs low (<= 3 cards left)
+      if (remainingBuffer.length <= 3 && !isFetchingBatch) {
+        fetchNextBatch([...seenWords, nextItem.primary_text]);
+      }
+      return;
+    }
+
+    // 2. Buffer empty: fetch fresh batch of 20
+    try {
+      const excludeParam = seenWords.slice(-30).map(encodeURIComponent).join(',');
+      const res = await fetch(`/api/vocabulary-bank/random?lang=${langCode}&batch=20&exclude=${excludeParam}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+          const [first, ...rest] = data.items;
+          setBuffer(rest);
+          applyCardToForm(first);
           return;
         }
       }
@@ -210,16 +289,18 @@ export default function AddCardModal({
       console.error('Failed to fetch from vocabulary bank API, falling back to local pool:', e);
     }
 
-    // Fallback to local default pool if offline
+    // 3. Graceful offline fallback
     const pool = langCode === 'ja' ? SAMPLE_VOCAB_JA : SAMPLE_VOCAB_EN;
     const item = pool[Math.floor(Math.random() * pool.length)];
-    setPrimaryText(item.primary_text);
-    setPhonetic(item.phonetic);
-    setFuriganaHtml('furigana_html' in item ? (item.furigana_html as string) : '');
-    setMeaningId(item.meaning_id);
-    setExampleSource(item.example_source);
-    setExampleMeaning(item.example_meaning);
-    setAudioGuide(item.audio_guide);
+    applyCardToForm({
+      primary_text: item.primary_text,
+      phonetic: item.phonetic,
+      furigana_html: 'furigana_html' in item ? (item.furigana_html as string) : null,
+      meaning_id: item.meaning_id,
+      example_source: item.example_source,
+      example_meaning: item.example_meaning,
+      audio_guide: item.audio_guide,
+    });
   };
 
   const handleAutoGenerateGuide = () => {
@@ -262,15 +343,7 @@ export default function AddCardModal({
       if (res.ok) {
         alert('Kosakata baru berhasil ditambahkan!');
         onCardAdded();
-        onClose();
-        // Reset form
-        setPrimaryText('');
-        setPhonetic('');
-        setFuriganaHtml('');
-        setMeaningId('');
-        setExampleSource('');
-        setExampleMeaning('');
-        setAudioGuide('');
+        handleClose();
       } else {
         const data = await res.json();
         alert('Gagal menambahkan kartu: ' + (data.error || 'Terjadi kesalahan'));
@@ -284,7 +357,7 @@ export default function AddCardModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg border-border bg-card/95 backdrop-blur-xl">
         <DialogHeader>
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -451,7 +524,7 @@ export default function AddCardModal({
           </div>
 
           <DialogFooter className="gap-2 pt-2 sm:gap-0">
-            <Button type="button" variant="ghost" onClick={onClose}>
+            <Button type="button" variant="ghost" onClick={handleClose}>
               Batal
             </Button>
             <Button type="submit" disabled={isSubmitting} className="gap-1.5">
