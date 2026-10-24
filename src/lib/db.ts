@@ -77,6 +77,27 @@ export interface DailyPrompt {
   created_at: string;
 }
 
+export interface LevelTrack {
+  code: string;
+  language_code: string;
+  name: string;
+  description: string;
+  order_num: number;
+}
+
+export interface GrammarLesson {
+  id: number;
+  language_code: string;
+  level: string;
+  title: string;
+  formula: string;
+  explanation: string;
+  example_source: string;
+  example_meaning: string;
+  audio_guide: string | null;
+  created_at: string;
+}
+
 export interface Submission {
   id: number;
   user_name: string;
@@ -279,9 +300,35 @@ export function initDatabase() {
       xp_points INTEGER DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS level_tracks (
+      code TEXT PRIMARY KEY,
+      language_code TEXT NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT NOT NULL,
+      order_num INTEGER NOT NULL,
+      FOREIGN KEY (language_code) REFERENCES languages(code)
+    );
+
+    CREATE TABLE IF NOT EXISTS grammar_lessons (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      language_code TEXT NOT NULL,
+      level TEXT NOT NULL,
+      title TEXT NOT NULL,
+      formula TEXT NOT NULL,
+      explanation TEXT NOT NULL,
+      example_source TEXT NOT NULL,
+      example_meaning TEXT NOT NULL,
+      audio_guide TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (language_code) REFERENCES languages(code),
+      FOREIGN KEY (level) REFERENCES level_tracks(code)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_cards_user_lang ON cards(user_id, language_code);
     CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(language_code, created_at);
     CREATE INDEX IF NOT EXISTS idx_vocab_bank_lang ON vocabulary_bank(language_code, category);
+    CREATE INDEX IF NOT EXISTS idx_grammar_lang_level ON grammar_lessons(language_code, level);
+    CREATE INDEX IF NOT EXISTS idx_levels_lang ON level_tracks(language_code, order_num);
   `);
 
   // Non-destructive check for prompt_id foreign key constraint in submissions
@@ -626,6 +673,71 @@ export function initDatabase() {
       '今日の目標や気持ちについて、短い日本語で1文書いてみましょう。（「挨拶」または「感謝」を使って）',
       'Contoh: 毎日の生活の中で、周りの人への感謝を忘れないようにしています。'
     );
+  }
+
+  // Ensure all level tracks exist
+  const insertLevel = db.prepare(`
+    INSERT OR IGNORE INTO level_tracks (code, language_code, name, description, order_num)
+    VALUES (?, ?, ?, ?, ?)
+  `);
+
+  // Japanese JLPT Levels
+  insertLevel.run('N5', 'ja', 'JLPT N5', 'Pemula Dasar: Hiragana, Katakana, dan tata bahasa percakapan paling esensial', 1);
+  insertLevel.run('N4', 'ja', 'JLPT N4', 'Praktik Sehari-hari: Pola izin, kebiasaan, pengalaman, dan kalimat bersambung', 2);
+  insertLevel.run('N3', 'ja', 'JLPT N3', 'Menengah Mandiri: Ungkapan situasional kerja, nuansa bahasa, dan artikel praktis', 3);
+  insertLevel.run('N2', 'ja', 'JLPT N2', 'Tingkat Mahir: Komunikasi profesional, media berita, dan wacana formal', 4);
+  insertLevel.run('N1', 'ja', 'JLPT N1', 'Fasih Sempurna: Pemahaman mendalam wacana abstrak, idiom sastra, dan perdebatan', 5);
+
+  // English CEFR Levels
+  insertLevel.run('A1', 'en', 'CEFR A1', 'Beginner: Kebutuhan dasar, perkenalan diri, tenses sederhana, dan kosakata esensial', 1);
+  insertLevel.run('A2', 'en', 'CEFR A2', 'Elementary: Rutinitas, mendeskripsikan masa lalu, dan rencana masa depan', 2);
+  insertLevel.run('B1', 'en', 'CEFR B1', 'Intermediate: Berkomunikasi mandiri, berpendapat, conditionals, dan pengalaman hidup', 3);
+  insertLevel.run('B2', 'en', 'CEFR B2', 'Upper Intermediate: Berdiskusi lancar, argumen kompleks, pasif, dan nuansa profesional', 4);
+  insertLevel.run('C1', 'en', 'CEFR C1', 'Advanced: Penguasaan bahasa tingkat tinggi, fleksibel untuk keperluan akademis & bisnis', 5);
+  insertLevel.run('C2', 'en', 'CEFR C2', 'Proficient: Penguasaan bahasa tingkat penutur asli yang presisi, luwes, dan spontan', 6);
+
+  // Seed grammar_lessons if empty or incomplete (< 50)
+  const countGrammar = db.prepare('SELECT COUNT(*) as count FROM grammar_lessons').get() as { count: number };
+  if (countGrammar.count < 50) {
+    const grammarSeedPath = path.join(process.cwd(), 'data', 'seeds', 'grammar_curriculum.json');
+    if (fs.existsSync(grammarSeedPath)) {
+      try {
+        const curriculumData = JSON.parse(fs.readFileSync(grammarSeedPath, 'utf8'));
+        const insertGrammar = db.prepare(`
+          INSERT OR REPLACE INTO grammar_lessons (
+            language_code, level, title, formula, explanation, example_source, example_meaning, audio_guide
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+
+        const insertGrammarTx = db.transaction((lessons: Array<{
+          language_code: string;
+          level: string;
+          title: string;
+          formula: string;
+          explanation: string;
+          example_source: string;
+          example_meaning: string;
+          audio_guide: string;
+        }>) => {
+          for (const item of lessons) {
+            insertGrammar.run(
+              item.language_code,
+              item.level,
+              item.title,
+              item.formula,
+              item.explanation,
+              item.example_source,
+              item.example_meaning,
+              item.audio_guide
+            );
+          }
+        });
+
+        insertGrammarTx(curriculumData);
+      } catch (e) {
+        console.error('Failed to load grammar_curriculum.json:', e);
+      }
+    }
   }
 }
 

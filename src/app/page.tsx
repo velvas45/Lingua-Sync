@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import Header from '@/components/Header';
 import FlashcardViewer, { CardItem } from '@/components/FlashcardViewer';
+import GrammarViewer from '@/components/GrammarViewer';
 import DailyChallengeForm from '@/components/DailyChallengeForm';
 import TeamFeed, { SubmissionItem } from '@/components/TeamFeed';
 import Leaderboard from '@/components/Leaderboard';
@@ -11,7 +12,15 @@ import AuthModal, { AuthUser } from '@/components/AuthModal';
 import SidebarDrawer from '@/components/SidebarDrawer';
 import EditProfileModal from '@/components/EditProfileModal';
 import { ToastContainer } from '@/components/Toast';
-import { Sparkles, Compass, MessageSquareQuote, Layers } from 'lucide-react';
+import { LevelTrack, GrammarLesson } from '@/lib/db';
+import {
+  Sparkles,
+  Compass,
+  MessageSquareQuote,
+  Layers,
+  GraduationCap,
+  BookOpen,
+} from 'lucide-react';
 
 interface LanguageItem {
   code: string;
@@ -63,9 +72,15 @@ const getThemeServerSnapshot = (): 'dark' | 'light' => 'dark';
 
 export default function Home() {
   const [selectedLang, setSelectedLang] = useState('en');
+  const [selectedLevel, setSelectedLevel] = useState('all');
+  const [learningTab, setLearningTab] = useState<'vocab' | 'grammar'>('vocab');
+
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AppData | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const [levelTracks, setLevelTracks] = useState<LevelTrack[]>([]);
+  const [grammarLessons, setGrammarLessons] = useState<GrammarLesson[]>([]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -96,6 +111,7 @@ export default function Home() {
     }
   };
 
+  // Fetch core app data
   useEffect(() => {
     let ignore = false;
 
@@ -127,8 +143,35 @@ export default function Home() {
     };
   }, [selectedLang, refreshTrigger]);
 
+  // Fetch curriculum & grammar lessons
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadCurriculum() {
+      try {
+        const res = await fetch(`/api/curriculum?lang=${selectedLang}&level=${selectedLevel}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (!ignore) {
+            setLevelTracks(json.levels || []);
+            setGrammarLessons(json.lessons || []);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load curriculum:', e);
+      }
+    }
+
+    loadCurriculum();
+
+    return () => {
+      ignore = true;
+    };
+  }, [selectedLang, selectedLevel]);
+
   const handleLangChange = (code: string) => {
     setSelectedLang(code);
+    setSelectedLevel('all'); // reset level filter when language changes
   };
 
   const handleRefresh = () => {
@@ -165,6 +208,18 @@ export default function Home() {
   const totalXp = currentUser?.xp_points ?? 0;
   const isGuest = !currentUser;
 
+  // Filter cards by level if level filter is active and matching cards exist
+  const displayedCards =
+    selectedLevel === 'all'
+      ? data.cards
+      : data.cards.filter((c) =>
+          (c.level || '').toUpperCase().includes(selectedLevel.toUpperCase())
+        ).length > 0
+      ? data.cards.filter((c) =>
+          (c.level || '').toUpperCase().includes(selectedLevel.toUpperCase())
+        )
+      : data.cards;
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors">
       {/* Top Header */}
@@ -188,65 +243,160 @@ export default function Home() {
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-emerald-500/5 p-4 sm:p-7 shadow-lg backdrop-blur-md">
           <div className="flex-1">
             <div className="mb-1 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-foreground">
                 Target Belajar: {data.currentLang.name} ({data.currentLang.flag})
               </h2>
             </div>
             <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">
-              Metode <strong className="text-foreground">Hybrid Micro-Drill</strong>: Pelajari kartu kosakata praktis di bawah, dengarkan pelafalannya, lalu selesaikan tantangan kalimat aktif hari ini!
+              Metode <strong className="text-foreground">Hybrid Micro-Drill</strong>: Pelajari kosakata praktis & pola tata bahasa berstandar internasional, lalu selesaikan tantangan harian!
             </p>
           </div>
 
           <div className="flex w-full sm:w-auto items-center justify-around sm:justify-center gap-4 rounded-xl border border-border bg-card/90 px-4 sm:px-5 py-2.5 sm:py-3 shadow-sm backdrop-blur-sm shrink-0">
             <div className="text-center">
-              <span className="text-base sm:text-lg font-extrabold text-cyan-700 dark:text-cyan-400">{data.cards.length}</span>
+              <span className="text-base sm:text-lg font-extrabold text-cyan-700 dark:text-cyan-400">
+                {displayedCards.length}
+              </span>
               <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground">
                 {isGuest ? 'Kartu Publik' : 'Koleksi Kartu'}
               </span>
             </div>
             <div className="h-7 w-px bg-border" />
             <div className="text-center">
-              <span className="text-base sm:text-lg font-extrabold text-emerald-700 dark:text-emerald-400">{data.recentSubmissions.length}</span>
-              <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground">Aktivitas Komunitas</span>
+              <span className="text-base sm:text-lg font-extrabold text-indigo-700 dark:text-indigo-400">
+                {grammarLessons.length}
+              </span>
+              <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground">
+                Tata Bahasa
+              </span>
             </div>
+            <div className="h-7 w-px bg-border" />
+            <div className="text-center">
+              <span className="text-base sm:text-lg font-extrabold text-emerald-700 dark:text-emerald-400">
+                {data.recentSubmissions.length}
+              </span>
+              <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground">
+                Komunitas
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Level Track Selector Bar */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card/60 p-3.5 sm:p-4 backdrop-blur-md">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">
+              <GraduationCap className="h-4 w-4" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-foreground block">
+                Target Tingkatan ({data.currentLang.code === 'ja' ? 'Standar Resmi JLPT' : 'Standar Resmi CEFR'}):
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                Pilih tingkatan untuk memfilter kosakata dan pelajaran tata bahasa
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setSelectedLevel('all')}
+              className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
+                selectedLevel === 'all'
+                  ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25'
+                  : 'bg-secondary/60 text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Semua Level
+            </button>
+            {levelTracks.map((lvl) => {
+              const isActive = selectedLevel === lvl.code;
+              return (
+                <button
+                  key={lvl.code}
+                  type="button"
+                  onClick={() => setSelectedLevel(lvl.code)}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
+                    isActive
+                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/25'
+                      : 'bg-secondary/60 text-muted-foreground hover:text-foreground'
+                  }`}
+                  title={lvl.description}
+                >
+                  {lvl.code}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* 2-Column Responsive Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
-          {/* Left Column: Flashcards & Daily Challenge */}
+          {/* Left Column: Flashcards / Grammar & Daily Challenge */}
           <div className="flex flex-col gap-6 sm:gap-8">
-            {/* Flashcard Section */}
-            <section>
-              <div className="mb-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Layers className="h-5 w-5 text-cyan-700 dark:text-cyan-400" />
-                  <h3 className="text-lg font-bold text-foreground">
-                    1. Flashcard Kosakata & Audio Pelafalan
-                  </h3>
+            {/* View Switcher: Flashcard vs Grammar Lessons */}
+            <section className="space-y-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-2.5">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setLearningTab('vocab')}
+                    className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+                      learningTab === 'vocab'
+                        ? 'bg-secondary text-foreground shadow-sm border border-border'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Layers className="h-3.5 w-3.5 text-cyan-700 dark:text-cyan-400" />
+                    <span>Flashcard Kosakata</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setLearningTab('grammar')}
+                    className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+                      learningTab === 'grammar'
+                        ? 'bg-secondary text-foreground shadow-sm border border-border'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <BookOpen className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <span>Tata Bahasa ({grammarLessons.length})</span>
+                  </button>
                 </div>
-                {isGuest && (
-                  <span className="rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-700 dark:text-cyan-400 border border-cyan-500/30">
+
+                {learningTab === 'vocab' && isGuest && (
+                  <span className="rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-cyan-700 dark:text-cyan-400 border border-cyan-500/30">
                     5 Kartu Dasar
                   </span>
                 )}
               </div>
-              <FlashcardViewer
-                key={data.currentLang.code}
-                cards={data.cards}
-                speechLocale={data.currentLang.speech_locale}
-                langCode={data.currentLang.code}
-                isLoggedIn={!isGuest}
-                onCardMutated={handleRefresh}
-              />
+
+              {learningTab === 'vocab' ? (
+                <FlashcardViewer
+                  key={`${data.currentLang.code}-${selectedLevel}`}
+                  cards={displayedCards}
+                  speechLocale={data.currentLang.speech_locale}
+                  langCode={data.currentLang.code}
+                  isLoggedIn={!isGuest}
+                  onCardMutated={handleRefresh}
+                />
+              ) : (
+                <GrammarViewer
+                  key={`grammar-${data.currentLang.code}-${selectedLevel}`}
+                  lessons={grammarLessons}
+                  speechLocale={data.currentLang.speech_locale}
+                />
+              )}
             </section>
 
             {/* Daily Challenge Form */}
             <section>
               <div className="mb-3.5 flex items-center gap-2">
                 <Compass className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-bold text-foreground">
+                <h3 className="text-base sm:text-lg font-bold text-foreground">
                   2. Latihan Output (Tulis & Ucapkan)
                 </h3>
               </div>
@@ -264,7 +414,7 @@ export default function Home() {
           </div>
 
           {/* Right Column: Leaderboard & Team Feed */}
-          <div className="flex flex-col gap-7">
+          <div className="flex flex-col gap-6 sm:gap-7">
             {/* Team Leaderboard Widget */}
             <Leaderboard board={data.leaderboard} />
 
@@ -272,8 +422,8 @@ export default function Home() {
             <section>
               <div className="mb-3.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <MessageSquareQuote className="h-5 w-5 text-emerald-400" />
-                  <h3 className="text-lg font-bold text-foreground">
+                  <MessageSquareQuote className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                  <h3 className="text-base sm:text-lg font-bold text-foreground">
                     Aktivitas & Tulisan Komunitas Hari Ini
                   </h3>
                 </div>

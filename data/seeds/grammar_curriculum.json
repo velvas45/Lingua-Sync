@@ -1,0 +1,1782 @@
+[
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜は〜です (A adalah B)",
+    "formula": "KB1 + は + KB2 + です",
+    "explanation": "Pola dasar utama bahasa Jepang untuk menyatakan identitas, profesi, atau sifat subjek. Partikel は dilafalkan \"wa\".",
+    "example_source": "私は日本語の学習者です。",
+    "example_meaning": "Saya adalah seorang pembelajar bahasa Jepang.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜は〜です (A adalah B)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜ではありません (A bukan B)",
+    "formula": "KB + ではありません / じゃありません",
+    "explanation": "Bentuk penyangkalan sopan dari です (bukan/tidak).",
+    "example_source": "私は先生ではありません、学生です。",
+    "example_meaning": "Saya bukan guru, saya seorang siswa.",
+    "audio_guide": "Suku kata \"n\" (hatsuon): Tahan 1 ketukan penuh di rongga hidung sebelum berpindah ke mora berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜があります / います (Keberadaan Benda / Makhluk)",
+    "formula": "Lokasi + に + Subjek + が + あります/います",
+    "explanation": "Menyatakan keberadaan. あります untuk benda mati dan います untuk makhluk hidup (manusia/hewan).",
+    "example_source": "部屋に新しい辞書があります。",
+    "example_meaning": "Ada kamus baru di dalam kamar.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜があります / います (Keberadaan Benda / Makhluk)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜も (Juga / Pun)",
+    "formula": "KB + も",
+    "explanation": "Partikel penunjuk kesamaan atribut dengan apa yang telah disebutkan sebelumnya.",
+    "example_source": "田中さんも同じクラスの仲間です。",
+    "example_meaning": "Tanaka-san juga rekan dari kelas yang sama.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜も (Juga / Pun)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜の〜 (Kepemilikan / Modifikasi Kata Benda)",
+    "formula": "KB1 + の + KB2",
+    "explanation": "Menghubungkan dua kata benda untuk menunjukkan kepemilikan atau asal.",
+    "example_source": "これは私の日本語の教科書です。",
+    "example_meaning": "Ini adalah buku teks bahasa Jepang milik saya.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜の〜 (Kepemilikan / Modifikasi Kata Benda)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜へ行きます / 来ます / 帰ります (Arah Perpindahan)",
+    "formula": "Tempat + へ + 行きます/来ます/帰ります",
+    "explanation": "Partikel へ (dilafalkan \"e\") menunjukkan arah tujuan pergerakan.",
+    "example_source": "来週、友人と京都へ行きます。",
+    "example_meaning": "Pekan depan, saya akan pergi ke Kyoto bersama teman.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜へ行きます / 来ます / 帰ります (Arah Perpindahan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜を〜ます (Objek Tindakan Transitif)",
+    "formula": "Objek + を + Kata Kerja Transitif",
+    "explanation": "Partikel を (dilafalkan \"o\") menandai objek langsung yang dikenai tindakan.",
+    "example_source": "毎朝、温かいお茶を飲みます。",
+    "example_meaning": "Setiap pagi, saya meminum teh hangat.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜を〜ます (Objek Tindakan Transitif)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜で〜ます (Lokasi Tindakan / Alat Transportasi)",
+    "formula": "Tempat/Alat + で + Kata Kerja",
+    "explanation": "Menunjukkan lokasi di mana suatu aksi berlangsung, atau alat/kendaraan yang digunakan.",
+    "example_source": "図書館で静かに本を読みます。",
+    "example_meaning": "Saya membaca buku dengan tenang di perpustakaan.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜で〜ます (Lokasi Tindakan / Alat Transportasi)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜に (Waktu Spesifik / Tujuan Tindakan)",
+    "formula": "Waktu Spesifik / Tujuan + に + Kata Kerja",
+    "explanation": "Menunjukkan titik waktu terjadinya peristiwa atau tujuan kedatangan.",
+    "example_source": "毎朝七時に起きて散歩をします。",
+    "example_meaning": "Setiap pagi jam tujuh saya bangun lalu jalan-jalan.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜に (Waktu Spesifik / Tujuan Tindakan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜と (Dan / Bersama)",
+    "formula": "KB1 + と + KB2 | Orang + と + KK",
+    "explanation": "Menggabungkan kata benda secara lengkap, atau menunjukkan rekan yang menyertai tindakan.",
+    "example_source": "友人と一緒に宿題をしました。",
+    "example_meaning": "Saya mengerjakan PR bersama teman.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜と (Dan / Bersama)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜から〜まで (Dari... sampai...)",
+    "formula": "Waktu/Tempat + から + Waktu/Tempat + まで",
+    "explanation": "Menunjukkan rentang waktu permulaan hingga titik akhir atau jarak tempuh.",
+    "example_source": "勉強は朝の九時から昼の一時まで続きます。",
+    "example_meaning": "Belajar berlangsung dari jam sembilan pagi sampai jam satu siang.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜から〜まで (Dari... sampai...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜てください (Permohonan Sopan)",
+    "formula": "Kata Kerja [Bentuk て] + ください",
+    "explanation": "Digunakan untuk meminta bantuan, arahan, atau instruksi sopan.",
+    "example_source": "この文を声に出して読んでください。",
+    "example_meaning": "Tolong baca kalimat ini dengan suara lantang.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜てください (Permohonan Sopan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜てもいいですか (Meminta Izin)",
+    "formula": "Kata Kerja [Bentuk て] + もいいですか",
+    "explanation": "Pola standar meminta izin melakukan sesuatu secara santun.",
+    "example_source": "ここで少し休憩してもいいですか？",
+    "example_meaning": "Bolehkah saya beristirahat sejenak di sini?",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜てもいいですか (Meminta Izin)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜てはいけません (Larangan Sopan)",
+    "formula": "Kata Kerja [Bentuk て] + はいけません",
+    "explanation": "Menyatakan larangan bahwa tindakan tersebut tidak boleh dilakukan.",
+    "example_source": "試験中にスマートフォンを使ってはいけません。",
+    "example_meaning": "Tidak boleh menggunakan ponsel pintar selama ujian berlangsung.",
+    "audio_guide": "Suku kata \"n\" (hatsuon): Tahan 1 ketukan penuh di rongga hidung sebelum berpindah ke mora berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜たいです (Keinginan Diri Sendiri)",
+    "formula": "Kata Kerja [Batang Masu] + たいです",
+    "explanation": "Menyatakan keinginan subjek pembicara untuk melakukan suatu tindakan.",
+    "example_source": "日本でたくさんの人と会話したいです。",
+    "example_meaning": "Saya ingin bercakap-cakap dengan banyak orang di Jepang.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜たいです (Keinginan Diri Sendiri)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜たくないです (Ketidakinginan Melakukan Sesuatu)",
+    "formula": "Kata Kerja [Batang Masu] + たくないです",
+    "explanation": "Menyatakan keengganan atau ketidakinginan melakukan suatu hal.",
+    "example_source": "今日は疲れたので、外出はしたくないです。",
+    "example_meaning": "Karena lelah hari ini, saya tidak ingin bepergian keluar.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜たくないです (Ketidakinginan Melakukan Sesuatu)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜ませんか (Ajakan Ramah)",
+    "formula": "Kata Kerja [Batang Masu] + ませんか",
+    "explanation": "Mengajak lawan bicara melakukan sesuatu bersama secara ramah dan sopan.",
+    "example_source": "放課後に一緒にカフェでお茶をしませんか？",
+    "example_meaning": "Maukah minum teh bersama di kafe sepulang sekolah?",
+    "audio_guide": "Suku kata \"n\" (hatsuon): Tahan 1 ketukan penuh di rongga hidung sebelum berpindah ke mora berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜ましょう (Ajakan Pasti / Mari kita...)",
+    "formula": "Kata Kerja [Batang Masu] + ましょう",
+    "explanation": "Mengusulkan tindakan bersama secara antusias atau menawarkan bantuan.",
+    "example_source": "今日の復習を早速始めましょう。",
+    "example_meaning": "Mari kita segera mulai mengulang materi hari ini.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜ましょう (Ajakan Pasti / Mari kita...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜が好きです / 嫌いです (Kesukaan & Ketidaksukaan)",
+    "formula": "Objek + が + 好きです / 嫌いです",
+    "explanation": "Menyatakan kegemaran atau hal yang tidak disukai dengan partikel が.",
+    "example_source": "私は語学を勉強することが大好きです。",
+    "example_meaning": "Saya sangat suka belajar bahasa asing.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜が好きです / 嫌いです (Kesukaan & Ketidaksukaan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N5",
+    "title": "〜が上手です / 下手です (Kemahiran & Ketidakmahiran)",
+    "formula": "Bidang + が + 上手です / 下手です",
+    "explanation": "Menilai keahlian seseorang dalam bidang tertentu.",
+    "example_source": "彼女はピアノを弾くのがとても上手です。",
+    "example_meaning": "Dia sangat mahir bermain piano.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜が上手です / 下手です (Kemahiran & Ketidakmahiran)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜たことがあります (Pengalaman Hidup Lampau)",
+    "formula": "Kata Kerja [Bentuk Lampau た] + ことがあります",
+    "explanation": "Menyatakan bahwa subjek pernah mengalami suatu hal di masa lalu.",
+    "example_source": "富士山に登ったことがあります。",
+    "example_meaning": "Saya pernah mendaki Gunung Fuji.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜たことがあります (Pengalaman Hidup Lampau)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜たほうがいいです (Saran Positif / Sebaiknya...)",
+    "formula": "Kata Kerja [Bentuk た] + ほうがいいです",
+    "explanation": "Memberikan rekomendasi kuat bahwa suatu tindakan sebaiknya dilakukan.",
+    "example_source": "疲れた時は、無理をせず休んだほうがいいですよ。",
+    "example_meaning": "Saat lelah, sebaiknya beristirahat dan jangan memaksakan diri.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜たほうがいいです (Saran Positif / Sebaiknya...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜ないほうがいいです (Saran Negatif / Sebaiknya jangan...)",
+    "formula": "Kata Kerja [Bentuk ない] + ほうがいいです",
+    "explanation": "Memberikan rekomendasi bahwa suatu tindakan sebaiknya dihindari.",
+    "example_source": "夜遅くにカフェインを摂らないほうがいいです。",
+    "example_meaning": "Sebaiknya jangan mengonsumsi kafein larut malam.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜ないほうがいいです (Saran Negatif / Sebaiknya jangan...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜たり〜たりします (Menyebutkan Contoh Tindakan)",
+    "formula": "KK1[たり] + KK2[たり] + します",
+    "explanation": "Menyebutkan beberapa contoh kegiatan perwakilan secara acak.",
+    "example_source": "休日は本を読んだり散歩をしたりします。",
+    "example_meaning": "Pada hari libur saya membaca buku, jalan-jalan, dan sebagainya.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜たり〜たりします (Menyebutkan Contoh Tindakan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜すぎます (Terlalu / Berlebihan)",
+    "formula": "Kata Sifat / Kata Kerja + すぎます",
+    "explanation": "Menyatakan bahwa sesuatu melebihi batas wajar sehingga berakibat negatif.",
+    "example_source": "昨日は夜更かしをして寝不足になりすぎました。",
+    "example_meaning": "Kemarin saya begadang hingga terlalu kurang tidur.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜すぎます (Terlalu / Berlebihan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜やすい / 〜にくい (Mudah / Sulit Dilakukan)",
+    "formula": "KK[Batang Masu] + やすい / にくい",
+    "explanation": "Menunjukkan tingkat kemudahan atau kesulitan melakukan suatu tindakan.",
+    "example_source": "この単語帳は例文が自然で覚えやすいです。",
+    "example_meaning": "Buku kosakata ini contoh kalimatnya alami dan mudah dihafal.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜やすい / 〜にくい (Mudah / Sulit Dilakukan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜たら (Pengandaian / Jika... / Setelah...)",
+    "formula": "Bentuk Lampau [〜たら]",
+    "explanation": "Kondisi bersyarat: jika kondisi A terpenuhi, maka tindakan B dilakukan.",
+    "example_source": "駅に着いたら連絡してくださいね。",
+    "example_meaning": "Jika sudah tiba di stasiun, tolong kabari saya ya.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜たら (Pengandaian / Jika... / Setelah...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜ても / 〜でも (Meskipun / Walaupun...)",
+    "formula": "Bentuk て + も",
+    "explanation": "Kondisi paradoks: meskipun kondisi A terjadi, hasil B tetap tidak berubah.",
+    "example_source": "雨が降っても、毎日の練習を休まないようにします。",
+    "example_meaning": "Meskipun hujan turun, saya berusaha tidak libur latihan harian.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜ても / 〜でも (Meskipun / Walaupun...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜んです (Penjelasan Alasan / Nuansa Curhat)",
+    "formula": "Bentuk Biasa + んです / のです",
+    "explanation": "Memberikan latar belakang penjelasan atau mencari klarifikasi empati.",
+    "example_source": "少し頭が痛いので、先に帰ってもよろしいですか？",
+    "example_meaning": "Karena kepala saya agak pusing, bolehkah saya pulang lebih awal?",
+    "audio_guide": "Suku kata \"n\" (hatsuon): Tahan 1 ketukan penuh di rongga hidung sebelum berpindah ke mora berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜つもりです (Niat Rencana Pribadi)",
+    "formula": "KK [Bentuk Kamus / Nai] + つもりです",
+    "explanation": "Menyatakan rencana atau niat tegas yang ingin dilakukan di masa depan.",
+    "example_source": "今年中にJLPT N3に合格するつもりです。",
+    "example_meaning": "Saya berniat lulus JLPT N3 dalam tahun ini.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜つもりです (Niat Rencana Pribadi)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜予定です (Jadwal Terencana)",
+    "formula": "KK [Bentuk Kamus] / KB の + 予定です",
+    "explanation": "Menyatakan jadwal resmi atau agenda yang telah diatur sebelumnya.",
+    "example_source": "明日の午前中に面接を受ける予定です。",
+    "example_meaning": "Saya dijadwalkan mengikuti sesi wawancara besok pagi.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜予定です (Jadwal Terencana)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜し、〜し (Menyebutkan Beragam Alasan)",
+    "formula": "Kalimat1 [Plain] し、Kalimat2 [Plain] し",
+    "explanation": "Menderetkan beberapa alasan logis yang mendukung satu kesimpulan.",
+    "example_source": "先生は優しいし、説明も分かりやすいです。",
+    "example_meaning": "Gurunya ramah, penjelasannya pun mudah dimengerti.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜し、〜し (Menyebutkan Beragam Alasan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜そうです (Tampaknya / Sepertinya [Observasi Visual])",
+    "formula": "Batang Kata Sifat / KK + そうです",
+    "explanation": "Menyatakan tebakan atau kesan visual langsung dari apa yang tampak di mata.",
+    "example_source": "この料理はとても美味しそうですね。",
+    "example_meaning": "Masakan ini tampaknya sangat lezat ya.",
+    "audio_guide": "Vokal panjang (chouon): Lafalkan kombinasi vokal secara halus dan bersambung selama 2 mora."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜てみます (Mencoba Melakukan)",
+    "formula": "KK [Bentuk て] + みます",
+    "explanation": "Melakukan sesuatu sebagai eksperimen untuk mengetahui hasilnya.",
+    "example_source": "新しい学習アプリを早速試してみます。",
+    "example_meaning": "Saya akan langsung mencoba menggunakan aplikasi belajar baru ini.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜てみます (Mencoba Melakukan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜てしまいます (Selesai Tuntas / Penyesalan Tak Sengaja)",
+    "formula": "KK [Bentuk て] + しまいます",
+    "explanation": "Menyatakan tindakan yang selesai tuntas, atau penyesalan atas ketidaksengajaan.",
+    "example_source": "大切なメモを家に忘れてしまいました。",
+    "example_meaning": "Saya tidak sengaja melupakan catatan penting di rumah.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜てしまいます (Selesai Tuntas / Penyesalan Tak Sengaja)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜ことができます (Kemampuan / Potensial)",
+    "formula": "KK [Bentuk Kamus] + ことができます",
+    "explanation": "Menyatakan kemampuan untuk melakukan suatu hal atau kemungkinan situasi.",
+    "example_source": "彼は日常会話レベルの日本語を話すことができます。",
+    "example_meaning": "Dia mampu berbicara bahasa Jepang tingkat percakapan harian.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜ことができます (Kemampuan / Potensial)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜よう / 〜おう (Bentuk Maksud Kasual)",
+    "formula": "KK [Bentuk Volitional / 意向形]",
+    "explanation": "Bentuk kasual dari 〜ましょう untuk mengajak teman atau menyatakan tekad batin.",
+    "example_source": "明日も朝早く起きて勉強しよう。",
+    "example_meaning": "Besok mari bangun pagi-pagi lagi dan belajar.",
+    "audio_guide": "Vokal panjang (chouon): Lafalkan kombinasi vokal secara halus dan bersambung selama 2 mora."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜と言いました (Kutipan Langsung & Tak Langsung)",
+    "formula": "Kalimat [Bentuk Biasa] + と言いました / と思いました",
+    "explanation": "Menyampaikan ucapan orang lain atau pikiran isi hati subjek.",
+    "example_source": "先生は「練習を続けることが大切だ」と言いました。",
+    "example_meaning": "Guru berkata, \"Terus berlatih adalah hal yang penting.\"",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜と言いました (Kutipan Langsung & Tak Langsung)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜まえに / 〜あとで (Sebelum / Sesudah)",
+    "formula": "KK [Kamus] + まえに | KK [た] + あとで",
+    "explanation": "Menunjukkan urutan kronologis dua peristiwa yang berurutan.",
+    "example_source": "食事のまえに、しっかり手を洗いましょう。",
+    "example_meaning": "Sebelum makan, mari cuci tangan dengan bersih.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜まえに / 〜あとで (Sebelum / Sesudah)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜てくれます / あげます / もらいます (Pemberian & Penerimaan Kebaikan)",
+    "formula": "KK [Bentuk て] + くれます / あげます / もらいます",
+    "explanation": "Sistem tata krama relasional Jepang untuk memberi dan menerima tindakan kebaikan.",
+    "example_source": "先輩が親切に日本語の質問に答えてくれました。",
+    "example_meaning": "Senior dengan ramah telah menjawab pertanyaan bahasa Jepang saya.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜てくれます / あげます / もらいます (Pemberian & Penerimaan Kebaikan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜なければなりません (Keharusan Mutlak)",
+    "formula": "KK [Bentuk ない - い + ければなりません]",
+    "explanation": "Menyatakan keharusan atau kewajiban yang tidak bisa ditawar.",
+    "example_source": "期限までにレポートを提出しなければなりません。",
+    "example_meaning": "Harus menyerahkan laporan sebelum batas waktu.",
+    "audio_guide": "Suku kata \"n\" (hatsuon): Tahan 1 ketukan penuh di rongga hidung sebelum berpindah ke mora berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N4",
+    "title": "〜なくてもいいです (Tidak Perlu / Tidak Wajib)",
+    "formula": "KK [Bentuk ない - い + くてもいいです]",
+    "explanation": "Menyatakan bahwa suatu tindakan tidak wajib dilakukan (opsional).",
+    "example_source": "明日は祝日なので、早く起きなくてもいいですよ。",
+    "example_meaning": "Karena besok hari libur, kamu tidak perlu bangun pagi kok.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜なくてもいいです (Tidak Perlu / Tidak Wajib)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜わけではない (Penyangkalan Parsial / Bukan berarti...)",
+    "formula": "Bentuk Biasa + わけではない",
+    "explanation": "Menyangkal praduga orang lain secara halus: bukan berarti sama sekali tidak demikian.",
+    "example_source": "苦手なわけではないですが、準備に時間がかかります。",
+    "example_meaning": "Bukan berarti saya tidak menyukainya, hanya saja butuh waktu persiapan.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜わけではない (Penyangkalan Parsial / Bukan berarti...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜ようにしている (Tekad Membiasakan Rutinitas)",
+    "formula": "KK [Kamus/Nai] + ようにしている",
+    "explanation": "Menyatakan usaha sadar yang terus-menerus dilakukan untuk membentuk kebiasaan baik.",
+    "example_source": "毎日少しでも新しい表現を覚えるようにしています。",
+    "example_meaning": "Saya berusaha untuk selalu menghafal ungkapan baru setiap hari walau sedikit.",
+    "audio_guide": "Vokal panjang (chouon): Lafalkan kombinasi vokal secara halus dan bersambung selama 2 mora."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜ことになっている (Telah Ditetapkan Aturan / Jadwal Resmi)",
+    "formula": "KK [Bentuk Kamus/Nai] + ことになっている",
+    "explanation": "Menyatakan aturan, regulasi, atau kebiasaan sosial yang telah disepakati bersama.",
+    "example_source": "社内では英語でコミュニケーションをとることになっています。",
+    "example_meaning": "Di dalam perusahaan telah disepakati aturan berkomunikasi dalam bahasa Inggris.",
+    "audio_guide": "Konsonan ganda (sokuon): Tahan 1 ketukan jeda hening sebelum melafalkan konsonan berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜はずです (Seharusnya / Pasti [Keyakinan Logis])",
+    "formula": "Bentuk Biasa + はずです",
+    "explanation": "Menyatakan dugaan dengan keyakinan kuat berdasarkan bukti atau alasan logis.",
+    "example_source": "しっかり準備したから、明日の発表はうまくいくはずです。",
+    "example_meaning": "Karena persiapan sudah matang, presentasi besok seharusnya berjalan lancar.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜はずです (Seharusnya / Pasti [Keyakinan Logis])."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜とおりに (Sesuai dengan / Persis seperti...)",
+    "formula": "KK [Bentuk Kamus/た] / KB の + とおりに",
+    "explanation": "Melakukan tindakan persis sesuai dengan instruksi, contoh, atau rencana.",
+    "example_source": "マニュアルに書いてあるとおりに進めてください。",
+    "example_meaning": "Silakan jalankan persis sesuai dengan yang tertulis di panduan.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜とおりに (Sesuai dengan / Persis seperti...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜間に / 〜間 (Selama / Selagi...)",
+    "formula": "KK [Bentuk ている] / KB の + 間に",
+    "explanation": "Menyatakan bahwa peristiwa B terjadi di tengah-tengah rentang waktu peristiwa A.",
+    "example_source": "日本に滞在している間に、多くの文化を体験したいです。",
+    "example_meaning": "Selagi tinggal di Jepang, saya ingin merasakan banyak pengalaman budaya.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜間に / 〜間 (Selama / Selagi...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜に対して (Terhadap / Berbanding Terbalik)",
+    "formula": "KB + に対して",
+    "explanation": "Menunjukkan sikap terhadap sasaran tertentu, atau perbandingan kontras antara dua hal.",
+    "example_source": "意見の相違に対して、お互いに敬意を払うことが重要です。",
+    "example_meaning": "Penting untuk saling menghormati terhadap perbedaan pendapat.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜に対して (Terhadap / Berbanding Terbalik)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜に関して (Mengenai / Berkenaan dengan...)",
+    "formula": "KB + に関して / に関する KB",
+    "explanation": "Bentuk formal dari について untuk menyatakan topik bahasan atau pembicaraan.",
+    "example_source": "プロジェクトの進捗に関して、いくつか質問があります。",
+    "example_meaning": "Mengenai perkembangan proyek, saya memiliki beberapa pertanyaan.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜に関して (Mengenai / Berkenaan dengan...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜おかげで (Berkat / Berkat Bantuan Positif)",
+    "formula": "Bentuk Biasa / KB の + おかげで",
+    "explanation": "Menyatakan rasa syukur bahwa hasil positif tercapai berkat suatu faktor atau orang lain.",
+    "example_source": "皆様の温かいサポートのおかげで、無事に目標を達成できました。",
+    "example_meaning": "Berkat dukungan hangat Anda semua, kami berhasil mencapai target dengan lancar.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜おかげで (Berkat / Berkat Bantuan Positif)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜せいで (Gara-gara / Akibat Buruk)",
+    "formula": "Bentuk Biasa / KB の + せいで",
+    "explanation": "Menyalahkan suatu faktor sebagai penyebab dari hasil negatif yang tidak diinginkan.",
+    "example_source": "台風のせいで、予定していたイベントが延期になりました。",
+    "example_meaning": "Gara-gara badai taifun, acara yang direncanakan harus ditunda.",
+    "audio_guide": "Vokal panjang (chouon): Lafalkan kombinasi vokal secara halus dan bersambung selama 2 mora."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜たびに (Setiap kali / Tiap saat...)",
+    "formula": "KK [Bentuk Kamus] / KB の + たびに",
+    "explanation": "Menyatakan bahwa setiap kali peristiwa A terjadi, peristiwa B pasti selalu menyertainya.",
+    "example_source": "新しい言葉を学ぶたびに、世界が広がるのを感じます。",
+    "example_meaning": "Setiap kali mempelajari kata baru, saya merasa wawasan saya semakin meluas.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜たびに (Setiap kali / Tiap saat...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜に違いない (Pasti / Tidak Salah Lagi [Kepastian Intuitif])",
+    "formula": "Bentuk Biasa [Tanpa Da] + に違いない",
+    "explanation": "Keyakinan pembicara tanpa keraguan bahwa dugaannya 100% benar.",
+    "example_source": "彼があれほど努力したのだから、合格したに違いない。",
+    "example_meaning": "Karena dia sudah berusaha sekeras itu, pasti dia sudah lulus.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜に違いない (Pasti / Tidak Salah Lagi [Kepastian Intuitif])."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜わけにはいかない (Tidak Bisa / Tidak Etis Melakukan)",
+    "formula": "KK [Bentuk Kamus/Nai] + わけにはいかない",
+    "explanation": "Kondisi di mana pembicara tidak bisa melakukan sesuatu karena norma sosial atau tanggung jawab moral.",
+    "example_source": "大事な約束があるので、遅刻するわけにはいきません。",
+    "example_meaning": "Karena ada janji penting, saya tidak boleh sampai datang terlambat.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜わけにはいかない (Tidak Bisa / Tidak Etis Melakukan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜ばかり (Hanya / Melulu Melakukan Hal yang Sama)",
+    "formula": "KK [Bentuk て] + ばかりいる / KB + ばかり",
+    "explanation": "Menyatakan kritik halus bahwa seseorang terus melakukan hal yang sama secara berlebihan.",
+    "example_source": "ゲームをしてばかりいないで、少しは勉強もしなさい。",
+    "example_meaning": "Jangan main game melulu, sesekali belajarlah juga.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜ばかり (Hanya / Melulu Melakukan Hal yang Sama)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜とたんに (Tiba-tiba Seketika Saat...)",
+    "formula": "KK [Bentuk た] + とたんに",
+    "explanation": "Menyatakan bahwa peristiwa B terjadi secara mengejutkan tepat saat peristiwa A usai.",
+    "example_source": "窓を開けたとたんに、冷たい風が吹き込んできた。",
+    "example_meaning": "Tepat saat jendela dibuka, angin dingin langsung berhembus masuk.",
+    "audio_guide": "Suku kata \"n\" (hatsuon): Tahan 1 ketukan penuh di rongga hidung sebelum berpindah ke mora berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜最中に (Tepat di Tengah-Tengah Aksi Penting)",
+    "formula": "KK [Bentuk ている] / KB の + 最中に",
+    "explanation": "Aksi yang tiba-tiba disela atau terganggu di tengah kesibukan puncak.",
+    "example_source": "重要な会議の最中に、突然停電が起きてしまった。",
+    "example_meaning": "Tepat di tengah rapat penting, tiba-tiba terjadi mati listrik.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜最中に (Tepat di Tengah-Tengah Aksi Penting)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜ように (Agar / Supaya Tercapai Harapan)",
+    "formula": "KK [Bentuk Potensial / Nai] + ように",
+    "explanation": "Menyatakan tujuan atau target kondisi yang diikhtiarkan agar terwujud.",
+    "example_source": "後ろの席の人にも聞こえるように、大きな声で話しました。",
+    "example_meaning": "Agar orang di kursi belakang juga bisa mendengar, saya berbicara dengan suara lantang.",
+    "audio_guide": "Vokal panjang (chouon): Lafalkan kombinasi vokal secara halus dan bersambung selama 2 mora."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜受身 (Bentuk Pasif - Dikenai Tindakan)",
+    "formula": "KK [Bentuk 受身 - れる / られる]",
+    "explanation": "Menyatakan bahwa subjek menerima aksi dari orang lain, sering bernuansa dirugikan.",
+    "example_source": "満員電車で足を踏まれて痛かったです。",
+    "example_meaning": "Kaki saya terinjak di kereta yang penuh sesak dan rasanya sakit.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜受身 (Bentuk Pasif - Dikenai Tindakan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜使役 (Bentuk Kausatif - Menyuruh / Membiarkan)",
+    "formula": "KK [Bentuk 使役 - せる / させる]",
+    "explanation": "Menyatakan bahwa atasan/orang tua menyuruh atau mengizinkan pihak lain berbuat sesuatu.",
+    "example_source": "先生は生徒に自分の意見を自由に発表させました。",
+    "example_meaning": "Guru mengizinkan para siswa mempresentasikan pendapat mereka secara bebas.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜使役 (Bentuk Kausatif - Menyuruh / Membiarkan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N3",
+    "title": "〜使役受身 (Kausatif Pasif - Terpaksa Melakukan)",
+    "formula": "KK [Bentuk 使役受身 - させられる / される]",
+    "explanation": "Subjek terpaksa melakukan tindakan yang sebetulnya tidak diinginkan karena paksaan luar.",
+    "example_source": "子どもの頃、毎週末にピアノの練習をさせられました。",
+    "example_meaning": "Sewaktu kecil, saya dipaksa latihan piano setiap akhir pekan.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜使役受身 (Kausatif Pasif - Terpaksa Melakukan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜にすぎない (Hanya / Sekadar...)",
+    "formula": "Bentuk Biasa + にすぎない",
+    "explanation": "Menyatakan bahwa sesuatu tidak lebih dari hal yang sepele atau terbatas.",
+    "example_source": "これは第一歩にすぎず、これからが本当の挑戦です。",
+    "example_meaning": "Ini hanyalah sekadar langkah awal, tantangan sebenarnya dimulai dari sekarang.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜にすぎない (Hanya / Sekadar...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜をめぐって (Memperdebatkan / Seputar Isu Tertentu)",
+    "formula": "KB + をめぐって / をめぐる KB",
+    "explanation": "Menunjukkan perselisihan, perdebatan, atau dinamika opini seputar suatu isu sentral.",
+    "example_source": "新しい方針をめぐって、活発な議論が交わされました。",
+    "example_meaning": "Perdebatan hangat berlangsung seputar kebijakan baru tersebut.",
+    "audio_guide": "Konsonan ganda (sokuon): Tahan 1 ketukan jeda hening sebelum melafalkan konsonan berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜わけだ (Pantas saja / Masuk Akal Secara Logis)",
+    "formula": "Bentuk Biasa + わけだ",
+    "explanation": "Menyatakan pemahaman tiba-tiba setelah mengetahui penyebab logis dari suatu hal.",
+    "example_source": "気温が三十五度もあるのか。どうりで暑いわけだ。",
+    "example_meaning": "Ternyata suhunya 35 derajat ya. Pantas saja terasa begitu panas.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜わけだ (Pantas saja / Masuk Akal Secara Logis)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜ざるを得ない (Terpaksa Harus Dilakukan)",
+    "formula": "KK [Bentuk ない - ない + ざるを得ない] (する -> せざるを得ない)",
+    "explanation": "Menyatakan situasi di mana tidak ada pilihan lain selain harus melakukan tindakan tersebut.",
+    "example_source": "予期せぬトラブルにより、計画を変更せざるを得ませんでした。",
+    "example_meaning": "Akibat kendala tak terduga, kami terpaksa harus mengubah rencana.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜ざるを得ない (Terpaksa Harus Dilakukan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜にこしたことはない (Tentu Lebih Baik Jika...)",
+    "formula": "Bentuk Biasa + にこしたことはない",
+    "explanation": "Menyatakan bahwa memiliki atau melakukan hal tersebut tentu merupakan opsi teraman/terbaik.",
+    "example_source": "準備は早めにしておくのにこしたことはありません。",
+    "example_meaning": "Tentu lebih baik jika persiapan diselesaikan lebih awal.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜にこしたことはない (Tentu Lebih Baik Jika...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜にほかならない (Tidak Lain dan Tidak Bukan adalah...)",
+    "formula": "KB + にほかならない",
+    "explanation": "Penegasan tegas bahwa faktor tersebut adalah satu-satunya penyebab utama yang mutlak.",
+    "example_source": "成功の理由は、チーム全員の献身的な努力にほかなりません。",
+    "example_meaning": "Alasan keberhasilan ini tidak lain adalah kerja keras penuh dedikasi dari seluruh tim.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜にほかならない (Tidak Lain dan Tidak Bukan adalah...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜に基づいて (Berdasarkan / Berlandaskan pada...)",
+    "formula": "KB + に基づいて / に基づく KB",
+    "explanation": "Menyatakan bahwa tindakan atau keputusan dibuat berdasarkan data, aturan, atau prinsip resmi.",
+    "example_source": "綿密な市場調査データに基づいて意思決定を行いました。",
+    "example_meaning": "Pengambilan keputusan dilakukan berdasarkan data riset pasar yang mendalam.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜に基づいて (Berdasarkan / Berlandaskan pada...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜とともに (Bersamaan dengan / Beriringan seiring...)",
+    "formula": "KB / KK [Kamus] + とともに",
+    "explanation": "Menyatakan dua fenomena yang bergerak atau berkembang secara beriringan.",
+    "example_source": "科学技術の発展とともに、人々の生活様式も大きく変化しました。",
+    "example_meaning": "Seiring perkembangan ilmu dan teknologi, gaya hidup masyarakat pun berubah besar.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜とともに (Bersamaan dengan / Beriringan seiring...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜につれて (Seiring Bertambahnya Waktu / Proporsional)",
+    "formula": "KK [Kamus] / KB + につれて",
+    "explanation": "Perubahan pada faktor A secara bertahap memicu perubahan proporsional pada faktor B.",
+    "example_source": "日本語の語彙が増えるにつれて、読書がより楽しくなってきました。",
+    "example_meaning": "Seiring bertambahnya kosakata bahasa Jepang, membaca menjadi semakin menyenangkan.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜につれて (Seiring Bertambahnya Waktu / Proporsional)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜どころか (Jangankan... Malah Sebaliknya Buruk)",
+    "formula": "Bentuk Biasa / KB + どころか",
+    "explanation": "Menyangkal ekspektasi positif secara total: jangankan tercapai, kenyataannya jauh lebih parah.",
+    "example_source": "風邪は治るどころか、ますます悪化して熱が高くなりました。",
+    "example_meaning": "Jangankan sembuh, demamnya malah semakin memburuk dan meninggi.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜どころか (Jangankan... Malah Sebaliknya Buruk)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜わりに (Meskipun / Diluar Dugaan Standar)",
+    "formula": "Bentuk Biasa / KB の + わりに (は)",
+    "explanation": "Kenyataan yang tidak sebanding atau meleset dari ekspektasi wajar standarnya.",
+    "example_source": "このレストランは値段が安かったわりに、料理が本格的でした。",
+    "example_meaning": "Meskipun harganya murah, kualitas masakannya di luar dugaan sangat autentik.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜わりに (Meskipun / Diluar Dugaan Standar)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜くせに (Padahal / Mengkritik Ketidaksinkronan)",
+    "formula": "Bentuk Biasa / KB の + くせに",
+    "explanation": "Bernada sindiran atau celaan: padahal faktanya A, namun sikapnya bertentangan.",
+    "example_source": "自分で何も調べないくせに、文句ばかり言っている。",
+    "example_meaning": "Padahal tidak mencari tahu sendiri sama sekali, tapi mengeluh melulu.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜くせに (Padahal / Mengkritik Ketidaksinkronan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜まい (Pasti Tidak Akan / Berniat Tidak Melakukan)",
+    "formula": "KK [Bentuk Kamus] + まい (Group 2/3: Batang Nai + まい)",
+    "explanation": "Tekad kuat dalam hati untuk tidak mengulangi kesalahan, atau dugaan negatif kuat.",
+    "example_source": "二度と同じ過ちは繰り返すまいと、心に固く誓いました。",
+    "example_meaning": "Saya berjanji teguh dalam hati pasti tidak akan mengulangi kesalahan yang sama dua kali.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜まい (Pasti Tidak Akan / Berniat Tidak Melakukan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜っこない (Mustahil / Mana Mungkin Terjadi)",
+    "formula": "KK [Batang Masu] + っこない",
+    "explanation": "Pernyataan bernada percakapan tegas bahwa hal tersebut tidak mungkin bisa dilakukan.",
+    "example_source": "たった一日でこんなに分厚い本を読み終われっこない。",
+    "example_meaning": "Mana mungkin bisa menyelesaikan membaca buku setebal ini hanya dalam sehari.",
+    "audio_guide": "Konsonan ganda (sokuon): Tahan 1 ketukan jeda hening sebelum melafalkan konsonan berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜にわたって (Meliputi Rentang Waktu / Area Luas)",
+    "formula": "KB (Waktu/Ruang) + にわたって / にわたる KB",
+    "explanation": "Menunjukkan skala peristiwa yang mencakup periode waktu panjang atau wilayah geografi luas.",
+    "example_source": "三日間にわたる国際カンファレンスが無事に幕を閉じました。",
+    "example_meaning": "Konferensi internasional yang berlangsung selama tiga hari penuh sukses ditutup.",
+    "audio_guide": "Konsonan ganda (sokuon): Tahan 1 ketukan jeda hening sebelum melafalkan konsonan berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜を通じて (Melalui Perantara / Sepanjang Periode)",
+    "formula": "KB + を通じて (をつうじて)",
+    "explanation": "Menunjukkan media/perantara untuk mencapai sesuatu, atau sepanjang kurun waktu.",
+    "example_source": "ボランティア活動を通じて、かけがえのない友人たちと出会えました。",
+    "example_meaning": "Melalui kegiatan sukarelawan, saya bertemu sahabat-sahabat yang tak ternilai.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜を通じて (Melalui Perantara / Sepanjang Periode)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜反面 (Di Sisi Lain / Sisi Sebaliknya)",
+    "formula": "Bentuk Biasa + 反面 (はんめん)",
+    "explanation": "Menyajikan dua aspek yang saling bertolak belakang pada satu hal yang sama.",
+    "example_source": "都会の暮らしは便利な反面、生活費が高くストレスも多いです。",
+    "example_meaning": "Tinggal di kota besar memang praktis di satu sisi, namun di sisi lain biaya hidup tinggi dan penuh stres.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜反面 (Di Sisi Lain / Sisi Sebaliknya)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N2",
+    "title": "〜うえに (Bukan Hanya... Ditambah Pula)",
+    "formula": "Bentuk Biasa + うえに",
+    "explanation": "Menderetkan dua kelebihan atau dua kekurangan yang saling memperkuat satu sama lain.",
+    "example_source": "彼女は親切なうえに、仕事の処理能力も極めて高いです。",
+    "example_meaning": "Bukan hanya ramah, kemampuan eksekusi pekerjaannya pun sangat tinggi.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜うえに (Bukan Hanya... Ditambah Pula)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜ならではの (Khas / Keunikan Istimewa yang Hanya Ada pada...)",
+    "formula": "KB + ならではの KB",
+    "explanation": "Memuji kualitas istimewa yang hanya bisa ditemukan atau dihasilkan oleh entitas tersebut.",
+    "example_source": "伝統工芸ならではの繊細な美しさに深く感動しました。",
+    "example_meaning": "Saya sangat terkesan dengan keindahan halus yang khas hanya ada pada kerajinan tradisional.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜ならではの (Khas / Keunikan Istimewa yang Hanya Ada pada...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜極まりない (Sangat Luar Biasa / Tak Terhingga Tingkatannya)",
+    "formula": "Kata Sifat / KB + 極まりない (きわまりない)",
+    "explanation": "Menyatakan tingkatan kondisi yang sudah mencapai titik ekstrem atau puncak emosi.",
+    "example_source": "そのような無責任な態度は、極めて遺憾極まりないことです。",
+    "example_meaning": "Sikap tidak bertanggung jawab seperti itu adalah hal yang sangat teramat disesalkan.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜極まりない (Sangat Luar Biasa / Tak Terhingga Tingkatannya)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜を皮切りに (Diawali dengan / Dimulai sebagai Pembuka Rentetan)",
+    "formula": "KB + を皮切りに (かわきりに)",
+    "explanation": "Menyatakan peristiwa pembuka yang kemudian memicu serangkaian peristiwa serupa berikutnya.",
+    "example_source": "東京公演を皮切りに、全国ツアーがスタートします。",
+    "example_meaning": "Diawali dengan penampilan di Tokyo, tur keliling nasional resmi dimulai.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜を皮切りに (Diawali dengan / Dimulai sebagai Pembuka Rentetan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜に至るまで (Sampai ke Tingkat / Bahkan Hingga Detail Terkecil)",
+    "formula": "KB + に至るまで (にいたるまで)",
+    "explanation": "Menunjukkan cakupan yang sangat luas hingga ke hal-hal mendetail yang tak terduga.",
+    "example_source": "デザインからコードの細部に至るまで、徹底的に磨き上げました。",
+    "example_meaning": "Dari desain visual hingga ke detail kode terkecil, semuanya disempurnakan secara tuntas.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜に至るまで (Sampai ke Tingkat / Bahkan Hingga Detail Terkecil)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜余儀なくされる (Dipaksa Mundur / Terpaksa Mengalami Kondisi Sulit)",
+    "formula": "KB / KK + を余儀なくされる (よぎなくされる)",
+    "explanation": "Situasi eksternal tak terhindarkan yang memaksa subjek mengubah arah atau menghentikan langkah.",
+    "example_source": "資金不足により、事業の一時休止を余儀なくされました。",
+    "example_meaning": "Akibat kekurangan modal, perusahaan terpaksa harus menghentikan operasi sementara waktu.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜余儀なくされる (Dipaksa Mundur / Terpaksa Mengalami Kondisi Sulit)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜なりに (Sesuai dengan Kapasitas yang Dimiliki)",
+    "formula": "KB / Bentuk Biasa + なりに / なりの KB",
+    "explanation": "Menunjukkan usaha atau kontribusi terbaik yang sesuai dengan batas kemampuan pribadi.",
+    "example_source": "経験が浅いなりに、自分にできる最善を尽くしました。",
+    "example_meaning": "Meskipun pengalaman masih minim, saya mengerahkan yang terbaik sesuai kapasitas saya.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜なりに (Sesuai dengan Kapasitas yang Dimiliki)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜のみならず (Bukan Hanya... Melainkan Juga)",
+    "formula": "Bentuk Biasa / KB + のみならず",
+    "explanation": "Gaya bahasa formal tertulis dari だけでなく untuk memperluas cakupan.",
+    "example_source": "国内のみならず、世界各国から高い評価を獲得しました。",
+    "example_meaning": "Bukan hanya di dalam negeri, karya ini meraih apresiasi tinggi dari berbagai belahan dunia.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜のみならず (Bukan Hanya... Melainkan Juga)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜といえども (Meskipun Dikatakan Sebagai / Betapapun...)",
+    "formula": "Bentuk Biasa / KB + といえども",
+    "explanation": "Menyatakan bahwa status terhormat sekalipun tidak lantas membuat seseorang bebas dari aturan.",
+    "example_source": "いかに専門家といえども、初歩的な見落としをすることがある。",
+    "example_meaning": "Betapapun seorang ahli, terkadang bisa saja luput dari hal-hal mendasar.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜といえども (Meskipun Dikatakan Sebagai / Betapapun...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜ずにはいられない (Tak Kuasa Menahan Diri untuk Tidak...)",
+    "formula": "KK [Bentuk ない - ない + ずに] + はいられない",
+    "explanation": "Dorongan emosi batin yang meluap hingga subjek tidak sanggup menahan diri.",
+    "example_source": "その感動的な物語を聞いて、涙を流さずにはいられなかった。",
+    "example_meaning": "Mendengar kisah menyentuh hati tersebut, saya tak kuasa meneteskan air mata.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜ずにはいられない (Tak Kuasa Menahan Diri untuk Tidak...)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜んばかりに (Seolah-olah Hendak / Seakan Mau...)",
+    "formula": "KK [Batang Nai] + んばかりに",
+    "explanation": "Menggambarkan intensitas gestur seseorang yang seolah-olah akan melakukan suatu tindakan ekstrem.",
+    "example_source": "今にも殴りかからんばかりの剣幕で詰め寄ってきた。",
+    "example_meaning": "Dia mendekat dengan raut wajah garang seolah-olah hendak memukul saat itu juga.",
+    "audio_guide": "Suku kata \"n\" (hatsuon): Tahan 1 ketukan penuh di rongga hidung sebelum berpindah ke mora berikutnya."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜をおいてほかにない (Tiada Lain Selain / Satu-satunya Pilihan Terbaik)",
+    "formula": "KB + をおいてほかにない",
+    "explanation": "Menilai bahwa hanya subjek tersebutlah satu-satunya yang paling layak dan kompeten.",
+    "example_source": "この重責を担えるリーダーは、彼女をおいてほかにいない。",
+    "example_meaning": "Pemimpin yang sanggup mengemban tanggung jawab seberat ini tiada lain selain beliau.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜をおいてほかにない (Tiada Lain Selain / Satu-satunya Pilihan Terbaik)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜が早いか (Begitu... Langsung Seketika Beraksi Cepat)",
+    "formula": "KK [Bentuk Kamus / た] + が早いか",
+    "explanation": "Menggambarkan kecepatan kilat di mana tindakan B langsung menyusul seketika setelah A.",
+    "example_source": "終業のベルが鳴るが早いか、生徒たちは一斉に教室を飛び出した。",
+    "example_meaning": "Begitu bel pulang berbunyi, para murid seketika serempak berlari keluar kelas.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜が早いか (Begitu... Langsung Seketika Beraksi Cepat)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜まみれ (Berlumuran / Penuh Berantakan oleh Hal Tak Menyenangkan)",
+    "formula": "KB + まみれ",
+    "explanation": "Permukaan benda atau tubuh yang berlumuran lumpur, debu, keringat, atau darah.",
+    "example_source": "泥まみれになりながらも、少年たちは夢中でボールを追いかけた。",
+    "example_meaning": "Meski berlumuran lumpur tebal, anak-anak mengejar bola dengan penuh antusias.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜まみれ (Berlumuran / Penuh Berantakan oleh Hal Tak Menyenangkan)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜めく (Menampakkan Tanda / Bernuansa Mulai Tampak)",
+    "formula": "KB + めく",
+    "explanation": "Kondisi yang mulai memperlihatkan tanda-tanda atau aroma musim/sifat tertentu.",
+    "example_source": "吹き抜ける風が心地よく、日差しも春めいてきました。",
+    "example_meaning": "Angin berhembus sejuk, dan pancaran sinar matahari mulai bernuansa musim semi.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜めく (Menampakkan Tanda / Bernuansa Mulai Tampak)."
+  },
+  {
+    "language_code": "ja",
+    "level": "N1",
+    "title": "〜に堪えない (Tidak Sanggup Menahan Rasa Syukur/Kagum/Sesal)",
+    "formula": "KB (Kansha/Yorokobi/Ikan) + に堪えない (にたえない)",
+    "explanation": "Ungkapan resmi protokol tinggi yang menyatakan bahwa perasaan batin meluap luar biasa.",
+    "example_source": "長年のご支援に対し、心より感謝の念に堪えません。",
+    "example_meaning": "Atas dukungan panjang bertahun-tahun, kami tak sanggup membendung rasa terima kasih yang mendalam.",
+    "audio_guide": "Ucapkan dengan vokal jernih dan ritme datar per mora: 〜に堪えない (Tidak Sanggup Menahan Rasa Syukur/Kagum/Sesal)."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Present Simple (Habits, Routines & Facts)",
+    "formula": "Subject + Verb-1 (+ s/es for he/she/it)",
+    "explanation": "Digunakan untuk menyatakan kebiasaan sehari-hari, rutinitas tetap, atau fakta umum.",
+    "example_source": "I practice speaking English for fifteen minutes every day.",
+    "example_meaning": "Saya berlatih berbicara bahasa Inggris selama lima belas menit setiap hari.",
+    "audio_guide": "Tekankan kata pertama \"Present\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "To Be (am, is, are - Identitas & Sifat)",
+    "formula": "Subject + am/is/are + Noun/Adjective",
+    "explanation": "Pola dasar untuk menyatakan nama, profesi, kebangsaan, dan sifat seseorang.",
+    "example_source": "She is an enthusiastic and diligent language learner.",
+    "example_meaning": "Dia adalah seorang pembelajar bahasa yang antusias dan tekun.",
+    "audio_guide": "Tekankan kata pertama \"To\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "There is / There are (Keberadaan Benda)",
+    "formula": "There is + Singular | There are + Plural",
+    "explanation": "Menyatakan keberadaan suatu benda, orang, atau tempat di sekitar kita.",
+    "example_source": "There is a helpful language community here to practice with.",
+    "example_meaning": "Ada komunitas bahasa yang sangat suportif di sini untuk berlatih bersama.",
+    "audio_guide": "Tekankan kata pertama \"There\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Can / Cannot (Kemampuan & Izin)",
+    "formula": "Subject + can / cannot + Verb-1",
+    "explanation": "Menyatakan kemampuan fisik/keterampilan melakukan sesuatu atau meminta izin santun.",
+    "example_source": "She can communicate fluently in both English and Japanese.",
+    "example_meaning": "Dia bisa berkomunikasi dengan lancar dalam bahasa Inggris maupun Jepang.",
+    "audio_guide": "Tekankan kata pertama \"Can\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Personal Pronouns & Possessives",
+    "formula": "I/you/he/she/it/we/they vs my/your/his/her/our/their",
+    "explanation": "Menggunakan kata ganti orang dan kata penunjuk kepemilikan secara tepat.",
+    "example_source": "This is my daily notebook, and that is your vocabulary card.",
+    "example_meaning": "Ini adalah buku catatan harian saya, dan itu adalah kartu kosakata Anda.",
+    "audio_guide": "Tekankan kata pertama \"Personal\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Basic Prepositions of Place (in, on, at)",
+    "formula": "in + ruangan tertutup | on + permukaan | at + titik spesifik",
+    "explanation": "Menunjukkan posisi keberadaan benda atau lokasi seseorang secara tepat.",
+    "example_source": "The team meets at the community center every Saturday morning.",
+    "example_meaning": "Tim berkumpul di pusat komunitas setiap Sabtu pagi.",
+    "audio_guide": "Tekankan kata pertama \"Basic\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Imperatives (Instruksi & Panduan)",
+    "formula": "Base Verb (+ Object / Adverb)",
+    "explanation": "Memberikan instruksi langsung, panduan belajar, atau ajakan sopan.",
+    "example_source": "Listen carefully to the audio guide before repeating aloud.",
+    "example_meaning": "Dengarkan tips audio dengan saksama sebelum mengulanginya dengan suara lantang.",
+    "audio_guide": "Tekankan kata pertama \"Imperatives\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Wh- Questions (Kata Tanya)",
+    "formula": "Question Word (Who/What/Where/When/Why/How) + Auxiliary + Subject",
+    "explanation": "Mencari informasi spesifik mengenai orang, benda, lokasi, waktu, dan alasan.",
+    "example_source": "Where do you usually practice your pronunciation exercises?",
+    "example_meaning": "Di mana biasanya Anda berlatih latihan pelafalan?",
+    "audio_guide": "Tekankan kata pertama \"Wh-\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Countable vs Uncountable Nouns",
+    "formula": "Countable (a/an, many, plural -s) vs Uncountable (much, some)",
+    "explanation": "Membedakan kata benda yang dapat dihitung langsung vs benda yang berupa zat/konsep tak terhitung.",
+    "example_source": "She drank a glass of water and reviewed many grammar rules.",
+    "example_meaning": "Dia meminum segelas air dan mengulang banyak aturan tata bahasa.",
+    "audio_guide": "Tekankan kata pertama \"Countable\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Demonstratives (This, That, These, Those)",
+    "formula": "This/That (singular) vs These/Those (plural)",
+    "explanation": "Menunjuk objek dekat (this/these) atau jauh (that/those) dari posisi pembicara.",
+    "example_source": "These vocabulary cards are designed for daily micro-drills.",
+    "example_meaning": "Kartu-kartu kosakata ini dirancang untuk latihan mikro harian.",
+    "audio_guide": "Tekankan kata pertama \"Demonstratives\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Present Continuous for Present Action",
+    "formula": "Subject + am/is/are + Verb-ing",
+    "explanation": "Menggambarkan aksi yang sedang berlangsung tepat pada detik pembicaraan berlangsung.",
+    "example_source": "I am reading an interesting article on language learning methods.",
+    "example_meaning": "Saya sedang membaca artikel menarik tentang metode belajar bahasa.",
+    "audio_guide": "Tekankan kata pertama \"Present\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Have got / Have (Kepemilikan Benda)",
+    "formula": "Subject + have / has + Noun",
+    "explanation": "Menyatakan kepemilikan benda, hubungan keluarga, atau kondisi fisik.",
+    "example_source": "We have a comprehensive database of curated vocabulary items.",
+    "example_meaning": "Kami memiliki basis data komprehensif berisi kosakata terkurasi.",
+    "audio_guide": "Tekankan kata pertama \"Have\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Like / Love / Enjoy + Gerund (-ing)",
+    "formula": "Subject + like/love/enjoy + Verb-ing",
+    "explanation": "Menyatakan hobi atau aktivitas yang disenangi untuk dilakukan.",
+    "example_source": "I love listening to native speakers and mimicking their cadence.",
+    "example_meaning": "Saya suka mendengarkan penutur asli dan meniru irama bicara mereka.",
+    "audio_guide": "Tekankan kata pertama \"Like\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Adjectives Word Order (Opinion before Fact)",
+    "formula": "Subject + Verb + [Adjective] + Noun",
+    "explanation": "Menempatkan kata sifat sebelum kata benda yang diterangkan dalam susunan gramatikal.",
+    "example_source": "She is reading a wonderful and inspiring story.",
+    "example_meaning": "Dia sedang membaca cerita yang luar biasa dan menginspirasi.",
+    "audio_guide": "Tekankan kata pertama \"Adjectives\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A1",
+    "title": "Adverbs of Frequency (always, usually, never)",
+    "formula": "Subject + Adverb of Frequency + Main Verb",
+    "explanation": "Menyatakan seberapa sering suatu kebiasaan rutin dilakukan.",
+    "example_source": "I always review my vocabulary cards before going to sleep.",
+    "example_meaning": "Saya selalu mengulang kartu kosakata saya sebelum tidur.",
+    "audio_guide": "Tekankan kata pertama \"Adverbs\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Past Simple (Completed Past Actions)",
+    "formula": "Subject + Verb-2 (regular -ed / irregular)",
+    "explanation": "Menceritakan peristiwa atau kejadian yang telah selesai tuntas di masa lampau.",
+    "example_source": "Yesterday I finished ten flashcards and practiced pronunciation.",
+    "example_meaning": "Kemarin saya menyelesaikan sepuluh flashcard dan berlatih pelafalan.",
+    "audio_guide": "Tekankan kata pertama \"Past\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Past Simple vs Past Continuous",
+    "formula": "S + was/were + Verb-ing ... when + S + Verb-2",
+    "explanation": "Menggambarkan aksi yang sedang berlangsung di masa lalu ketika disela kejadian lain.",
+    "example_source": "I was reviewing vocabulary when my study partner messaged me.",
+    "example_meaning": "Saya sedang mengulang kosakata ketika partner belajar saya mengirim pesan.",
+    "audio_guide": "Tekankan kata pertama \"Past\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Going to vs Will (Future Intentions & Predictions)",
+    "formula": "be going to + V1 (planned) | will + V1 (instant decision)",
+    "explanation": "Membedakan rencana yang sudah dipikirkan matang vs keputusan spontan saat berbicara.",
+    "example_source": "I am going to register for the proficiency examination next month.",
+    "example_meaning": "Saya berencana mendaftar untuk ujian kemahiran bulan depan.",
+    "audio_guide": "Tekankan kata pertama \"Going\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Comparative & Superlative Adjectives",
+    "formula": "Adj + -er than / more + Adj than | the + -est / the most + Adj",
+    "explanation": "Membandingkan dua hal atau menyatakan tingkatan paling unggul dalam kelompok.",
+    "example_source": "Daily consistency is far more effective than cramming once a week.",
+    "example_meaning": "Konsistensi harian jauh lebih efektif dibanding belajar maraton seminggu sekali.",
+    "audio_guide": "Tekankan kata pertama \"Comparative\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Have to vs Must (Expressing Obligation)",
+    "formula": "Subject + have to / must + Verb-1",
+    "explanation": "Menyatakan keharusan atau kewajiban yang harus ditaati.",
+    "example_source": "Learners have to practice actively to build lasting muscle memory.",
+    "example_meaning": "Pembelajar harus berlatih secara aktif untuk membangun memori otot yang awet.",
+    "audio_guide": "Tekankan kata pertama \"Have\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Should / Shouldn't (Giving Recommendations)",
+    "formula": "Subject + should + Verb-1",
+    "explanation": "Memberikan rekomendasi atau saran yang baik dilakukan seseorang.",
+    "example_source": "You should review difficult words before going to sleep.",
+    "example_meaning": "Anda sebaiknya mengulang kata-kata yang sulit sebelum tidur.",
+    "audio_guide": "Tekankan kata pertama \"Should\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Zero Conditional (General Truths & Scientific Facts)",
+    "formula": "If / When + Present Simple, Present Simple",
+    "explanation": "Menyatakan hukum alam atau kenyataan ilmiah yang selalu berakibat sama.",
+    "example_source": "If you heat ice, it melts into liquid water.",
+    "example_meaning": "Jika Anda memanaskan es, ia akan meleleh menjadi air.",
+    "audio_guide": "Tekankan kata pertama \"Zero\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Too vs Enough (Tingkat Kecukupan & Berlebihan)",
+    "formula": "too + Adjective | Adjective + enough",
+    "explanation": "Menyatakan bahwa sesuatu melebihi batas (too) atau sudah memadai (enough).",
+    "example_source": "This explanation is clear enough for beginner students to grasp.",
+    "example_meaning": "Penjelasan ini cukup jelas untuk dipahami siswa pemula.",
+    "audio_guide": "Tekankan kata pertama \"Too\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Prepositions of Time (at, on, in, for, since)",
+    "formula": "at + clock time | on + days/dates | in + months/years",
+    "explanation": "Menentukan titik waktu dan durasi peristiwa secara presisi.",
+    "example_source": "We started our morning review session at eight o'clock sharp.",
+    "example_meaning": "Kami memulai sesi ulasan pagi tepat pada pukul delapan pagi.",
+    "audio_guide": "Tekankan kata pertama \"Prepositions\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "May / Might (Possibility & Uncertainty)",
+    "formula": "Subject + may / might + Verb-1",
+    "explanation": "Menyatakan kemungkinan atau ketidakpastian peristiwa di masa depan (mungkin/bisa jadi).",
+    "example_source": "We might explore intermediate grammar patterns later this week.",
+    "example_meaning": "Kita mungkin akan mengeksplorasi pola tata bahasa menengah akhir pekan ini.",
+    "audio_guide": "Tekankan kata pertama \"May\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "So vs Because (Consequence vs Reason)",
+    "formula": "Clause + so + Result | Clause + because + Reason",
+    "explanation": "Menghubungkan sebab akibat logis dalam sebuah kalimat majemuk.",
+    "example_source": "I wanted to expand my career options, so I started learning English.",
+    "example_meaning": "Saya ingin memperluas peluang karier saya, jadi saya mulai belajar bahasa Inggris.",
+    "audio_guide": "Tekankan kata pertama \"So\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Infinitives of Purpose (to + Verb-1)",
+    "formula": "Main Clause + to + Base Verb",
+    "explanation": "Menjelaskan alasan atau tujuan di balik dilakukannya suatu tindakan.",
+    "example_source": "She opened the application to complete her daily speaking drill.",
+    "example_meaning": "Dia membuka aplikasi untuk menyelesaikan latihan berbicaranya hari ini.",
+    "audio_guide": "Tekankan kata pertama \"Infinitives\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "First Conditional (Kondisi Nyata Masa Depan)",
+    "formula": "If + Present Simple, Subject + will + Verb-1",
+    "explanation": "Membicarakan kondisi realistis masa depan dan konsekuensi logisnya.",
+    "example_source": "If we persist with daily micro-drills, our fluency will flourish.",
+    "example_meaning": "Jika kita gigih dengan latihan mikro harian, kelancaran kita akan berkembang.",
+    "audio_guide": "Tekankan kata pertama \"First\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Present Perfect Intro (Life Experience)",
+    "formula": "Subject + have/has + Past Participle",
+    "explanation": "Menceritakan pengalaman hidup tanpa membatasi waktu spesifik.",
+    "example_source": "Have you ever spoken with a native speaker in real time?",
+    "example_meaning": "Pernahkah Anda berbicara langsung dengan penutur asli secara realtime?",
+    "audio_guide": "Tekankan kata pertama \"Present\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Gerund as Subject of Sentence",
+    "formula": "Verb-ing + Singular Verb",
+    "explanation": "Mengubah kata kerja menjadi subjek kalimat berbentuk kata benda.",
+    "example_source": "Practicing daily is the golden rule of language acquisition.",
+    "example_meaning": "Berlatih setiap hari adalah aturan emas penguasaan bahasa.",
+    "audio_guide": "Tekankan kata pertama \"Gerund\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "As... As (Perbandingan Kesetaraan)",
+    "formula": "as + Adjective + as",
+    "explanation": "Menyatakan bahwa dua hal memiliki tingkatan kualitas yang setara atau sama.",
+    "example_source": "Pronunciation is just as important as vocabulary breadth.",
+    "example_meaning": "Pelafalan sama pentingnya dengan luasnya perbendaharaan kosakata.",
+    "audio_guide": "Tekankan kata pertama \"As...\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Could for Past Ability & Polite Requests",
+    "formula": "Subject + could + Verb-1",
+    "explanation": "Menyatakan kemampuan di masa lampau, atau meminta bantuan dengan sangat santun.",
+    "example_source": "Could you please repeat that example sentence once more?",
+    "example_meaning": "Bisakah Anda tolong mengulangi kalimat contoh tersebut sekali lagi?",
+    "audio_guide": "Tekankan kata pertama \"Could\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "A2",
+    "title": "Connecting Sentences (However, In addition, Therefore)",
+    "formula": "Clause; however, Clause | Clause. Therefore, Clause",
+    "explanation": "Menghubungkan dua gagasan dengan kata transisi formal antar kalimat.",
+    "example_source": "Grammar rules can seem dry; however, practical context brings them alive.",
+    "example_meaning": "Aturan tata bahasa bisa tampak membosankan; namun konteks praktis membuatnya hidup.",
+    "audio_guide": "Tekankan kata pertama \"Connecting\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Present Perfect Continuous (Duration from Past to Now)",
+    "formula": "Subject + have/has been + Verb-ing",
+    "explanation": "Menekankan durasi suatu proses yang dimulai di masa lalu dan masih berlangsung hingga kini.",
+    "example_source": "I have been studying Japanese for six months and enjoy every minute.",
+    "example_meaning": "Saya sudah belajar bahasa Jepang selama enam bulan dan menikmati setiap menitnya.",
+    "audio_guide": "Tekankan kata pertama \"Present\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Past Perfect Simple (The Past before the Past)",
+    "formula": "Subject + had + Past Participle (Verb-3)",
+    "explanation": "Menunjukkan peristiwa mana yang terjadi lebih awal di antara dua peristiwa lampau.",
+    "example_source": "When the meeting started, the team had already agreed on the roadmap.",
+    "example_meaning": "Ketika rapat dimulai, tim sudah terlebih dahulu menyepakati peta jalan.",
+    "audio_guide": "Tekankan kata pertama \"Past\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Second Conditional (Hypothetical Present Situations)",
+    "formula": "If + Past Simple, Subject + would + Verb-1",
+    "explanation": "Membayangkan situasi pengandaian yang berlawanan dengan kenyataan masa kini.",
+    "example_source": "If I lived in Tokyo, I would practice conversation with locals every day.",
+    "example_meaning": "Jika saya tinggal di Tokyo, saya akan berlatih percakapan dengan warga lokal setiap hari.",
+    "audio_guide": "Tekankan kata pertama \"Second\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Defining Relative Clauses (who, which, that)",
+    "formula": "Noun + who (person) / which (thing) / that + clause",
+    "explanation": "Memberikan informasi identitas esensial tentang seseorang atau sesuatu.",
+    "example_source": "This is the dictionary that helped me understand complex business terms.",
+    "example_meaning": "Ini adalah kamus yang membantu saya memahami istilah bisnis yang rumit.",
+    "audio_guide": "Tekankan kata pertama \"Defining\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Non-defining Relative Clauses (Extra Information)",
+    "formula": "Noun, which/who + additional info, Main Clause",
+    "explanation": "Memberikan informasi pelengkap di antara tanda koma tanpa mengubah esensi subjek.",
+    "example_source": "LinguaSync, which was updated recently, supports both JLPT and CEFR tracks.",
+    "example_meaning": "LinguaSync, yang baru saja diperbarui, mendukung kurikulum JLPT dan CEFR.",
+    "audio_guide": "Tekankan kata pertama \"Non-defining\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Passive Voice (Focusing on the Result or Action)",
+    "formula": "Subject + be (is/are/was/were) + Past Participle (Verb-3)",
+    "explanation": "Menekankan objek tindakan atau hasil daripada siapa pelaku tindakannya.",
+    "example_source": "All core features were designed with learner ergonomics in mind.",
+    "example_meaning": "Semua fitur utama dirancang dengan memperhatikan ergonomi pembelajar.",
+    "audio_guide": "Tekankan kata pertama \"Passive\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Used to vs Be used to vs Get used to",
+    "formula": "used to + V1 (past habit) | be used to + V-ing (accustomed) | get used to + V-ing (process)",
+    "explanation": "Membedakan kebiasaan masa lalu vs kondisi terbiasa vs proses pembiasaan baru.",
+    "example_source": "I am getting used to waking up early to review my grammar cards.",
+    "example_meaning": "Saya mulai terbiasa bangun pagi untuk mengulang kartu tata bahasa saya.",
+    "audio_guide": "Tekankan kata pertama \"Used\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Modals of Present Deduction (must, can't, might)",
+    "formula": "Subject + must / can't / might + Base Verb",
+    "explanation": "Menyimpulkan suatu keadaan berdasarkan bukti nyata yang ada di depan mata.",
+    "example_source": "She speaks so fluently; she must practice speaking every single day.",
+    "example_meaning": "Dia berbicara sangat lancar; dia pasti berlatih berbicara setiap hari.",
+    "audio_guide": "Tekankan kata pertama \"Modals\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Reported Speech (Tense Shifts in Statements)",
+    "formula": "Direct: Present -> Reported: Past",
+    "explanation": "Menyampaikan kembali perkataan orang lain dengan pergeseran tenses secara gramatikal.",
+    "example_source": "The tutor said that consistent practice was the key to mastery.",
+    "example_meaning": "Tutor tersebut mengatakan bahwa latihan konsisten adalah kunci kemahiran.",
+    "audio_guide": "Tekankan kata pertama \"Reported\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Reported Questions & Commands",
+    "formula": "Subject + asked if/whether / asked to + V1",
+    "explanation": "Melaporkan pertanyaan atau instruksi orang lain secara sopan dan teratur.",
+    "example_source": "She asked me whether I had reviewed the lesson before the session.",
+    "example_meaning": "Dia bertanya apakah saya sudah mengulang pelajaran sebelum sesi dimulai.",
+    "audio_guide": "Tekankan kata pertama \"Reported\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Both, Either, Neither (Dual Comparisons)",
+    "formula": "both A and B | either A or B | neither A nor B",
+    "explanation": "Menghubungkan dua pilihan secara afirmatif, alternatif, atau penyangkalan ganda.",
+    "example_source": "Neither fear nor hesitation should stop you from speaking aloud.",
+    "example_meaning": "Baik rasa takut maupun keraguan tidak boleh menghentikan Anda bersuara lantang.",
+    "audio_guide": "Tekankan kata pertama \"Both,\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Question Tags (Seeking Confirmation)",
+    "formula": "Positive Statement + Negative Tag? | Negative + Positive Tag?",
+    "explanation": "Meminta konfirmasi atau persetujuan santun dari lawan bicara di akhir kalimat.",
+    "example_source": "You have completed today's output challenge, haven't you?",
+    "example_meaning": "Anda sudah menyelesaikan tantangan output hari ini, bukan?",
+    "audio_guide": "Tekankan kata pertama \"Question\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Indirect Questions (Polite Inquiries)",
+    "formula": "Could you tell me + where/what + Subject + Verb?",
+    "explanation": "Mengubah pertanyaan langsung menjadi pertanyaan santun formal tanpa inversi kata kerja.",
+    "example_source": "Could you tell me how long this grammar session will take?",
+    "example_meaning": "Bisakah Anda memberi tahu saya berapa lama sesi tata bahasa ini akan berlangsung?",
+    "audio_guide": "Tekankan kata pertama \"Indirect\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Although, Even though, In spite of, Despite",
+    "formula": "Although / Even though + Clause | Despite / In spite of + Noun/-ing",
+    "explanation": "Menghubungkan dua gagasan yang kontras atau bertolak belakang secara elegan.",
+    "example_source": "Despite having a packed schedule, she dedicated thirty minutes to study.",
+    "example_meaning": "Meskipun memiliki jadwal yang padat, dia mendedikasikan tiga puluh menit untuk belajar.",
+    "audio_guide": "Tekankan kata pertama \"Although,\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Future Continuous (Action in Progress at Future Time)",
+    "formula": "Subject + will be + Verb-ing",
+    "explanation": "Menggambarkan aktivitas yang dipastikan sedang berlangsung pada titik waktu masa depan.",
+    "example_source": "This time tomorrow, I will be presenting my progress to the study group.",
+    "example_meaning": "Waktu yang sama besok, saya akan sedang mempresentasikan kemajuan saya ke grup belajar.",
+    "audio_guide": "Tekankan kata pertama \"Future\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Gerund vs Infinitive with Meaning Changes",
+    "formula": "stop doing (cease) vs stop to do (pause to perform) | remember doing vs remember to do",
+    "explanation": "Membedakan perubahan makna kata kerja ketika dipasangkan dengan gerund atau infinitive.",
+    "example_source": "Remember to practice pronunciation every time you encounter a new word.",
+    "example_meaning": "Ingatlah untuk selalu melatih pelafalan setiap kali Anda menemukan kata baru.",
+    "audio_guide": "Tekankan kata pertama \"Gerund\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Definite vs Indefinite vs Zero Article",
+    "formula": "a/an (unspecified) vs the (specific/known) vs zero article (general plurals/uncountables)",
+    "explanation": "Aturan penempatan artikel bahasa Inggris untuk menyatakan entitas umum vs spesifik.",
+    "example_source": "Knowledge is power, and the knowledge we gain daily shapes our future.",
+    "example_meaning": "Pengetahuan adalah kekuatan, dan pengetahuan yang kita raih setiap hari membentuk masa depan kita.",
+    "audio_guide": "Tekankan kata pertama \"Definite\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B1",
+    "title": "Wish about Present & Future",
+    "formula": "Subject + wish + Past Simple (present) | wish + could + V1",
+    "explanation": "Menyatakan keinginan atau harapan atas kondisi saat ini yang tidak sesuai ekspektasi.",
+    "example_source": "I wish I had more hours each day to dedicate to language immersion.",
+    "example_meaning": "Saya berharap saya memiliki lebih banyak waktu setiap hari untuk ber-immersion bahasa.",
+    "audio_guide": "Tekankan kata pertama \"Wish\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Third Conditional (Past Regrets & Counterfactuals)",
+    "formula": "If + had + Verb-3, Subject + would have + Verb-3",
+    "explanation": "Membayangkan hal berbeda yang seharusnya terjadi di masa lalu namun tidak terwujud.",
+    "example_source": "If we had tested the edge case earlier, we would have prevented the bug.",
+    "example_meaning": "Jika kita menguji kasus batas tersebut lebih awal, kita akan mencegah terjadinya bug.",
+    "audio_guide": "Tekankan kata pertama \"Third\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Mixed Conditionals (Past Cause, Present Result)",
+    "formula": "If + had + V3, Subject + would + V1 (present)",
+    "explanation": "Menghubungkan pengandaian masa lalu dengan dampaknya pada kondisi saat ini.",
+    "example_source": "If I had not started studying last year, I would not be confident today.",
+    "example_meaning": "Jika saya tidak mulai belajar tahun lalu, saya tidak akan percaya diri hari ini.",
+    "audio_guide": "Tekankan kata pertama \"Mixed\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Passive Voice with Reporting Verbs",
+    "formula": "It is said/believed that... | Subject is said to be...",
+    "explanation": "Menyampaikan opini umum atau klaim publik secara objektif dan elegan.",
+    "example_source": "Immersion is widely considered to be the most efficient language learning method.",
+    "example_meaning": "Immersion secara luas dianggap sebagai metode belajar bahasa paling efisien.",
+    "audio_guide": "Tekankan kata pertama \"Passive\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Causative Passive (Have / Get Something Done)",
+    "formula": "Subject + have/get + Object + Past Participle (Verb-3)",
+    "explanation": "Menyatakan bahwa subjek menyuruh pihak profesional lain melakukan pekerjaan untuknya.",
+    "example_source": "We had our technical documentation reviewed by a bilingual specialist.",
+    "example_meaning": "Kami meminta dokumentasi teknis kami ditinjau oleh seorang spesialis dwibahasa.",
+    "audio_guide": "Tekankan kata pertama \"Causative\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Wish & If Only for Past Regrets",
+    "formula": "wish / If only + Past Perfect (had + V3)",
+    "explanation": "Menyatakan penyesalan mendalam atas keputusan atau peristiwa di masa lampau.",
+    "example_source": "I wish I had discovered this spaced repetition method much sooner.",
+    "example_meaning": "Andai saja saya menemukan metode pengulangan berjarak ini jauh lebih awal.",
+    "audio_guide": "Tekankan kata pertama \"Wish\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Inversion with Negative Adverbials",
+    "formula": "Negative Adverb (Seldom/Never/Rarely) + Auxiliary + Subject + Verb",
+    "explanation": "Membalikkan susunan kalimat untuk memberikan penekanan dramatis dan gaya bahasa tinggi.",
+    "example_source": "Rarely have I seen a student demonstrate such consistent dedication.",
+    "example_meaning": "Jarang sekali saya melihat seorang murid menunjukkan dedikasi sekonsisten itu.",
+    "audio_guide": "Tekankan kata pertama \"Inversion\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Future Perfect Simple (Action Finished by Future Time)",
+    "formula": "Subject + will have + Past Participle (Verb-3)",
+    "explanation": "Menyatakan bahwa suatu pencapaian akan telah selesai sebelum tenggat waktu masa depan.",
+    "example_source": "By the end of this year, I will have mastered five hundred core grammar rules.",
+    "example_meaning": "Menjelang akhir tahun ini, saya akan telah menguasai lima ratus aturan tata bahasa inti.",
+    "audio_guide": "Tekankan kata pertama \"Future\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Future Perfect Continuous (Duration up to Future Point)",
+    "formula": "Subject + will have been + Verb-ing",
+    "explanation": "Menekankan berapa lama suatu proses belajar telah berjalan hingga titik waktu di masa depan.",
+    "example_source": "Next month, we will have been studying together for an entire year.",
+    "example_meaning": "Bulan depan, kita akan telah belajar bersama selama satu tahun penuh.",
+    "audio_guide": "Tekankan kata pertama \"Future\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Modals of Past Deduction (must have, can't have, might have)",
+    "formula": "Subject + must / can't / might + have + Verb-3",
+    "explanation": "Menyimpulkan kepastian logis atas peristiwa yang telah terjadi di masa lampau.",
+    "example_source": "The native speaker must have spent decades refining their linguistic nuances.",
+    "example_meaning": "Penutur asli tersebut pastilah menghabiskan puluhan tahun menyempurnakan nuansa bahasanya.",
+    "audio_guide": "Tekankan kata pertama \"Modals\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Participle Clauses for Brevity & Flow",
+    "formula": "Present Participle (-ing) / Past Participle (-ed/V3) Clause",
+    "explanation": "Menyingkat anak kalimat sebab, waktu, atau kondisi menjadi frasa ringkas elegan.",
+    "example_source": "Having reviewed all vocabulary flashcards, the candidate entered the room with confidence.",
+    "example_meaning": "Setelah mengulang seluruh flashcard kosakata, kandidat memasuki ruangan dengan percaya diri.",
+    "audio_guide": "Tekankan kata pertama \"Participle\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Cleft Sentences for Focus & Emphasis",
+    "formula": "It is/was [Focus] that/who... | What [Clause] is/was...",
+    "explanation": "Membagi kalimat menjadi dua bagian untuk memberikan penekanan tajam pada satu elemen kunci.",
+    "example_source": "It was through daily consistency that she achieved near-native articulation.",
+    "example_meaning": "Melalui konsistensi harianlah dia mencapai artikulasi mendekati penutur asli.",
+    "audio_guide": "Tekankan kata pertama \"Cleft\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Discourse Markers for Complex Argumentation",
+    "formula": "On the one hand... On the other hand | Furthermore | Conversely | In contrast",
+    "explanation": "Menghubungkan argumen akademis atau profesional secara logis dan terstruktur.",
+    "example_source": "Online drills offer flexible accessibility; conversely, live practice fosters spontaneous fluency.",
+    "example_meaning": "Latihan online menawarkan aksesibilitas fleksibel; sebaliknya, latihan langsung menumbuhkan kelancaran spontan.",
+    "audio_guide": "Tekankan kata pertama \"Discourse\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Conditionals without \"If\" (Provided that, As long as, Unless)",
+    "formula": "Provided that / As long as + Clause | Unless + Affirmative",
+    "explanation": "Menyatakan prasyarat mutlak tanpa menggunakan kata \"If\" konvensional.",
+    "example_source": "You will achieve fluency provided that you immerse yourself in authentic material.",
+    "example_meaning": "Anda akan meraih kelancaran asalkan Anda membenamkan diri dalam materi autentik.",
+    "audio_guide": "Tekankan kata pertama \"Conditionals\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Subjunctive Mood in Formal Recommendations",
+    "formula": "Demand/Recommend verb + that + Subject + Base Verb",
+    "explanation": "Bentuk kata kerja dasar tanpa konjugasi dalam pernyataan resmi atau instruksi tegas.",
+    "example_source": "The curriculum advisor recommended that each student practice speaking daily.",
+    "example_meaning": "Penasihat kurikulum menyarankan agar setiap murid berlatih berbicara setiap hari.",
+    "audio_guide": "Tekankan kata pertama \"Subjunctive\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Emphasis with Auxiliary \"Do / Did\" in Affirmative",
+    "formula": "Subject + do/does/did + Base Verb",
+    "explanation": "Menyisipkan do/did pada kalimat positif untuk menegaskan kebenaran suatu klaim.",
+    "example_source": "I do believe that daily micro-immersion transforms language learning outcomes.",
+    "example_meaning": "Saya sungguh sangat meyakini bahwa micro-immersion harian mentransformasi hasil belajar bahasa.",
+    "audio_guide": "Tekankan kata pertama \"Emphasis\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Dependent Prepositions in Advanced Collocations",
+    "formula": "Adjective/Verb + specific preposition (committed to, capable of, prone to)",
+    "explanation": "Menguasai pasangan preposisi tetap yang tidak bisa diganti secara acak.",
+    "example_source": "Our team is fully committed to delivering an empowering learning experience.",
+    "example_meaning": "Tim kami berkomitmen penuh untuk menyajikan pengalaman belajar yang memberdayakan.",
+    "audio_guide": "Tekankan kata pertama \"Dependent\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Complex Passives (being done, to be done, having been done)",
+    "formula": "Modal / Gerund / Infinitive + be/been + Verb-3",
+    "explanation": "Bentuk pasif bertingkat dalam struktur kalimat kompleks formal.",
+    "example_source": "The software architecture needs to be verified before deployment.",
+    "example_meaning": "Arsitektur perangkat lunak perlu diverifikasi sebelum peluncuran.",
+    "audio_guide": "Tekankan kata pertama \"Complex\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "B2",
+    "title": "Phrasal Verbs with Multiple Objects & Idiomatic Shifts",
+    "formula": "Verb + Particle + Object / Verb + Object + Particle",
+    "explanation": "Menguasai separabilitas phrasal verbs dan pergeseran makna idiomatisnya.",
+    "example_source": "We should figure out how to bridge the gap between comprehension and spontaneous speech.",
+    "example_meaning": "Kita harus mencari cara bagaimana menjembatani jurang pemisah antara pemahaman dan kelancaran spontan.",
+    "audio_guide": "Tekankan kata pertama \"Phrasal\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Inverted Conditionals (Should you need / Were I to / Had we known)",
+    "formula": "Should + S + V1 | Were + S + to V1 | Had + S + V3 (omitting \"if\")",
+    "explanation": "Gaya bahasa formal kelas tinggi untuk menyatakan pengandaian tanpa kata \"if\".",
+    "example_source": "Had we known the curriculum was this comprehensive, we would have enrolled earlier.",
+    "example_meaning": "Sekiranya kami tahu kurikulumnya sekomprehensif ini, kami tentu sudah mendaftar lebih awal.",
+    "audio_guide": "Tekankan kata pertama \"Inverted\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Negative Inversion with Limiting Adverbs",
+    "formula": "Under no circumstances / On no account / No sooner... than + Inversion",
+    "explanation": "Pembalikan subjek dan kata kerja bantu untuk penegasan larangan atau urgensi mutlak.",
+    "example_source": "Under no circumstances should learners sacrifice accuracy for reckless speed.",
+    "example_meaning": "Dalam keadaan apa pun pembelajar tidak boleh mengorbankan akurasi demi kecepatan sembrono.",
+    "audio_guide": "Tekankan kata pertama \"Negative\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Fronting & Thematic Reordering for Stylistic Impact",
+    "formula": "Fronted Adverbial / Adjective + Verb + Subject",
+    "explanation": "Memindahkan keterangan atau predikat ke awal kalimat untuk menciptakan bobot retorika puitis/literer.",
+    "example_source": "Crucial to sustainable fluency is the habit of daily verbal articulation.",
+    "example_meaning": "Sangat krusial bagi kelancaran berkelanjutan adalah kebiasaan artikulasi lisan setiap hari.",
+    "audio_guide": "Tekankan kata pertama \"Fronting\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Nominalisation (Creating High-Density Academic Text)",
+    "formula": "Converting Verb/Adjective into abstract Noun phrases",
+    "explanation": "Ciri khas bahasa akademis dan jurnal ilmiah: memadatkan ide menjadi frasa kata benda.",
+    "example_source": "The rapid integration of micro-drills accelerates cognitive retention.",
+    "example_meaning": "Integrasi pesat dari latihan-latihan mikro mempercepat retensi kognitif otak.",
+    "audio_guide": "Tekankan kata pertama \"Nominalisation\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Ellipsis & Substitution to Eliminate Redundancy",
+    "formula": "Omitting repeated words / Using so, do so, neither to substitute",
+    "explanation": "Menghilangkan kata yang sudah jelas atau menggantinya agar tulisan mengalir elegan tanpa repetisi.",
+    "example_source": "Some students prefer grammar analysis; others, immersive conversational practice.",
+    "example_meaning": "Sebagian siswa lebih menyukai analisis tata bahasa; yang lainnya, latihan percakapan imersif.",
+    "audio_guide": "Tekankan kata pertama \"Ellipsis\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Advanced Formulaic Subjunctives & Fixed Idioms",
+    "formula": "Be that as it may | Come what may | Suffice it to say",
+    "explanation": "Ungkapan subjungtif beku peninggalan bahasa Inggris klasik yang dipakai dalam debat tingkat tinggi.",
+    "example_source": "Suffice it to say, consistent dedication remains the cornerstone of mastery.",
+    "example_meaning": "Cukuplah untuk dikatakan bahwa dedikasi konsisten tetap merupakan fondasi utama kemahiran.",
+    "audio_guide": "Tekankan kata pertama \"Advanced\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Hypothetical Past with \"Would Rather / It is high time\"",
+    "formula": "would rather + Subject + Past Simple | It is high time + Subject + Past Simple",
+    "explanation": "Menyatakan preferensi mendesak bahwa suatu tindakan sudah seharusnya dilakukan sejak tadi.",
+    "example_source": "It is high time we transitioned from passive vocabulary memorization to active verbal output.",
+    "example_meaning": "Sudah saatnya kita bertransisi dari hafalan kosakata pasif ke produksi lisan aktif.",
+    "audio_guide": "Tekankan kata pertama \"Hypothetical\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Rhetorical Hedging & Nuanced Modality",
+    "formula": "It appears to be | It could be argued that | To a certain extent",
+    "explanation": "Memoderasi klaim agar terdengar diplomatis, objektif, dan tidak terkesan arogan.",
+    "example_source": "The data appears to indicate that spaced repetition significantly mitigates memory decay.",
+    "example_meaning": "Data tersebut tampaknya mengindikasikan bahwa spaced repetition secara signifikan meredam penurunan daya ingat.",
+    "audio_guide": "Tekankan kata pertama \"Rhetorical\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Stylistic Inversion after Place Adverbials",
+    "formula": "Adverbial of Place + Intransitive Verb + Subject",
+    "explanation": "Menempatkan keterangan tempat di awal diikuti langsung kata kerja tanpa auxiliary.",
+    "example_source": "Behind the elegant interface lies a robust, performant database architecture.",
+    "example_meaning": "Di balik antarmuka yang anggun tersimpan arsitektur database yang tangguh dan berkinerja tinggi.",
+    "audio_guide": "Tekankan kata pertama \"Stylistic\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C1",
+    "title": "Compound Adjectives with Hyphenation & Participles",
+    "formula": "Adverb-participle (forward-looking) | Noun-participle (time-consuming)",
+    "explanation": "Membentuk kata sifat majemuk yang padat makna untuk deskripsi tajam.",
+    "example_source": "Our platform delivers an all-encompassing, learner-centered educational journey.",
+    "example_meaning": "Platform kami menyajikan perjalanan edukasi yang menyeluruh dan berpusat pada pembelajar.",
+    "audio_guide": "Tekankan kata pertama \"Compound\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C2",
+    "title": "Fixed Lexical Binomials & Idiomatic Pairs (C2 Proficiency)",
+    "formula": "Word A + and + Word B (part and parcel, safe and sound, by and large)",
+    "explanation": "Pasangan kata tetap berirama yang digunakan oleh penutur asli terdidik untuk kefasihan alami.",
+    "example_source": "Overcoming occasional frustration is part and parcel of the language acquisition journey.",
+    "example_meaning": "Mengatasi rasa frustrasi sesekali adalah bagian tak terpisahkan dari perjalanan penguasaan bahasa.",
+    "audio_guide": "Tekankan kata pertama \"Fixed\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C2",
+    "title": "Antithesis & Parallelism in Persuasive Rhetoric",
+    "formula": "Balanced contrasting ideas in symmetrical grammatical structure",
+    "explanation": "Menyeimbangkan dua gagasan yang bertolak belakang dalam struktur gramatikal yang simetris sempurna.",
+    "example_source": "We learn not to demonstrate intellectual superiority, but to bridge cultural empathy.",
+    "example_meaning": "Kita belajar bukan untuk memamerkan keunggulan intelektual, melainkan untuk menjembatani empati budaya.",
+    "audio_guide": "Tekankan kata pertama \"Antithesis\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C2",
+    "title": "Elliptical Clauses in Literary & Executive Prose",
+    "formula": "Omitting subject and auxiliary in subordinate clauses",
+    "explanation": "Struktur tingkat lanjut di mana subjek yang sama dihilangkan untuk menciptakan tempo baca yang gesit.",
+    "example_source": "Though initially hesitant, the speaker captivated the audience with effortless linguistic precision.",
+    "example_meaning": "Meskipun awalnya ragu, pembicara memikat hadirin dengan presisi linguistik yang tanpa beban.",
+    "audio_guide": "Tekankan kata pertama \"Elliptical\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  },
+  {
+    "language_code": "en",
+    "level": "C2",
+    "title": "Diplomatic Tone Mitigation & Indirect Assertion",
+    "formula": "Complex modal hedging with conditional framing",
+    "explanation": "Menyatakan kritik tajam atau penolakan dengan keanggunan diplomatik tertinggi tanpa menyinggung.",
+    "example_source": "I should be inclined to suggest that we re-evaluate our foundational assumptions.",
+    "example_meaning": "Saya cenderung menyarankan agar kita mengevaluasi kembali asumsi-asumsi dasar kita.",
+    "audio_guide": "Tekankan kata pertama \"Diplomatic\" (primary stress) dan sambungkan dengan jeda minimal ke kata kedua."
+  }
+]
