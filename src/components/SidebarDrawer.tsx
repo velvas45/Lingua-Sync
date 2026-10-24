@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   X,
   User,
@@ -16,6 +17,7 @@ import {
   Phone,
   Mail,
   Compass,
+  PenTool,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -183,12 +185,21 @@ export default function SidebarDrawer({
             </div>
           </div>
 
-          {/* Action List */}
+          {/* Quick Actions */}
           <div className="space-y-2">
             <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-              Aksi Utama
+              Aksi Cepat
             </span>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
+              <Link
+                href="/japanese-basics"
+                onClick={onClose}
+                className="flex items-center justify-start gap-2.5 h-10 px-3 text-xs font-semibold rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 transition-colors w-full"
+              >
+                <PenTool className="h-4 w-4 text-indigo-500 shrink-0" />
+                <span>Belajar Aksara Jepang (Canvas Pad)</span>
+              </Link>
+
               <Button
                 type="button"
                 variant="secondary"

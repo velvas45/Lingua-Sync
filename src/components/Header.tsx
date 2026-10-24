@@ -1,9 +1,19 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Languages, Flame, Zap, LogIn, Menu, Sun, Moon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AuthUser } from '@/components/AuthModal';
+import React from "react";
+import Link from "next/link";
+import {
+  Languages,
+  Flame,
+  Zap,
+  LogIn,
+  Menu,
+  Sun,
+  Moon,
+  PenTool,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AuthUser } from "@/components/AuthModal";
 
 interface HeaderProps {
   currentLang: {
@@ -27,7 +37,7 @@ interface HeaderProps {
   onOpenAuthModal: () => void;
   onLogout: () => void;
   onOpenDrawer: () => void;
-  theme: 'dark' | 'light';
+  theme: "dark" | "light";
   onToggleTheme: () => void;
 }
 
@@ -77,12 +87,14 @@ export default function Header({
                 onClick={() => onSelectLang(l.code)}
                 className={`flex items-center gap-1 sm:gap-2 rounded-lg px-2 sm:px-3.5 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold transition-all ${
                   isActive
-                    ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/80'
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
                 }`}
               >
                 <span className="text-sm sm:text-base">{l.flag}</span>
-                <span className="text-[11px] uppercase sm:hidden font-bold">{l.code}</span>
+                <span className="text-[11px] uppercase sm:hidden font-bold">
+                  {l.code}
+                </span>
                 <span className="hidden sm:inline">{l.native_name}</span>
               </button>
             );
@@ -109,6 +121,16 @@ export default function Header({
             <span>{totalXp}</span>
           </div>
 
+          {/* Japanese Basics Page Link */}
+          <Link
+            href="/japanese-basics"
+            className="hidden md:flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-bold text-indigo-600 dark:text-indigo-400 transition-colors"
+            title="Belajar Aksara Jepang (Hiragana, Katakana, Kanji, Canvas Pad)"
+          >
+            <PenTool className="h-3.5 w-3.5 text-indigo-500" />
+            <span>Aksara Jepang</span>
+          </Link>
+
           {/* Theme Quick Toggle Button (Desktop/Tablet) */}
           <Button
             type="button"
@@ -116,9 +138,13 @@ export default function Header({
             size="icon"
             onClick={onToggleTheme}
             className="h-8 w-8 text-muted-foreground hover:text-foreground hidden md:flex"
-            title={theme === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
+            title={
+              theme === "dark"
+                ? "Beralih ke Mode Terang"
+                : "Beralih ke Mode Gelap"
+            }
           >
-            {theme === 'dark' ? (
+            {theme === "dark" ? (
               <Sun className="h-4 w-4 text-amber-500 dark:text-amber-400" />
             ) : (
               <Moon className="h-4 w-4 text-indigo-400" />
@@ -136,7 +162,9 @@ export default function Header({
               <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-[10px] text-primary-foreground font-bold shrink-0">
                 {currentUser.username.charAt(0).toUpperCase()}
               </div>
-              <span className="hidden lg:inline max-w-[80px] truncate">{currentUser.username}</span>
+              <span className="hidden lg:inline max-w-[80px] truncate">
+                {currentUser.username}
+              </span>
             </button>
           ) : (
             <Button
