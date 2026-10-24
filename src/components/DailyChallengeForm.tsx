@@ -1,10 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState, useSyncExternalStore } from 'react';
-import { Send, Award, Flame, User, CheckCircle2, Lock, Sparkles } from 'lucide-react';
-import SpeechRecorder from './SpeechRecorder';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState, useSyncExternalStore } from "react";
+import {
+  Send,
+  Award,
+  Flame,
+  User,
+  CheckCircle2,
+  Lock,
+  Sparkles,
+} from "lucide-react";
+import SpeechRecorder from "./SpeechRecorder";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface DailyChallengeFormProps {
   prompt: {
@@ -32,25 +40,29 @@ export default function DailyChallengeForm({
 }: DailyChallengeFormProps) {
   const savedName = useSyncExternalStore(
     (callback) => {
-      window.addEventListener('storage', callback);
-      return () => window.removeEventListener('storage', callback);
+      window.addEventListener("storage", callback);
+      return () => window.removeEventListener("storage", callback);
     },
-    () => (typeof window !== 'undefined' ? localStorage.getItem('lingua_user_name') || '' : ''),
-    () => ''
+    () =>
+      typeof window !== "undefined"
+        ? localStorage.getItem("lingua_user_name") || ""
+        : "",
+    () => ""
   );
 
   const [inputName, setInputName] = useState<string | null>(null);
-  const userName = currentUsername || (inputName !== null ? inputName : savedName);
+  const userName =
+    currentUsername || (inputName !== null ? inputName : savedName);
 
-  const [textResponse, setTextResponse] = useState('');
+  const [textResponse, setTextResponse] = useState("");
   const [speakingPracticed, setSpeakingPracticed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleNameChange = (val: string) => {
     setInputName(val);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lingua_user_name', val);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lingua_user_name", val);
     }
   };
 
@@ -67,7 +79,7 @@ export default function DailyChallengeForm({
     }
 
     if (!userName.trim() || !textResponse.trim() || !prompt) {
-      alert('Mohon lengkapi kalimat tantangan Anda!');
+      alert("Mohon lengkapi kalimat tantangan Anda!");
       return;
     }
 
@@ -75,9 +87,9 @@ export default function DailyChallengeForm({
     setSuccessMsg(null);
 
     try {
-      const res = await fetch('/api/submissions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userName: userName.trim(),
           languageCode,
@@ -87,27 +99,35 @@ export default function DailyChallengeForm({
         }),
       });
 
-      const data = (await res.json()) as { earnedXp?: number; error?: string; isRepeat?: boolean };
+      const data = (await res.json()) as {
+        earnedXp?: number;
+        error?: string;
+        isRepeat?: boolean;
+      };
       if (res.ok) {
         if (data.isRepeat) {
           setSuccessMsg(
-            `Latihan tambahan berhasil tersimpan! +${data.earnedXp ?? 5} XP ditambahkan. Terus latih konsistensi Anda!`
+            `Latihan tambahan berhasil tersimpan! +${
+              data.earnedXp ?? 5
+            } XP ditambahkan. Terus latih konsistensi Anda!`
           );
         } else {
           setSuccessMsg(
-            `Tantangan harian berhasil diselesaikan! +${data.earnedXp ?? 15} XP ditambahkan ke profil Anda.`
+            `Tantangan harian berhasil diselesaikan! +${
+              data.earnedXp ?? 15
+            } XP ditambahkan ke profil Anda.`
           );
         }
-        setTextResponse('');
+        setTextResponse("");
         setSpeakingPracticed(false);
         onSubmitted();
         setTimeout(() => setSuccessMsg(null), 6000);
       } else {
-        alert('Gagal mengirim: ' + (data.error || 'Terjadi kesalahan'));
+        alert("Gagal mengirim: " + (data.error || "Terjadi kesalahan"));
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
-      alert('Gagal mengirim jawaban: ' + msg);
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      alert("Gagal mengirim jawaban: " + msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -127,24 +147,25 @@ export default function DailyChallengeForm({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-indigo-500/30 bg-card/80 p-7 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
+    <div className="relative overflow-hidden rounded-2xl border border-indigo-500/30 bg-card/80 p-4 sm:p-7 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
       {/* Blurred Overlay for Guest Users */}
       {isGuest && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center bg-background/75 backdrop-blur-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-xl shadow-indigo-500/30 mb-3">
-            <Lock className="h-6 w-6" />
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 sm:p-6 text-center bg-background/80 backdrop-blur-sm">
+          <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-xl shadow-indigo-500/30 mb-2.5">
+            <Lock className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <h4 className="text-lg font-bold text-foreground mb-1">
+          <h4 className="text-base sm:text-lg font-bold text-foreground mb-1">
             Tantangan Harian Eksklusif Pembelajar
           </h4>
-          <p className="text-xs text-muted-foreground max-w-sm mb-5 leading-relaxed">
-            Selesaikan tantangan harian untuk menguji pemahaman, melatih speaking audio native, dan mengumpulkan XP di komunitas pembelajar!
+          <p className="text-xs text-muted-foreground max-w-sm mb-4 leading-relaxed">
+            Selesaikan tantangan harian untuk menguji pemahaman, melatih
+            speaking audio native, dan mengumpulkan XP di komunitas pembelajar!
           </p>
           <Button
             type="button"
             onClick={onOpenAuthModal}
             size="default"
-            className="gap-2 font-semibold shadow-lg shadow-primary/30"
+            className="w-full sm:w-auto gap-2 font-semibold shadow-lg shadow-primary/30 text-xs sm:text-sm"
           >
             <Sparkles className="h-4 w-4" />
             <span>Masuk / Buat Akun untuk Menjawab</span>
@@ -153,31 +174,40 @@ export default function DailyChallengeForm({
       )}
 
       {/* Actual Form (Blurred when guest) */}
-      <div className={isGuest ? 'filter blur-[3.5px] pointer-events-none select-none opacity-40' : ''}>
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md shadow-primary/25">
-            <Flame className="h-5 w-5" />
+      <div
+        className={
+          isGuest
+            ? "filter blur-[3.5px] pointer-events-none select-none opacity-40"
+            : ""
+        }
+      >
+        <div className="mb-3.5 sm:mb-4 flex items-center gap-2.5 sm:gap-3">
+          <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md shadow-primary/25 shrink-0">
+            <Flame className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-foreground">
+            <h3 className="text-base sm:text-lg font-bold text-foreground leading-snug">
               Latihan Praktik Harian (Daily Output Practice)
             </h3>
-            <p className="text-xs text-muted-foreground">
-              Latih kemampuan aktifmu. Buat 1-2 kalimat langsung dalam bahasa target!
+            <p className="text-[11px] sm:text-xs text-muted-foreground">
+              Latih kemampuan aktifmu. Buat 1-2 kalimat langsung dalam bahasa
+              target!
             </p>
           </div>
         </div>
 
-        <div className="mb-5 rounded-r-lg border-l-4 border-primary bg-secondary/30 p-4">
-          <p className="mb-1 text-base font-semibold text-foreground">
+        <div className="mb-4 sm:mb-5 rounded-r-lg border-l-4 border-primary bg-secondary/30 p-3 sm:p-4">
+          <p className="mb-1 text-sm sm:text-base font-semibold text-foreground leading-relaxed">
             {prompt.prompt_question}
           </p>
-          <p className="text-xs text-muted-foreground">
-            💡 <strong className="text-foreground">Petunjuk / Inspirasi:</strong> {prompt.hint}
+          <p className="text-[11px] sm:text-xs text-muted-foreground">
+            💡{" "}
+            <strong className="text-foreground">Petunjuk / Inspirasi:</strong>{" "}
+            {prompt.hint}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
           {/* User Name Field */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-muted-foreground">
@@ -201,11 +231,13 @@ export default function DailyChallengeForm({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-muted-foreground">
-                Tulis Kalimat Anda ({languageCode === 'en' ? 'Bahasa Inggris' : 'Bahasa Jepang'}):
+                Tulis Kalimat Anda (
+                {languageCode === "en" ? "Bahasa Inggris" : "Bahasa Jepang"}):
               </label>
               {speakingPracticed && (
                 <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Bonus Speaking Aktif (+10 XP)
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Bonus Speaking Aktif
+                  (+10 XP)
                 </span>
               )}
             </div>
@@ -214,7 +246,7 @@ export default function DailyChallengeForm({
               value={textResponse}
               onChange={(e) => setTextResponse(e.target.value)}
               placeholder={
-                languageCode === 'en'
+                languageCode === "en"
                   ? "Write your sentence here (e.g., I reached a major milestone today...)"
                   : "ここに文を書いてください (例: 今日は新しい挑戦に向けて準備を始めました...)"
               }
@@ -234,7 +266,7 @@ export default function DailyChallengeForm({
 
           {successMsg && (
             <div className="flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 p-3 text-sm text-emerald-800 dark:text-emerald-300">
-              <Award className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <Award className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-500" />
               <span>{successMsg}</span>
             </div>
           )}
@@ -248,7 +280,9 @@ export default function DailyChallengeForm({
               className="gap-2 font-semibold shadow-lg shadow-primary/20"
             >
               <Send className="h-4 w-4" />
-              <span>{isSubmitting ? 'Menyimpan...' : 'Kirim Jawaban Latihan'}</span>
+              <span>
+                {isSubmitting ? "Menyimpan..." : "Kirim Jawaban Latihan"}
+              </span>
             </Button>
           </div>
         </form>

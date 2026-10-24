@@ -188,15 +188,15 @@ export default function FlashcardViewer({
 
       {/* Main Flashcard Card */}
       <Card className="relative overflow-hidden border-border bg-card shadow-lg backdrop-blur-xl transition-colors">
-        <CardContent className="p-6 sm:p-8">
-          <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-cyan-700 dark:text-cyan-400">
+        <CardContent className="p-4 sm:p-7">
+          <div className="mb-4 sm:mb-5 flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-cyan-700 dark:text-cyan-400">
                 {currentCard.part_of_speech || 'Vocabulary'}
               </span>
 
               {/* Main Word / Expression */}
-              <h2 className="mt-2 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
+              <h2 className="mt-1.5 text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground break-words leading-tight">
                 <RubyText
                   text={currentCard.primary_text}
                   furiganaHtml={currentCard.furigana_html}
@@ -206,26 +206,28 @@ export default function FlashcardViewer({
 
               {/* Phonetic / Romaji */}
               {currentCard.phonetic && (
-                <p className="mt-1.5 font-mono text-sm sm:text-base text-amber-700 dark:text-amber-400">
+                <p className="mt-1 font-mono text-xs sm:text-base text-amber-700 dark:text-amber-400">
                   {currentCard.phonetic}
                 </p>
               )}
             </div>
 
-            <AudioButton
-              text={currentCard.primary_text}
-              langLocale={speechLocale}
-              size="lg"
-              label="Dengar Kata"
-            />
+            <div className="shrink-0 pt-1">
+              <AudioButton
+                text={currentCard.primary_text}
+                langLocale={speechLocale}
+                size="md"
+                label="Dengar"
+              />
+            </div>
           </div>
 
           {/* Meaning in Indonesian */}
-          <div className="mb-6 rounded-xl border border-border bg-secondary/50 p-4">
-            <span className="mb-1 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+          <div className="mb-4 sm:mb-6 rounded-xl border border-border bg-secondary/50 p-3 sm:p-4">
+            <span className="mb-1 block text-[10px] sm:text-xs font-semibold tracking-wider text-muted-foreground uppercase">
               ARTI DALAM BAHASA INDONESIA:
             </span>
-            <p className="text-base sm:text-lg font-medium text-foreground">
+            <p className="text-sm sm:text-lg font-medium text-foreground leading-relaxed">
               {currentCard.meaning_id}
             </p>
           </div>

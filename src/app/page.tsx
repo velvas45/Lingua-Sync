@@ -183,40 +183,40 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <main className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-6 py-8 pb-16">
+      <main className="mx-auto max-w-7xl w-full flex-1 px-3 sm:px-6 py-4 sm:py-8 pb-16">
         {/* Welcome Banner */}
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-emerald-500/5 p-6 sm:p-7 shadow-lg backdrop-blur-md">
-          <div>
-            <div className="mb-1.5 flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                Target Belajar Harian: {data.currentLang.name} ({data.currentLang.flag})
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-emerald-500/5 p-4 sm:p-7 shadow-lg backdrop-blur-md">
+          <div className="flex-1">
+            <div className="mb-1 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
+              <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-foreground">
+                Target Belajar: {data.currentLang.name} ({data.currentLang.flag})
               </h2>
             </div>
-            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">
               Metode <strong className="text-foreground">Hybrid Micro-Drill</strong>: Pelajari kartu kosakata praktis di bawah, dengarkan pelafalannya, lalu selesaikan tantangan kalimat aktif hari ini!
             </p>
           </div>
 
-          <div className="flex items-center gap-4 rounded-xl border border-border bg-card/90 px-5 py-3 shadow-sm backdrop-blur-sm">
+          <div className="flex w-full sm:w-auto items-center justify-around sm:justify-center gap-4 rounded-xl border border-border bg-card/90 px-4 sm:px-5 py-2.5 sm:py-3 shadow-sm backdrop-blur-sm shrink-0">
             <div className="text-center">
-              <span className="text-lg font-extrabold text-cyan-700 dark:text-cyan-400">{data.cards.length}</span>
-              <span className="block text-[11px] font-medium text-muted-foreground">
+              <span className="text-base sm:text-lg font-extrabold text-cyan-700 dark:text-cyan-400">{data.cards.length}</span>
+              <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground">
                 {isGuest ? 'Kartu Publik' : 'Koleksi Kartu'}
               </span>
             </div>
-            <div className="h-8 w-px bg-border" />
+            <div className="h-7 w-px bg-border" />
             <div className="text-center">
-              <span className="text-lg font-extrabold text-emerald-700 dark:text-emerald-400">{data.recentSubmissions.length}</span>
-              <span className="block text-[11px] font-medium text-muted-foreground">Aktivitas Komunitas</span>
+              <span className="text-base sm:text-lg font-extrabold text-emerald-700 dark:text-emerald-400">{data.recentSubmissions.length}</span>
+              <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground">Aktivitas Komunitas</span>
             </div>
           </div>
         </div>
 
         {/* 2-Column Responsive Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
           {/* Left Column: Flashcards & Daily Challenge */}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6 sm:gap-8">
             {/* Flashcard Section */}
             <section>
               <div className="mb-3.5 flex items-center justify-between">

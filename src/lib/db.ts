@@ -254,13 +254,12 @@ export function initDatabase() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_name TEXT NOT NULL,
       language_code TEXT NOT NULL,
-      prompt_id INTEGER NOT NULL,
+      prompt_id INTEGER,
       text_response TEXT NOT NULL,
       speaking_practiced INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       likes INTEGER DEFAULT 0,
-      FOREIGN KEY (language_code) REFERENCES languages(code),
-      FOREIGN KEY (prompt_id) REFERENCES daily_prompts(id)
+      FOREIGN KEY (language_code) REFERENCES languages(code)
     );
 
     CREATE TABLE IF NOT EXISTS submission_likes (
@@ -284,6 +283,35 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(language_code, created_at);
     CREATE INDEX IF NOT EXISTS idx_vocab_bank_lang ON vocabulary_bank(language_code, category);
   `);
+
+  // Non-destructive check for prompt_id foreign key constraint in submissions
+  try {
+    const fkList = db.prepare("PRAGMA foreign_key_list(submissions)").all() as Array<{ table: string; from: string }>;
+    const hasPromptFk = fkList.some((fk) => fk.table === 'daily_prompts');
+    if (hasPromptFk) {
+      db.exec(`
+        PRAGMA foreign_keys = OFF;
+        CREATE TABLE submissions_temp (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_name TEXT NOT NULL,
+          language_code TEXT NOT NULL,
+          prompt_id INTEGER,
+          text_response TEXT NOT NULL,
+          speaking_practiced INTEGER DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          likes INTEGER DEFAULT 0,
+          FOREIGN KEY (language_code) REFERENCES languages(code)
+        );
+        INSERT INTO submissions_temp SELECT id, user_name, language_code, prompt_id, text_response, speaking_practiced, created_at, likes FROM submissions;
+        DROP TABLE submissions;
+        ALTER TABLE submissions_temp RENAME TO submissions;
+        CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(language_code, created_at);
+        PRAGMA foreign_keys = ON;
+      `);
+    }
+  } catch (e) {
+    console.error('Error migrating submissions table constraint:', e);
+  }
 
   // Non-destructive check for user_id column on cards
   const cardColumns = db.prepare("PRAGMA table_info(cards)").all() as Array<{ name: string }>;
