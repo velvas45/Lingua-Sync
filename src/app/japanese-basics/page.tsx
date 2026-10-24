@@ -13,7 +13,8 @@ import {
   Moon,
   Menu,
   LogIn,
-} from "lucide-react";
+  Lock,
+  } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,6 +62,7 @@ export default function JapaneseBasicsPage() {
 
   // User auth & drawer state
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -107,6 +109,10 @@ export default function JapaneseBasicsPage() {
         }
       } catch (e) {
         console.error("Failed to load user:", e);
+      } finally {
+        if (!ignore) {
+          setIsAuthChecking(false);
+        }
       }
     }
     loadUser();
@@ -158,6 +164,17 @@ export default function JapaneseBasicsPage() {
           meaning: `Contoh: ${selectedHiragana.exampleWord} (${selectedHiragana.exampleMeaning})`,
           strokes: selectedHiragana.strokes,
         };
+
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary gap-3">
+        <div className="h-8 w-8 rounded-full border-3 border-border border-t-primary animate-spin" />
+        <span className="text-xs font-semibold text-muted-foreground">
+          Memeriksa status akun...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors flex flex-col">
@@ -236,8 +253,48 @@ export default function JapaneseBasicsPage() {
         </div>
       </header>
 
-      {/* Main Content Container */}
-      <main className="mx-auto max-w-7xl w-full flex-1 px-3 sm:px-6 py-6 sm:py-8 space-y-8">
+      {/* If Guest: Show Locked Access Screen */}
+      {!currentUser ? (
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full border-indigo-500/30 bg-card/95 shadow-2xl p-6 sm:p-9 text-center space-y-4 backdrop-blur-xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 shadow-inner">
+              <Lock className="h-7 w-7" />
+            </div>
+
+            <div>
+              <Badge variant="outline" className="border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs mb-2">
+                Halaman Khusus Pengguna Terdaftar
+              </Badge>
+              <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                Pondasi Aksara Jepang Terkunci
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+                Silakan masuk atau daftarkan akun LinguaSync Anda secara gratis untuk mengakses panduan aksara (Hiragana, Katakana, Kanji, Romaji) dan Papan Tulis Kanvas Interaktif.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2.5">
+              <Button
+                type="button"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="w-full gap-2 font-bold shadow-md shadow-primary/25 h-10"
+              >
+                <Sparkles className="h-4 w-4" />
+                <span>Masuk / Buat Akun Gratis</span>
+              </Button>
+
+              <Link href="/">
+                <Button type="button" variant="ghost" className="w-full text-xs text-muted-foreground hover:text-foreground">
+                  <ArrowLeft className="h-3.5 w-3.5 mr-1" />
+                  Kembali ke Dashboard Utama
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </div>
+      ) : (
+        /* Main Content Container for Logged In User */
+        <main className="mx-auto max-w-7xl w-full flex-1 px-3 sm:px-6 py-6 sm:py-8 space-y-8">
         {/* Hero Section: Sentence Anatomy Breakdown */}
         <section className="rounded-2xl border border-indigo-500/25 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-emerald-500/5 p-5 sm:p-7 shadow-lg backdrop-blur-md space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -737,6 +794,7 @@ export default function JapaneseBasicsPage() {
           </div>
         </div>
       </main>
+      )}
 
       {/* Sidebar Navigation Drawer */}
       <SidebarDrawer

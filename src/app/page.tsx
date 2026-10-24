@@ -12,6 +12,7 @@ import AuthModal, { AuthUser } from '@/components/AuthModal';
 import SidebarDrawer from '@/components/SidebarDrawer';
 import EditProfileModal from '@/components/EditProfileModal';
 import { ToastContainer } from '@/components/Toast';
+import { Button } from '@/components/ui/button';
 import { LevelTrack, GrammarLesson } from '@/lib/db';
 import {
   Sparkles,
@@ -20,6 +21,8 @@ import {
   Layers,
   GraduationCap,
   BookOpen,
+  Lock,
+  LogIn,
 } from 'lucide-react';
 
 interface LanguageItem {
@@ -284,52 +287,75 @@ export default function Home() {
         </div>
 
         {/* Level Track Selector Bar */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card/60 p-3.5 sm:p-4 backdrop-blur-md">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">
-              <GraduationCap className="h-4 w-4" />
+        <div className="relative mb-6 rounded-2xl border border-border bg-card/60 p-3.5 sm:p-4 backdrop-blur-md overflow-hidden">
+          <div className={`flex flex-wrap items-center justify-between gap-3 ${isGuest ? 'blur-[3px] opacity-35 pointer-events-none select-none' : ''}`}>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">
+                <GraduationCap className="h-4 w-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-foreground block">
+                  Target Tingkatan ({data.currentLang.code === 'ja' ? 'Standar Resmi JLPT' : 'Standar Resmi CEFR'}):
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  Pilih tingkatan untuk memfilter kosakata dan pelajaran tata bahasa
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="text-xs font-bold text-foreground block">
-                Target Tingkatan ({data.currentLang.code === 'ja' ? 'Standar Resmi JLPT' : 'Standar Resmi CEFR'}):
-              </span>
-              <span className="text-[11px] text-muted-foreground">
-                Pilih tingkatan untuk memfilter kosakata dan pelajaran tata bahasa
-              </span>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setSelectedLevel('all')}
+                className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
+                  selectedLevel === 'all'
+                    ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25'
+                    : 'bg-secondary/60 text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Semua Level
+              </button>
+              {levelTracks.map((lvl) => {
+                const isActive = selectedLevel === lvl.code;
+                return (
+                  <button
+                    key={lvl.code}
+                    type="button"
+                    onClick={() => setSelectedLevel(lvl.code)}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/25'
+                        : 'bg-secondary/60 text-muted-foreground hover:text-foreground'
+                    }`}
+                    title={lvl.description}
+                  >
+                    {lvl.code}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setSelectedLevel('all')}
-              className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
-                selectedLevel === 'all'
-                  ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25'
-                  : 'bg-secondary/60 text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Semua Level
-            </button>
-            {levelTracks.map((lvl) => {
-              const isActive = selectedLevel === lvl.code;
-              return (
-                <button
-                  key={lvl.code}
+          {/* Guest Lock Overlay */}
+          {isGuest && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[2px] px-4">
+              <div className="flex flex-wrap items-center justify-center gap-2 text-center">
+                <span className="flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/15 px-3 py-1 text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                  <Lock className="h-3.5 w-3.5" />
+                  <span>Target Tingkatan JLPT & CEFR Terkunci</span>
+                </span>
+                <Button
                   type="button"
-                  onClick={() => setSelectedLevel(lvl.code)}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
-                    isActive
-                      ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/25'
-                      : 'bg-secondary/60 text-muted-foreground hover:text-foreground'
-                  }`}
-                  title={lvl.description}
+                  size="sm"
+                  variant="default"
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="h-7 text-xs font-semibold px-3 shadow-md"
                 >
-                  {lvl.code}
-                </button>
-              );
-            })}
-          </div>
+                  Masuk untuk Buka Filter
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 2-Column Responsive Layout */}
@@ -355,7 +381,13 @@ export default function Home() {
 
                   <button
                     type="button"
-                    onClick={() => setLearningTab('grammar')}
+                    onClick={() => {
+                      if (isGuest) {
+                        setIsAuthModalOpen(true);
+                      } else {
+                        setLearningTab('grammar');
+                      }
+                    }}
                     className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
                       learningTab === 'grammar'
                         ? 'bg-secondary text-foreground shadow-sm border border-border'
@@ -364,6 +396,7 @@ export default function Home() {
                   >
                     <BookOpen className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                     <span>Tata Bahasa ({grammarLessons.length})</span>
+                    {isGuest && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
                   </button>
                 </div>
 
@@ -383,6 +416,29 @@ export default function Home() {
                   isLoggedIn={!isGuest}
                   onCardMutated={handleRefresh}
                 />
+              ) : isGuest ? (
+                <div className="rounded-2xl border border-border bg-card/90 p-8 text-center shadow-lg backdrop-blur-md space-y-3">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/25">
+                    <Lock className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-base font-extrabold text-foreground">
+                    Akses Tata Bahasa Terkunci
+                  </h3>
+                  <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+                    Pelajari 362+ pola rumus kalimat resmi JLPT (N5–N1) dan CEFR (A1–C2) lengkap dengan contoh nyata dan audio tips. Masuk sekarang untuk membuka modul ini!
+                  </p>
+                  <div className="pt-2 flex justify-center">
+                    <Button
+                      type="button"
+                      variant="default"
+                      onClick={() => setIsAuthModalOpen(true)}
+                      className="gap-2 font-bold text-xs shadow-md"
+                    >
+                      <LogIn className="h-4 w-4" />
+                      <span>Masuk untuk Membuka Tata Bahasa</span>
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <GrammarViewer
                   key={`grammar-${data.currentLang.code}-${selectedLevel}`}

@@ -11,6 +11,7 @@ import {
   Sun,
   Moon,
   PenTool,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthUser } from "@/components/AuthModal";
@@ -121,15 +122,27 @@ export default function Header({
             <span>{totalXp}</span>
           </div>
 
-          {/* Japanese Basics Page Link */}
-          <Link
-            href="/japanese-basics"
-            className="hidden md:flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-bold text-indigo-600 dark:text-indigo-400 transition-colors"
-            title="Belajar Aksara Jepang (Hiragana, Katakana, Kanji, Canvas Pad)"
-          >
-            <PenTool className="h-3.5 w-3.5 text-indigo-500" />
-            <span>Aksara Jepang</span>
-          </Link>
+          {/* Japanese Basics Page Link (Protected for logged in user) */}
+          {!currentUser ? (
+            <button
+              type="button"
+              onClick={onOpenAuthModal}
+              className="hidden md:flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-bold text-indigo-600 dark:text-indigo-400 transition-colors"
+              title="Masuk untuk Belajar Aksara Jepang"
+            >
+              <Lock className="h-3.5 w-3.5 text-indigo-500" />
+              <span>Aksara Jepang</span>
+            </button>
+          ) : (
+            <Link
+              href="/japanese-basics"
+              className="hidden md:flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-bold text-indigo-600 dark:text-indigo-400 transition-colors"
+              title="Belajar Aksara Jepang (Hiragana, Katakana, Kanji, Canvas Pad)"
+            >
+              <PenTool className="h-3.5 w-3.5 text-indigo-500" />
+              <span>Aksara Jepang</span>
+            </Link>
+          )}
 
           {/* Theme Quick Toggle Button (Desktop/Tablet) */}
           <Button

@@ -18,6 +18,7 @@ import {
   Mail,
   Compass,
   PenTool,
+  Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -191,14 +192,28 @@ export default function SidebarDrawer({
               Aksi Cepat
             </span>
             <div className="space-y-2">
-              <Link
-                href="/japanese-basics"
-                onClick={onClose}
-                className="flex items-center justify-start gap-2.5 h-10 px-3 text-xs font-semibold rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 transition-colors w-full"
-              >
-                <PenTool className="h-4 w-4 text-indigo-500 shrink-0" />
-                <span>Belajar Aksara Jepang (Canvas Pad)</span>
-              </Link>
+              {!currentUser ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenAuthModal();
+                  }}
+                  className="flex items-center justify-start gap-2.5 h-10 px-3 text-xs font-semibold rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 transition-colors w-full text-left"
+                >
+                  <Lock className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <span>Belajar Aksara Jepang (Perlu Masuk)</span>
+                </button>
+              ) : (
+                <Link
+                  href="/japanese-basics"
+                  onClick={onClose}
+                  className="flex items-center justify-start gap-2.5 h-10 px-3 text-xs font-semibold rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 transition-colors w-full"
+                >
+                  <PenTool className="h-4 w-4 text-indigo-500 shrink-0" />
+                  <span>Belajar Aksara Jepang (Canvas Pad)</span>
+                </Link>
+              )}
 
               <Button
                 type="button"
