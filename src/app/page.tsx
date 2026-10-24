@@ -1,95 +1,240 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Header from '@/components/Header';
+import FlashcardViewer, { CardItem } from '@/components/FlashcardViewer';
+import DailyChallengeForm from '@/components/DailyChallengeForm';
+import TeamFeed, { SubmissionItem } from '@/components/TeamFeed';
+import Leaderboard from '@/components/Leaderboard';
+import AddCardModal from '@/components/AddCardModal';
+import { Sparkles, Compass, MessageSquareQuote, Layers } from 'lucide-react';
+
+interface LanguageItem {
+  code: string;
+  name: string;
+  native_name: string;
+  flag: string;
+  speech_locale: string;
+}
+
+interface PromptItem {
+  id: number;
+  language_code: string;
+  card_id: number | null;
+  prompt_question: string;
+  hint: string;
+  card_text?: string;
+}
+
+interface LeaderboardUser {
+  user_name: string;
+  current_streak: number;
+  total_submissions: number;
+  last_active_date: string | null;
+  xp_points: number;
+}
+
+interface AppData {
+  languages: LanguageItem[];
+  currentLang: LanguageItem;
+  cards: CardItem[];
+  prompt: PromptItem | null;
+  recentSubmissions: SubmissionItem[];
+  leaderboard: LeaderboardUser[];
+}
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [selectedLang, setSelectedLang] = useState('en');
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<AppData | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [userStreak, setUserStreak] = useState(1);
+  const [userXp, setUserXp] = useState(0);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadData() {
+      try {
+        const res = await fetch(`/api/data?lang=${selectedLang}`, { cache: 'no-store' });
+        if (res.ok) {
+          const json: AppData = await res.json();
+          if (!ignore) {
+            setData(json);
+
+            if (typeof window !== 'undefined') {
+              const savedName = localStorage.getItem('lingua_user_name');
+              if (savedName && json.leaderboard) {
+                const myUser = json.leaderboard.find(
+                  (u) => u.user_name.toLowerCase() === savedName.toLowerCase()
+                );
+                if (myUser) {
+                  setUserStreak(myUser.current_streak);
+                  setUserXp(myUser.xp_points);
+                }
+              }
+            }
+          }
+        }
+      } catch (e: unknown) {
+        if (!ignore) {
+          console.error('Failed to load data:', e);
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadData();
+
+    return () => {
+      ignore = true;
+    };
+  }, [selectedLang, refreshTrigger]);
+
+  const handleLangChange = (code: string) => {
+    setSelectedLang(code);
+  };
+
+  const handleRefresh = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  if (loading || !data) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary gap-3">
+        <div className="h-9 w-9 rounded-full border-3 border-border border-t-primary animate-spin" />
+        <span className="text-sm font-semibold text-muted-foreground">
+          Memuat LinguaSync...
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      {/* Top Header */}
+      <Header
+        currentLang={data.currentLang}
+        languages={data.languages}
+        onSelectLang={handleLangChange}
+        onOpenAddModal={() => setIsAddModalOpen(true)}
+        streakCount={userStreak}
+        totalXp={userXp}
+      />
+
+      {/* Main Content Area */}
+      <main className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-6 py-8 pb-16">
+        {/* Welcome Banner */}
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-emerald-500/5 p-6 sm:p-7 shadow-lg backdrop-blur-md">
+          <div>
+            <div className="mb-1.5 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                Target Belajar Harian: {data.currentLang.name} ({data.currentLang.flag})
+              </h2>
+            </div>
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              Metode <strong className="text-foreground">Hybrid Micro-Drill</strong>: Buka 3-5 kartu kosakata praktis di bawah, dengarkan audionya, lalu selesaikan 1 tantangan kalimat aktif hari ini dalam waktu kurang dari 5 menit!
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4 rounded-xl border border-border/60 bg-black/40 px-5 py-3 backdrop-blur-sm">
+            <div className="text-center">
+              <span className="text-lg font-extrabold text-cyan-400">{data.cards.length}</span>
+              <span className="block text-[11px] font-medium text-muted-foreground">Kartu Siap</span>
+            </div>
+            <div className="h-8 w-px bg-border/60" />
+            <div className="text-center">
+              <span className="text-lg font-extrabold text-emerald-400">{data.recentSubmissions.length}</span>
+              <span className="block text-[11px] font-medium text-muted-foreground">Tantangan Tim</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 2-Column Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Left Column: Flashcards & Daily Challenge */}
+          <div className="flex flex-col gap-8">
+            {/* Flashcard Section */}
+            <section>
+              <div className="mb-3.5 flex items-center gap-2">
+                <Layers className="h-5 w-5 text-cyan-400" />
+                <h3 className="text-lg font-bold text-foreground">
+                  1. Flashcard Kosakata & Audio Pelafalan
+                </h3>
+              </div>
+              <FlashcardViewer
+                key={data.currentLang.code}
+                cards={data.cards}
+                speechLocale={data.currentLang.speech_locale}
+                langCode={data.currentLang.code}
+              />
+            </section>
+
+            {/* Daily Challenge Form */}
+            <section>
+              <div className="mb-3.5 flex items-center gap-2">
+                <Compass className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-bold text-foreground">
+                  2. Latihan Output (Tulis & Ucapkan)
+                </h3>
+              </div>
+              <DailyChallengeForm
+                key={data.currentLang.code}
+                prompt={data.prompt}
+                languageCode={data.currentLang.code}
+                speechLocale={data.currentLang.speech_locale}
+                onSubmitted={handleRefresh}
+              />
+            </section>
+          </div>
+
+          {/* Right Column: Leaderboard & Team Feed */}
+          <div className="flex flex-col gap-7">
+            {/* Team Leaderboard Widget */}
+            <Leaderboard board={data.leaderboard} />
+
+            {/* Team Feed Section */}
+            <section>
+              <div className="mb-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MessageSquareQuote className="h-5 w-5 text-emerald-400" />
+                  <h3 className="text-lg font-bold text-foreground">
+                    Aktivitas & Tulisan Tim Hari Ini
+                  </h3>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {data.recentSubmissions.length} Entri
+                </span>
+              </div>
+
+              <TeamFeed
+                submissions={data.recentSubmissions}
+                speechLocale={data.currentLang.speech_locale}
+                onRefresh={handleRefresh}
+              />
+            </section>
+          </div>
         </div>
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="border-t border-border/80 py-6 text-center text-xs text-muted-foreground">
+        <p>LinguaSync • Designed for Software Engineering Teams • English (🇺🇸) & 日本語 (🇯🇵)</p>
       </footer>
+
+      {/* Add Card Modal */}
+      <AddCardModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        langCode={data.currentLang.code}
+        onCardAdded={handleRefresh}
+      />
     </div>
   );
 }
