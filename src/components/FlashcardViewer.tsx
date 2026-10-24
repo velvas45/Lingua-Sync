@@ -14,6 +14,8 @@ import {
 import AudioButton from './AudioButton';
 import RubyText from './RubyText';
 import EditCardModal from './EditCardModal';
+import ConfirmDialog from './ConfirmDialog';
+import { toast } from './Toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -77,6 +79,8 @@ export default function FlashcardViewer({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFurigana, setShowFurigana] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!cards || cards.length === 0) {
     return (
@@ -108,19 +112,22 @@ export default function FlashcardViewer({
     setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
   };
 
-  const handleDeleteCard = async () => {
-    if (!confirm(`Hapus kosakata "${currentCard.primary_text}" dari koleksi Anda?`)) return;
+  const executeDeleteCard = async () => {
+    setIsDeleting(true);
     try {
       const res = await fetch(`/api/cards?id=${currentCard.id}`, { method: 'DELETE' });
       if (res.ok) {
+        toast.success(`Kosakata "${currentCard.primary_text}" berhasil dihapus.`);
         setCurrentIndex((prev) => Math.max(0, prev - 1));
         onCardMutated?.();
       } else {
         const data = await res.json();
-        alert(data.error || 'Gagal menghapus kartu.');
+        toast.error(data.error || 'Gagal menghapus kartu.');
       }
     } catch {
-      alert('Gagal menghubungi server.');
+      toast.error('Gagal menghubungi server.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -174,7 +181,7 @@ export default function FlashcardViewer({
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={handleDeleteCard}
+                onClick={() => setIsConfirmDeleteOpen(true)}
                 className="h-8 gap-1 px-2 text-xs text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10"
                 title="Hapus kosakata ini"
               >
@@ -331,6 +338,19 @@ export default function FlashcardViewer({
         card={currentCard}
         langCode={langCode}
         onCardUpdated={() => onCardMutated?.()}
+      />
+
+      {/* Delete Confirmation Modal Dialog */}
+      <ConfirmDialog
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={executeDeleteCard}
+        title="Hapus Kosakata Ini?"
+        description={`Apakah Anda yakin ingin menghapus kosakata "${currentCard.primary_text}" dari koleksi kartu pribadi Anda? Tindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Ya, Hapus Kartu"
+        cancelLabel="Batal"
+        variant="destructive"
+        isLoading={isDeleting}
       />
     </div>
   );

@@ -10,6 +10,7 @@ import AddCardModal from '@/components/AddCardModal';
 import AuthModal, { AuthUser } from '@/components/AuthModal';
 import SidebarDrawer from '@/components/SidebarDrawer';
 import EditProfileModal from '@/components/EditProfileModal';
+import { ToastContainer } from '@/components/Toast';
 import { Sparkles, Compass, MessageSquareQuote, Layers } from 'lucide-react';
 
 interface LanguageItem {
@@ -343,6 +344,9 @@ export default function Home() {
           }}
         />
       )}
+
+      {/* Toast Notification Container */}
+      <ToastContainer />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useSyncExternalStore } from 'react';
 import { Mic, MicOff, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from './Toast';
 
 interface SpeechRecorderProps {
   langLocale: string; // 'en-US' or 'ja-JP'
@@ -59,7 +60,7 @@ export default function SpeechRecorder({ langLocale, onTranscript }: SpeechRecor
 
   const toggleRecording = () => {
     if (!isSupported) {
-      alert('Browser belum mendukung Web Speech Recognition. Gunakan Google Chrome atau Edge untuk fitur rekam suara.');
+      toast.info('Browser belum mendukung Web Speech Recognition. Gunakan Google Chrome atau Edge untuk fitur rekam suara.', 'Fitur Tidak Didukung');
       return;
     }
 

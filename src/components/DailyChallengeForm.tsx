@@ -13,6 +13,7 @@ import {
 import SpeechRecorder from "./SpeechRecorder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "./Toast";
 
 interface DailyChallengeFormProps {
   prompt: {
@@ -79,7 +80,7 @@ export default function DailyChallengeForm({
     }
 
     if (!userName.trim() || !textResponse.trim() || !prompt) {
-      alert("Mohon lengkapi kalimat tantangan Anda!");
+      toast.error("Mohon lengkapi kalimat tantangan Anda!", "Form Belum Lengkap");
       return;
     }
 
@@ -106,28 +107,24 @@ export default function DailyChallengeForm({
       };
       if (res.ok) {
         if (data.isRepeat) {
-          setSuccessMsg(
-            `Latihan tambahan berhasil tersimpan! +${
-              data.earnedXp ?? 5
-            } XP ditambahkan. Terus latih konsistensi Anda!`
-          );
+          const msg = `Latihan tambahan berhasil tersimpan! +${data.earnedXp ?? 5} XP ditambahkan.`;
+          setSuccessMsg(msg);
+          toast.success(msg, "Latihan Tambahan");
         } else {
-          setSuccessMsg(
-            `Tantangan harian berhasil diselesaikan! +${
-              data.earnedXp ?? 15
-            } XP ditambahkan ke profil Anda.`
-          );
+          const msg = `Tantangan harian berhasil diselesaikan! +${data.earnedXp ?? 15} XP ditambahkan.`;
+          setSuccessMsg(msg);
+          toast.success(msg, "Tantangan Harian Selesai");
         }
         setTextResponse("");
         setSpeakingPracticed(false);
         onSubmitted();
         setTimeout(() => setSuccessMsg(null), 6000);
       } else {
-        alert("Gagal mengirim: " + (data.error || "Terjadi kesalahan"));
+        toast.error(data.error || "Terjadi kesalahan", "Gagal Mengirim");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Unknown error";
-      alert("Gagal mengirim jawaban: " + msg);
+      toast.error(msg, "Gagal Mengirim Jawaban");
     } finally {
       setIsSubmitting(false);
     }

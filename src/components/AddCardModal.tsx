@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { toast } from './Toast';
 
 interface AddCardModalProps {
   isOpen: boolean;
@@ -317,7 +318,7 @@ export default function AddCardModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!primaryText || !meaningId || !exampleSource || !exampleMeaning) {
-      alert('Mohon lengkapi kata, arti, dan contoh kalimat!');
+      toast.error('Mohon lengkapi kata, arti, dan contoh kalimat!', 'Form Belum Lengkap');
       return;
     }
 
@@ -341,16 +342,16 @@ export default function AddCardModal({
       });
 
       if (res.ok) {
-        alert('Kosakata baru berhasil ditambahkan!');
+        toast.success(`Kosakata "${primaryText}" berhasil ditambahkan ke koleksi Anda!`, 'Berhasil Ditambahkan');
         onCardAdded();
         handleClose();
       } else {
         const data = await res.json();
-        alert('Gagal menambahkan kartu: ' + (data.error || 'Terjadi kesalahan'));
+        toast.error(data.error || 'Terjadi kesalahan saat menyimpan', 'Gagal Menambahkan');
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Unknown error';
-      alert('Error: ' + msg);
+      toast.error(msg, 'Kesalahan Jaringan');
     } finally {
       setIsSubmitting(false);
     }

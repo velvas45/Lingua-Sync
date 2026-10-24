@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AuthUser } from './AuthModal';
+import { toast } from './Toast';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -74,7 +75,7 @@ export default function EditProfileModal({
         username: data.user.username,
         phone_number: data.user.phone_number,
       });
-      alert('Profil Anda berhasil diperbarui!');
+      toast.success('Profil akun Anda berhasil diperbarui!', 'Profil Tersimpan');
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Terjadi kesalahan jaringan';

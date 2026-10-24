@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CardItem } from './FlashcardViewer';
 import { generateHeuristicAudioGuide } from './AddCardModal';
+import { toast } from './Toast';
 
 interface EditCardModalProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ export default function EditCardModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!card || !primaryText || !meaningId || !exampleSource || !exampleMeaning) {
-      alert('Mohon lengkapi kata, arti, dan contoh kalimat!');
+      toast.error('Mohon lengkapi kata, arti, dan contoh kalimat!', 'Form Belum Lengkap');
       return;
     }
 
@@ -76,16 +77,16 @@ export default function EditCardModal({
       });
 
       if (res.ok) {
-        alert('Kosakata berhasil diperbarui!');
+        toast.success(`Kosakata "${primaryText}" berhasil diperbarui!`, 'Perubahan Tersimpan');
         onCardUpdated();
         onClose();
       } else {
         const data = await res.json();
-        alert('Gagal mengubah kartu: ' + (data.error || 'Terjadi kesalahan'));
+        toast.error(data.error || 'Terjadi kesalahan saat mengubah kartu', 'Gagal Memperbarui');
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Unknown error';
-      alert('Error: ' + msg);
+      toast.error(msg, 'Kesalahan Jaringan');
     } finally {
       setIsSubmitting(false);
     }
