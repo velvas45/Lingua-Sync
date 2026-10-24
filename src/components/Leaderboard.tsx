@@ -67,10 +67,10 @@ export default function Leaderboard({ board }: LeaderboardProps) {
             </div>
 
             <div className="text-right">
-              <span className="text-xs font-bold text-emerald-400">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
                 {user.xp_points} XP
               </span>
-              <span className="block text-[11px] font-medium text-amber-400">
+              <span className="block text-[11px] font-medium text-amber-700 dark:text-amber-400">
                 🔥 {user.current_streak}d
               </span>
             </div>

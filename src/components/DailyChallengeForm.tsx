@@ -204,7 +204,7 @@ export default function DailyChallengeForm({
                 Tulis Kalimat Anda ({languageCode === 'en' ? 'Bahasa Inggris' : 'Bahasa Jepang'}):
               </label>
               {speakingPracticed && (
-                <span className="flex items-center gap-1 text-xs font-semibold text-emerald-400">
+                <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                   <CheckCircle2 className="h-3.5 w-3.5" /> Bonus Speaking Aktif (+10 XP)
                 </span>
               )}
@@ -233,8 +233,8 @@ export default function DailyChallengeForm({
           </div>
 
           {successMsg && (
-            <div className="flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 p-3 text-sm text-emerald-400">
-              <Award className="h-5 w-5 shrink-0" />
+            <div className="flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 p-3 text-sm text-emerald-800 dark:text-emerald-300">
+              <Award className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <span>{successMsg}</span>
             </div>
           )}

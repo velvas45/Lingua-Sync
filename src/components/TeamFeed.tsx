@@ -185,7 +185,7 @@ export default function TeamFeed({
               </div>
 
               {/* Response Text */}
-              <div className="rounded-lg border-l-2 border-cyan-400 bg-secondary/30 px-3.5 py-2.5 text-sm font-medium text-foreground">
+              <div className="rounded-lg border-l-2 border-cyan-600 dark:border-cyan-400 bg-secondary/30 px-3.5 py-2.5 text-sm font-medium text-foreground">
                 “{sub.text_response}”
               </div>
             </CardContent>

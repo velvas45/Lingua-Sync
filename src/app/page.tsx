@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import Header from '@/components/Header';
 import FlashcardViewer, { CardItem } from '@/components/FlashcardViewer';
 import DailyChallengeForm from '@/components/DailyChallengeForm';
@@ -8,6 +8,8 @@ import TeamFeed, { SubmissionItem } from '@/components/TeamFeed';
 import Leaderboard from '@/components/Leaderboard';
 import AddCardModal from '@/components/AddCardModal';
 import AuthModal, { AuthUser } from '@/components/AuthModal';
+import SidebarDrawer from '@/components/SidebarDrawer';
+import EditProfileModal from '@/components/EditProfileModal';
 import { Sparkles, Compass, MessageSquareQuote, Layers } from 'lucide-react';
 
 interface LanguageItem {
@@ -46,6 +48,18 @@ interface AppData {
   isGuest: boolean;
 }
 
+const subscribeTheme = (callback: () => void) => {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+};
+
+const getThemeSnapshot = (): 'dark' | 'light' => {
+  if (typeof window === 'undefined') return 'dark';
+  return (localStorage.getItem('lingua_theme') as 'dark' | 'light') || 'dark';
+};
+
+const getThemeServerSnapshot = (): 'dark' | 'light' => 'dark';
+
 export default function Home() {
   const [selectedLang, setSelectedLang] = useState('en');
   const [loading, setLoading] = useState(true);
@@ -54,7 +68,32 @@ export default function Home() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+
+  // Idiomatic React 19 theme synchronization
+  const storedTheme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
+  const [themeOverride, setThemeOverride] = useState<'dark' | 'light' | null>(null);
+  const theme = themeOverride ?? storedTheme;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setThemeOverride(nextTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lingua_theme', nextTheme);
+    }
+  };
 
   useEffect(() => {
     let ignore = false;
@@ -126,7 +165,7 @@ export default function Home() {
   const isGuest = !currentUser;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors">
       {/* Top Header */}
       <Header
         currentLang={data.currentLang}
@@ -138,6 +177,9 @@ export default function Home() {
         currentUser={currentUser}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
+        onOpenDrawer={() => setIsDrawerOpen(true)}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
 
       {/* Main Content Area */}
@@ -156,16 +198,16 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 rounded-xl border border-border/60 bg-black/40 px-5 py-3 backdrop-blur-sm">
+          <div className="flex items-center gap-4 rounded-xl border border-border bg-card/90 px-5 py-3 shadow-sm backdrop-blur-sm">
             <div className="text-center">
-              <span className="text-lg font-extrabold text-cyan-400">{data.cards.length}</span>
+              <span className="text-lg font-extrabold text-cyan-700 dark:text-cyan-400">{data.cards.length}</span>
               <span className="block text-[11px] font-medium text-muted-foreground">
                 {isGuest ? 'Kartu Publik' : 'Koleksi Kartu'}
               </span>
             </div>
-            <div className="h-8 w-px bg-border/60" />
+            <div className="h-8 w-px bg-border" />
             <div className="text-center">
-              <span className="text-lg font-extrabold text-emerald-400">{data.recentSubmissions.length}</span>
+              <span className="text-lg font-extrabold text-emerald-700 dark:text-emerald-400">{data.recentSubmissions.length}</span>
               <span className="block text-[11px] font-medium text-muted-foreground">Aktivitas Komunitas</span>
             </div>
           </div>
@@ -179,13 +221,13 @@ export default function Home() {
             <section>
               <div className="mb-3.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Layers className="h-5 w-5 text-cyan-400" />
+                  <Layers className="h-5 w-5 text-cyan-700 dark:text-cyan-400" />
                   <h3 className="text-lg font-bold text-foreground">
                     1. Flashcard Kosakata & Audio Pelafalan
                   </h3>
                 </div>
                 {isGuest && (
-                  <span className="rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[11px] font-medium text-cyan-400 border border-cyan-500/20">
+                  <span className="rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-700 dark:text-cyan-400 border border-cyan-500/30">
                     5 Kartu Dasar
                   </span>
                 )}
@@ -254,7 +296,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 py-6 text-center text-xs text-muted-foreground">
-        <p>LinguaSync • Designed for Software Engineering Teams • English (🇺🇸) & 日本語 (🇯🇵)</p>
+        <p>LinguaSync • Platform Pembelajar Bahasa Komunitas • English (🇺🇸) & 日本語 (🇯🇵)</p>
       </footer>
 
       {/* Add Card Modal */}
@@ -271,6 +313,37 @@ export default function Home() {
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
       />
+
+      {/* Sidebar Navigation Drawer */}
+      <SidebarDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        currentUser={currentUser}
+        currentLang={data.currentLang}
+        streakCount={streakCount}
+        totalXp={totalXp}
+        cardsCount={data.cards.length}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+        onOpenAddModal={() => setIsAddModalOpen(true)}
+        onOpenEditProfile={() => setIsEditProfileOpen(true)}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
+      />
+
+      {/* Edit User Profile Modal */}
+      {currentUser && (
+        <EditProfileModal
+          key={currentUser.id}
+          isOpen={isEditProfileOpen}
+          onClose={() => setIsEditProfileOpen(false)}
+          user={currentUser}
+          onProfileUpdated={(updated) => {
+            setCurrentUser(updated);
+            handleRefresh();
+          }}
+        />
+      )}
     </div>
   );
 }

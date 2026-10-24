@@ -187,11 +187,11 @@ export default function FlashcardViewer({
       </div>
 
       {/* Main Flashcard Card */}
-      <Card className="relative overflow-hidden border-border/80 bg-card/90 shadow-2xl backdrop-blur-xl">
+      <Card className="relative overflow-hidden border-border bg-card shadow-lg backdrop-blur-xl transition-colors">
         <CardContent className="p-6 sm:p-8">
           <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
+              <span className="text-xs font-semibold uppercase tracking-wider text-cyan-700 dark:text-cyan-400">
                 {currentCard.part_of_speech || 'Vocabulary'}
               </span>
 
@@ -206,7 +206,7 @@ export default function FlashcardViewer({
 
               {/* Phonetic / Romaji */}
               {currentCard.phonetic && (
-                <p className="mt-1.5 font-mono text-sm sm:text-base text-amber-400">
+                <p className="mt-1.5 font-mono text-sm sm:text-base text-amber-700 dark:text-amber-400">
                   {currentCard.phonetic}
                 </p>
               )}
@@ -221,7 +221,7 @@ export default function FlashcardViewer({
           </div>
 
           {/* Meaning in Indonesian */}
-          <div className="mb-6 rounded-xl border border-white/5 bg-white/[0.03] p-4">
+          <div className="mb-6 rounded-xl border border-border bg-secondary/50 p-4">
             <span className="mb-1 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
               ARTI DALAM BAHASA INDONESIA:
             </span>
@@ -243,7 +243,7 @@ export default function FlashcardViewer({
               />
             </div>
 
-            <p className="text-base sm:text-lg font-medium text-emerald-400 leading-relaxed">
+            <p className="text-base sm:text-lg font-medium text-emerald-700 dark:text-emerald-400 leading-relaxed">
               “{currentCard.example_source}”
             </p>
 
@@ -252,10 +252,10 @@ export default function FlashcardViewer({
             </p>
 
             {currentCard.audio_guide && (
-              <div className="mt-2 flex items-center gap-2 rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-400">
-                <Sparkles className="h-4 w-4 shrink-0" />
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-800 dark:text-cyan-300">
+                <Sparkles className="h-4 w-4 shrink-0 text-cyan-600 dark:text-cyan-400" />
                 <span>
-                  <strong className="text-cyan-300">Tips Pengucapan:</strong>{' '}
+                  <strong className="text-cyan-900 dark:text-cyan-200">Tips Pengucapan:</strong>{' '}
                   {currentCard.audio_guide}
                 </span>
               </div>
@@ -264,21 +264,21 @@ export default function FlashcardViewer({
         </CardContent>
       </Card>
 
-      {/* Advanced Responsive Windowed Pagination */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+      {/* Advanced Responsive Windowed Pagination (Zero Horizontal Scrollbar) */}
+      <div className="flex items-center justify-between gap-2 pt-1">
         <Button
           type="button"
           variant="secondary"
           size="sm"
           onClick={handlePrev}
           disabled={cards.length <= 1}
-          className="gap-1.5 border border-border font-semibold h-9"
+          className="gap-1.5 border border-border font-semibold h-9 shrink-0"
         >
-          <ChevronLeft className="h-4 w-4" /> <span>Sebelumnya</span>
+          <ChevronLeft className="h-4 w-4" /> <span className="hidden sm:inline">Sebelumnya</span>
         </Button>
 
         {/* Windowed Page Pill Navigation */}
-        <div className="flex items-center gap-1 overflow-x-auto py-1">
+        <div className="flex items-center justify-center gap-1 py-1 overflow-hidden">
           {paginationItems.map((item, idx) => {
             if (item === 'ellipsis-start' || item === 'ellipsis-end') {
               return (
@@ -296,10 +296,10 @@ export default function FlashcardViewer({
                 key={pageIdx}
                 type="button"
                 onClick={() => setCurrentIndex(pageIdx)}
-                className={`h-8 min-w-[32px] px-2 rounded-lg text-xs font-bold transition-all ${
+                className={`h-8 w-8 rounded-lg text-xs font-bold transition-all flex items-center justify-center shrink-0 ${
                   isActive
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25 scale-105'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25 ring-2 ring-primary ring-offset-1 ring-offset-background'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/80'
                 }`}
                 title={`Buka kartu ${pageIdx + 1}`}
               >
@@ -315,9 +315,9 @@ export default function FlashcardViewer({
           size="sm"
           onClick={handleNext}
           disabled={cards.length <= 1}
-          className="gap-1.5 border border-border font-semibold h-9"
+          className="gap-1.5 border border-border font-semibold h-9 shrink-0"
         >
-          <span>Selanjutnya</span> <ChevronRight className="h-4 w-4" />
+          <span className="hidden sm:inline">Selanjutnya</span> <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
