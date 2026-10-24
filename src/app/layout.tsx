@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'LinguaSync - Daily Micro-Immersion for Tech Teams',
-  description: 'Praktek harian bahasa Inggris dan Jepang untuk software engineering team menggunakan micro-drills, Web Speech API, dan team feedback ledger.',
+  title: 'LinguaSync - Platform Belajar Bahasa Harian & Komunitas Praktik',
+  description: 'Praktek harian bahasa Inggris dan Jepang untuk semua kalangan melalui micro-drills, Web Speech API, dan apresiasi komunitas pembelajar.',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

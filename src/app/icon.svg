@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded App Icon Background -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)" />
+  <rect width="64" height="64" rx="16" fill="url(#glowGrad)" />
+
+  <!-- LinguaSync Brand Graphic: Dual Speech Bubbles with Globe Ring -->
+  <!-- Primary Chat Bubble -->
+  <path d="M18 18C14.6863 18 12 20.6863 12 24V34C12 37.3137 14.6863 40 18 40H22V46L29 40H38C41.3137 40 44 37.3137 44 34V24C44 20.6863 41.3137 18 38 18H18Z" fill="#0F172A" fill-opacity="0.45" />
+
+  <!-- Character Glyphs: 'A' and 'あ' symbolising English and Japanese -->
+  <text x="21" y="32" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="14" fill="#38BDF8">A</text>
+  <text x="31" y="34" font-family="'Hiragino Sans', 'Yu Gothic', sans-serif" font-weight="900" font-size="13" fill="#A78BFA">あ</text>
+
+  <!-- Sparkle Accent -->
+  <path d="M46 14L47.5 18.5L52 20L47.5 21.5L46 26L44.5 21.5L40 20L44.5 18.5L46 14Z" fill="#34D399" />
+</svg>

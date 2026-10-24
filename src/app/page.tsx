@@ -152,7 +152,7 @@ export default function Home() {
               </h2>
             </div>
             <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Metode <strong className="text-foreground">Hybrid Micro-Drill</strong>: Buka 3-5 kartu kosakata praktis di bawah, dengarkan audionya, lalu selesaikan 1 tantangan kalimat aktif hari ini dalam waktu kurang dari 5 menit!
+              Metode <strong className="text-foreground">Hybrid Micro-Drill</strong>: Pelajari kartu kosakata praktis di bawah, dengarkan pelafalannya, lalu selesaikan tantangan kalimat aktif hari ini!
             </p>
           </div>
 
@@ -166,7 +166,7 @@ export default function Home() {
             <div className="h-8 w-px bg-border/60" />
             <div className="text-center">
               <span className="text-lg font-extrabold text-emerald-400">{data.recentSubmissions.length}</span>
-              <span className="block text-[11px] font-medium text-muted-foreground">Tantangan Tim</span>
+              <span className="block text-[11px] font-medium text-muted-foreground">Aktivitas Komunitas</span>
             </div>
           </div>
         </div>
@@ -195,6 +195,8 @@ export default function Home() {
                 cards={data.cards}
                 speechLocale={data.currentLang.speech_locale}
                 langCode={data.currentLang.code}
+                isLoggedIn={!isGuest}
+                onCardMutated={handleRefresh}
               />
             </section>
 
@@ -230,7 +232,7 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <MessageSquareQuote className="h-5 w-5 text-emerald-400" />
                   <h3 className="text-lg font-bold text-foreground">
-                    Aktivitas & Tulisan Tim Hari Ini
+                    Aktivitas & Tulisan Komunitas Hari Ini
                   </h3>
                 </div>
                 <span className="text-xs text-muted-foreground">

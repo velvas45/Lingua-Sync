@@ -87,11 +87,17 @@ export default function DailyChallengeForm({
         }),
       });
 
-      const data = (await res.json()) as { earnedXp?: number; error?: string };
+      const data = (await res.json()) as { earnedXp?: number; error?: string; isRepeat?: boolean };
       if (res.ok) {
-        setSuccessMsg(
-          `Tantangan harian berhasil tersimpan! +${data.earnedXp ?? 15} XP ditambahkan ke profil Anda.`
-        );
+        if (data.isRepeat) {
+          setSuccessMsg(
+            `Latihan tambahan berhasil tersimpan! +${data.earnedXp ?? 5} XP ditambahkan. Terus latih konsistensi Anda!`
+          );
+        } else {
+          setSuccessMsg(
+            `Tantangan harian berhasil diselesaikan! +${data.earnedXp ?? 15} XP ditambahkan ke profil Anda.`
+          );
+        }
         setTextResponse('');
         setSpeakingPracticed(false);
         onSubmitted();
@@ -114,7 +120,7 @@ export default function DailyChallengeForm({
           Belum ada tantangan harian untuk bahasa ini.
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Silakan beralih ke bahasa lain atau kembali lagi nanti!
+          Silakan tambahkan kosakata baru atau beralih ke bahasa lain!
         </p>
       </div>
     );
@@ -129,10 +135,10 @@ export default function DailyChallengeForm({
             <Lock className="h-6 w-6" />
           </div>
           <h4 className="text-lg font-bold text-foreground mb-1">
-            Tantangan Harian Eksklusif Anggota
+            Tantangan Harian Eksklusif Pembelajar
           </h4>
           <p className="text-xs text-muted-foreground max-w-sm mb-5 leading-relaxed">
-            Selesaikan tantangan harian untuk menguji pemahaman, melatih speaking audio native, dan mengumpulkan XP untuk tim!
+            Selesaikan tantangan harian untuk menguji pemahaman, melatih speaking audio native, dan mengumpulkan XP di komunitas pembelajar!
           </p>
           <Button
             type="button"
@@ -154,7 +160,7 @@ export default function DailyChallengeForm({
           </div>
           <div>
             <h3 className="text-lg font-bold text-foreground">
-              Daily Micro-Output Challenge (Tantangan Hari Ini)
+              Latihan Praktik Harian (Daily Output Practice)
             </h3>
             <p className="text-xs text-muted-foreground">
               Latih kemampuan aktifmu. Buat 1-2 kalimat langsung dalam bahasa target!
@@ -175,14 +181,14 @@ export default function DailyChallengeForm({
           {/* User Name Field */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-muted-foreground">
-              Nama Anda (Akun Tim):
+              Nama Anda (atau Nama Panggilan):
             </label>
             <div className="relative">
               <Input
                 type="text"
                 value={userName}
                 onChange={(e) => handleNameChange(e.target.value)}
-                placeholder="Contoh: Helmi / Rizky / Sarah"
+                placeholder="Contoh: Helmi / Sarah / Budi"
                 className="pl-9"
                 disabled={Boolean(currentUsername)}
                 required
@@ -209,8 +215,8 @@ export default function DailyChallengeForm({
               onChange={(e) => setTextResponse(e.target.value)}
               placeholder={
                 languageCode === 'en'
-                  ? "Write your sentence here (e.g., I created a pull request to optimize database queries...)"
-                  : "ここに文を書いてください (例: 今日のタスクの進捗を確認しました...)"
+                  ? "Write your sentence here (e.g., I reached a major milestone today...)"
+                  : "ここに文を書いてください (例: 今日は新しい挑戦に向けて準備を始めました...)"
               }
               rows={3}
               className="w-full rounded-md border border-input bg-background/50 p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
@@ -242,7 +248,7 @@ export default function DailyChallengeForm({
               className="gap-2 font-semibold shadow-lg shadow-primary/20"
             >
               <Send className="h-4 w-4" />
-              <span>{isSubmitting ? 'Menyimpan...' : 'Kirim Jawaban Harian (+15 XP)'}</span>
+              <span>{isSubmitting ? 'Menyimpan...' : 'Kirim Jawaban Latihan'}</span>
             </Button>
           </div>
         </form>

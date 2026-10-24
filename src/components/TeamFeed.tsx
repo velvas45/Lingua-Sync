@@ -117,7 +117,7 @@ export default function TeamFeed({
   }
 
   return (
-    <div className="flex flex-col gap-3.5">
+    <div className="flex flex-col gap-3 max-h-[620px] overflow-y-auto pr-1.5 focus:outline-none">
       {submissions.map((sub) => {
         const override = likeOverrides[sub.id];
         const isLiked = override ? override.liked : Boolean(sub.has_liked);

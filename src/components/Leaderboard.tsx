@@ -26,11 +26,11 @@ export default function Leaderboard({ board }: LeaderboardProps) {
       <Card className="border-border/80 bg-card/80 backdrop-blur-md">
         <CardHeader className="p-4 pb-2">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-foreground">
-            <Trophy className="h-4 w-4 text-amber-400" /> Papan Keaktifan Tim
+            <Trophy className="h-4 w-4 text-amber-400" /> Papan Peringkat Pembelajar
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0 text-xs text-muted-foreground">
-          Kirimkan jawaban harian untuk muncul di sini!
+          Selesaikan tantangan harian untuk masuk ke papan peringkat!
         </CardContent>
       </Card>
     );
@@ -40,7 +40,7 @@ export default function Leaderboard({ board }: LeaderboardProps) {
     <Card className="border-border/80 bg-card/80 backdrop-blur-md">
       <CardHeader className="p-4 pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-bold text-foreground">
-          <Trophy className="h-4 w-4 text-amber-400" /> Papan Keaktifan Tim (Leaderboard)
+          <Trophy className="h-4 w-4 text-amber-400" /> Papan Peringkat Pembelajar (Leaderboard)
         </CardTitle>
       </CardHeader>
 
@@ -61,7 +61,7 @@ export default function Leaderboard({ board }: LeaderboardProps) {
                   {user.user_name}
                 </span>
                 <span className="block text-[11px] text-muted-foreground">
-                  {user.total_submissions} tantangan selesai
+                  {user.total_submissions} latihan selesai
                 </span>
               </div>
             </div>

@@ -54,11 +54,11 @@ export default function Header({
                 LinguaSync
               </h1>
               <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-400 border border-emerald-500/30">
-                Team MVP
+                Komunitas Aktif
               </span>
             </div>
             <p className="text-xs text-muted-foreground hidden sm:block">
-              Daily Micro-Immersion for Tech Teams (English & 日本語)
+              Latihan Harian Bahasa Inggris & Jepang untuk Semua Kalangan
             </p>
           </div>
         </div>

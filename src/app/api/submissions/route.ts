@@ -24,6 +24,25 @@ export async function POST(request: Request) {
 
     const cleanName = user.username;
     const cleanResponse = String(textResponse).trim();
+    const today = new Date().toISOString().split('T')[0];
+
+    // Check if user already submitted for this language today (Diminishing XP rule)
+    const existingTodaySubmission = db.prepare(`
+      SELECT id FROM submissions
+      WHERE user_name = ? AND language_code = ? AND created_at >= ?
+    `).get(cleanName, languageCode, `${today} 00:00:00`);
+
+    let earnedXp = 15;
+    let isRepeat = false;
+
+    if (existingTodaySubmission) {
+      // Repeat submission on the same day gets reduced to 5 XP
+      earnedXp = 5;
+      isRepeat = true;
+    } else if (speakingPracticed) {
+      // First submission with active speaking gets bonus XP
+      earnedXp = 25;
+    }
 
     // Insert submission
     const insert = db.prepare(`
@@ -40,8 +59,6 @@ export async function POST(request: Request) {
       last_active_date: string | null;
       xp_points: number;
     } | undefined;
-    const today = new Date().toISOString().split('T')[0];
-    const earnedXp = speakingPracticed ? 25 : 15;
 
     if (!existingUser) {
       db.prepare(`
@@ -69,7 +86,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       submissionId: result.lastInsertRowid,
-      earnedXp
+      earnedXp,
+      isRepeat,
     });
   } catch (error: unknown) {
     console.error('Error submitting response:', error);

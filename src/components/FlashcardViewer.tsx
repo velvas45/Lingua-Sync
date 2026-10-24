@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -8,15 +8,19 @@ import {
   EyeOff,
   BookOpen,
   Sparkles,
-} from "lucide-react";
-import AudioButton from "./AudioButton";
-import RubyText from "./RubyText";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+  Pencil,
+  Trash2,
+} from 'lucide-react';
+import AudioButton from './AudioButton';
+import RubyText from './RubyText';
+import EditCardModal from './EditCardModal';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 
 export interface CardItem {
   id: number;
+  user_id?: number | null;
   language_code: string;
   primary_text: string;
   phonetic: string | null;
@@ -33,32 +37,62 @@ interface FlashcardViewerProps {
   cards: CardItem[];
   speechLocale: string;
   langCode: string;
+  isLoggedIn?: boolean;
+  onCardMutated?: () => void;
+}
+
+function getPaginationWindow(currentIndex: number, total: number): (number | 'ellipsis-start' | 'ellipsis-end')[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i);
+  }
+
+  const pages: (number | 'ellipsis-start' | 'ellipsis-end')[] = [0];
+
+  if (currentIndex > 2) {
+    pages.push('ellipsis-start');
+  }
+
+  const start = Math.max(1, currentIndex - 1);
+  const end = Math.min(total - 2, currentIndex + 1);
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+
+  if (currentIndex < total - 3) {
+    pages.push('ellipsis-end');
+  }
+
+  pages.push(total - 1);
+  return pages;
 }
 
 export default function FlashcardViewer({
   cards,
   speechLocale,
   langCode,
+  isLoggedIn = false,
+  onCardMutated,
 }: FlashcardViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFurigana, setShowFurigana] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   if (!cards || cards.length === 0) {
     return (
-      <Card className="p-8 text-center text-muted-foreground">
+      <Card className="p-8 text-center text-muted-foreground border-border/80 bg-card/60">
         Belum ada kartu kosakata untuk bahasa ini.
       </Card>
     );
   }
 
   // Clamped safe index prevents any out-of-bounds access
-  const safeIndex =
-    currentIndex >= 0 && currentIndex < cards.length ? currentIndex : 0;
+  const safeIndex = currentIndex >= 0 && currentIndex < cards.length ? currentIndex : 0;
   const currentCard = cards[safeIndex];
 
   if (!currentCard) {
     return (
-      <Card className="p-8 text-center text-muted-foreground">
+      <Card className="p-8 text-center text-muted-foreground border-border/80 bg-card/60">
         Belum ada kartu kosakata untuk bahasa ini.
       </Card>
     );
@@ -74,56 +108,95 @@ export default function FlashcardViewer({
     setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
   };
 
+  const handleDeleteCard = async () => {
+    if (!confirm(`Hapus kosakata "${currentCard.primary_text}" dari koleksi Anda?`)) return;
+    try {
+      const res = await fetch(`/api/cards?id=${currentCard.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setCurrentIndex((prev) => Math.max(0, prev - 1));
+        onCardMutated?.();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Gagal menghapus kartu.');
+      }
+    } catch {
+      alert('Gagal menghubungi server.');
+    }
+  };
+
+  const paginationItems = getPaginationWindow(safeIndex, cards.length);
+
   return (
     <div className="flex flex-col gap-4">
       {/* Controls Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Badge
-            variant="default"
-            className="font-bold uppercase tracking-wider"
-          >
+          <Badge variant="default" className="font-bold uppercase tracking-wider text-xs">
             Kartu {safeIndex + 1} dari {cards.length}
           </Badge>
           {currentCard.level && (
-            <Badge variant="outline" className="text-muted-foreground">
+            <Badge variant="outline" className="text-muted-foreground text-xs">
               {currentCard.level}
             </Badge>
           )}
         </div>
 
-        {langCode === "ja" && (
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowFurigana(!showFurigana)}
-            className="gap-1.5 text-xs border border-border"
-            title="Toggle Furigana (Hiragana di atas Kanji)"
-          >
-            {showFurigana ? (
-              <EyeOff className="h-3.5 w-3.5" />
-            ) : (
-              <Eye className="h-3.5 w-3.5" />
-            )}
-            <span>
-              {showFurigana ? "Sembunyikan Furigana" : "Tampilkan Furigana"}
-            </span>
-          </Button>
-        )}
+        <div className="flex items-center gap-1.5">
+          {langCode === 'ja' && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowFurigana(!showFurigana)}
+              className="gap-1.5 text-xs border border-border h-8"
+              title="Toggle Furigana (Hiragana di atas Kanji)"
+            >
+              {showFurigana ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              <span>{showFurigana ? 'Sembunyikan Furigana' : 'Tampilkan Furigana'}</span>
+            </Button>
+          )}
+
+          {/* Edit & Delete Action Buttons (Active for logged-in user) */}
+          {isLoggedIn && (
+            <div className="flex items-center gap-1 pl-1 border-l border-border/80">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditModalOpen(true)}
+                className="h-8 gap-1 px-2 text-xs text-muted-foreground hover:text-amber-400 hover:bg-amber-500/10"
+                title="Edit kosakata ini"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Edit</span>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleDeleteCard}
+                className="h-8 gap-1 px-2 text-xs text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10"
+                title="Hapus kosakata ini"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Hapus</span>
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Main Flashcard Card */}
       <Card className="relative overflow-hidden border-border/80 bg-card/90 shadow-2xl backdrop-blur-xl">
-        <CardContent className="p-8">
+        <CardContent className="p-6 sm:p-8">
           <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
-                {currentCard.part_of_speech || "Vocabulary"}
+                {currentCard.part_of_speech || 'Vocabulary'}
               </span>
 
               {/* Main Word / Expression */}
-              <h2 className="mt-2 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+              <h2 className="mt-2 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground">
                 <RubyText
                   text={currentCard.primary_text}
                   furiganaHtml={currentCard.furigana_html}
@@ -133,7 +206,7 @@ export default function FlashcardViewer({
 
               {/* Phonetic / Romaji */}
               {currentCard.phonetic && (
-                <p className="mt-1.5 font-mono text-base text-amber-400">
+                <p className="mt-1.5 font-mono text-sm sm:text-base text-amber-400">
                   {currentCard.phonetic}
                 </p>
               )}
@@ -152,16 +225,16 @@ export default function FlashcardViewer({
             <span className="mb-1 block text-xs font-semibold tracking-wider text-muted-foreground uppercase">
               ARTI DALAM BAHASA INDONESIA:
             </span>
-            <p className="text-lg font-medium text-foreground">
+            <p className="text-base sm:text-lg font-medium text-foreground">
               {currentCard.meaning_id}
             </p>
           </div>
 
-          {/* Real-World Engineering / Practical Example */}
+          {/* Practical Example Sentence */}
           <div className="flex flex-col gap-2.5 border-t border-dashed border-border/80 pt-5">
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                <BookOpen className="h-4 w-4" /> Contoh Kalimat Konteks Kerja:
+                <BookOpen className="h-4 w-4" /> Contoh Kalimat Kontekstual:
               </span>
               <AudioButton
                 text={currentCard.example_source}
@@ -170,7 +243,7 @@ export default function FlashcardViewer({
               />
             </div>
 
-            <p className="text-lg font-medium text-emerald-400 leading-relaxed">
+            <p className="text-base sm:text-lg font-medium text-emerald-400 leading-relaxed">
               “{currentCard.example_source}”
             </p>
 
@@ -182,7 +255,7 @@ export default function FlashcardViewer({
               <div className="mt-2 flex items-center gap-2 rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-400">
                 <Sparkles className="h-4 w-4 shrink-0" />
                 <span>
-                  <strong className="text-cyan-300">Tips Pengucapan:</strong>{" "}
+                  <strong className="text-cyan-300">Tips Pengucapan:</strong>{' '}
                   {currentCard.audio_guide}
                 </span>
               </div>
@@ -191,32 +264,49 @@ export default function FlashcardViewer({
         </CardContent>
       </Card>
 
-      {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-1">
+      {/* Advanced Responsive Windowed Pagination */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
         <Button
           type="button"
           variant="secondary"
           size="sm"
           onClick={handlePrev}
-          className="gap-1.5 border border-border font-semibold"
+          disabled={cards.length <= 1}
+          className="gap-1.5 border border-border font-semibold h-9"
         >
-          <ChevronLeft className="h-4 w-4" /> Sebelumnya
+          <ChevronLeft className="h-4 w-4" /> <span>Sebelumnya</span>
         </Button>
 
-        <div className="flex items-center gap-1.5">
-          {cards.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setCurrentIndex(idx)}
-              className={`h-2.5 rounded-full transition-all ${
-                idx === safeIndex
-                  ? "w-6 bg-primary"
-                  : "w-2.5 bg-white/20 hover:bg-white/40"
-              }`}
-              title={`Ke kartu ${idx + 1}`}
-            />
-          ))}
+        {/* Windowed Page Pill Navigation */}
+        <div className="flex items-center gap-1 overflow-x-auto py-1">
+          {paginationItems.map((item, idx) => {
+            if (item === 'ellipsis-start' || item === 'ellipsis-end') {
+              return (
+                <span key={`el-${idx}`} className="px-1 text-xs text-muted-foreground select-none">
+                  •••
+                </span>
+              );
+            }
+
+            const pageIdx = item as number;
+            const isActive = pageIdx === safeIndex;
+
+            return (
+              <button
+                key={pageIdx}
+                type="button"
+                onClick={() => setCurrentIndex(pageIdx)}
+                className={`h-8 min-w-[32px] px-2 rounded-lg text-xs font-bold transition-all ${
+                  isActive
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25 scale-105'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
+                }`}
+                title={`Buka kartu ${pageIdx + 1}`}
+              >
+                {pageIdx + 1}
+              </button>
+            );
+          })}
         </div>
 
         <Button
@@ -224,11 +314,22 @@ export default function FlashcardViewer({
           variant="secondary"
           size="sm"
           onClick={handleNext}
-          className="gap-1.5 border border-border font-semibold"
+          disabled={cards.length <= 1}
+          className="gap-1.5 border border-border font-semibold h-9"
         >
-          Selanjutnya <ChevronRight className="h-4 w-4" />
+          <span>Selanjutnya</span> <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Edit Card Modal Dialog */}
+      <EditCardModal
+        key={currentCard.id}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        card={currentCard}
+        langCode={langCode}
+        onCardUpdated={() => onCardMutated?.()}
+      />
     </div>
   );
 }

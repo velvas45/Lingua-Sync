@@ -44,43 +44,70 @@ export async function GET(request: Request) {
       `).all(lang) as Card[];
     }
 
-    const prompt = db.prepare(`
-      SELECT dp.*, c.primary_text as card_text
-      FROM daily_prompts dp
-      LEFT JOIN cards c ON dp.card_id = c.id
-      WHERE dp.language_code = ?
-      ORDER BY dp.id DESC
-      LIMIT 1
-    `).get(lang);
+    // Dynamic Daily Challenge Prompt based on user's personal cards
+    let prompt: {
+      id: number;
+      language_code: string;
+      card_id: number | null;
+      prompt_question: string;
+      hint: string;
+      card_text?: string;
+    } | null = null;
 
-    // Submissions: include whether current user has liked each submission
+    if (user && cards.length > 0) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const dateHash = todayStr.split('-').reduce((acc, part) => (acc * 31 + Number(part)) & 0xffff, 0);
+      const daySeed = Math.abs(dateHash + user.id) % cards.length;
+      const dailyWord = cards[daySeed];
+
+      prompt = {
+        id: dailyWord.id,
+        language_code: lang,
+        card_id: dailyWord.id,
+        prompt_question: `Buat 1-2 kalimat aktif menggunakan kata "${dailyWord.primary_text}" (${dailyWord.meaning_id}).`,
+        hint: `Contoh konteks: "${dailyWord.example_source}" (${dailyWord.example_meaning})`,
+        card_text: dailyWord.primary_text,
+      };
+    } else {
+      // Fallback prompt for guest or empty deck
+      prompt = db.prepare(`
+        SELECT dp.*, c.primary_text as card_text
+        FROM daily_prompts dp
+        LEFT JOIN cards c ON dp.card_id = c.id
+        WHERE dp.language_code = ?
+        ORDER BY dp.id DESC
+        LIMIT 1
+      `).get(lang) as typeof prompt;
+    }
+
+    // Submissions: community feed up to 50 items with like statuses
     let recentSubmissions = [];
     if (user) {
       recentSubmissions = db.prepare(`
-        SELECT s.*, dp.prompt_question,
+        SELECT s.*, COALESCE(dp.prompt_question, 'Tantangan Harian Kosakata') as prompt_question,
                CASE WHEN sl.user_id IS NOT NULL THEN 1 ELSE 0 END as has_liked
         FROM submissions s
-        JOIN daily_prompts dp ON s.prompt_id = dp.id
+        LEFT JOIN daily_prompts dp ON s.prompt_id = dp.id
         LEFT JOIN submission_likes sl ON s.id = sl.submission_id AND sl.user_id = ?
         WHERE s.language_code = ?
         ORDER BY s.created_at DESC
-        LIMIT 20
+        LIMIT 50
       `).all(user.id, lang);
     } else {
       recentSubmissions = db.prepare(`
-        SELECT s.*, dp.prompt_question, 0 as has_liked
+        SELECT s.*, COALESCE(dp.prompt_question, 'Tantangan Harian Kosakata') as prompt_question, 0 as has_liked
         FROM submissions s
-        JOIN daily_prompts dp ON s.prompt_id = dp.id
+        LEFT JOIN daily_prompts dp ON s.prompt_id = dp.id
         WHERE s.language_code = ?
         ORDER BY s.created_at DESC
-        LIMIT 20
+        LIMIT 50
       `).all(lang);
     }
 
     const leaderboard = db.prepare(`
       SELECT * FROM user_stats
       ORDER BY xp_points DESC, total_submissions DESC
-      LIMIT 5
+      LIMIT 10
     `).all();
 
     let userProfile = null;
