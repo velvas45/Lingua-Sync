@@ -171,7 +171,6 @@ export default function Home() {
         currentLang={data.currentLang}
         languages={data.languages}
         onSelectLang={handleLangChange}
-        onOpenAddModal={() => setIsAddModalOpen(true)}
         streakCount={streakCount}
         totalXp={totalXp}
         currentUser={currentUser}

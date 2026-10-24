@@ -341,63 +341,63 @@ export function initDatabase() {
     const enCards = [
       {
         lang: 'en',
-        text: 'Pull Request (PR)',
-        phonetic: '/pʊl rɪˈkwest/',
+        text: 'Mindset',
+        phonetic: '/ˈmaɪnd.set/',
         furigana: null,
-        meaning: 'Permintaan penggabungan cabang kode ke repositori utama',
+        meaning: 'Pola pikir atau sikap mental positif dalam memandang kehidupan dan belajar',
         pos: 'Noun',
-        level: 'Business / Tech',
-        example: 'Could you please review my pull request when you have a moment?',
-        exampleMeaning: 'Bisakah Anda meninjau pull request saya saat Anda ada waktu luang?',
-        guide: 'Tekankan kata "Pull" dan gunakan intonasi ramah pada "when you have a moment"'
+        level: 'Daily',
+        example: 'Adopting a growth mindset turns every failure into valuable wisdom.',
+        exampleMeaning: 'Mengadopsi pola pikir bertumbuh mengubah setiap kegagalan menjadi kebijaksanaan berharga.',
+        guide: 'Sambungkan kata "mind" dan "set" dengan artikulasi tegas pada d dan t.'
       },
       {
         lang: 'en',
-        text: 'Edge Case',
-        phonetic: '/edʒ keɪs/',
+        text: 'Gratitude',
+        phonetic: '/ˈɡræt.ɪ.tʃuːd/',
         furigana: null,
-        meaning: 'Skenario langka atau kasus batas yang jarang terjadi namun harus diantisipasi',
+        meaning: 'Rasa syukur dan apresiasi mendalam atas kebaikan yang diterima',
         pos: 'Noun',
-        level: 'Engineering Concept',
-        example: 'We need to handle the edge case where the network drops mid-transaction.',
-        exampleMeaning: 'Kita perlu menangani skenario batas di mana koneksi terputus saat transaksi berjalan.',
-        guide: 'Bunyi "dg" diucapkan seperti "j" tebal (/edʒ/)'
+        level: 'Daily',
+        example: 'Expressing gratitude every day brings calm and joy into our routine.',
+        exampleMeaning: 'Mengungkapkan rasa syukur setiap hari membawa ketenangan dan kegembiraan ke dalam rutinitas kita.',
+        guide: 'Lafalkan "gra" pendek dan bersih, diakhiri dengan tude lembut.'
       },
       {
         lang: 'en',
-        text: 'Trade-off',
-        phonetic: '/ˈtreɪd.ɒf/',
+        text: 'Resilience',
+        phonetic: '/rɪˈzɪl.jəns/',
         furigana: null,
-        meaning: 'Kompromi atau pertukaran konsekuensi antara dua pilihan teknis',
+        meaning: 'Ketangguhan dan kemampuan bangkit kembali menghadapi kesulitan hidup',
         pos: 'Noun',
-        level: 'Architecture',
-        example: 'We made a conscious trade-off between quick delivery and architectural purity.',
-        exampleMeaning: 'Kami mengambil kompromi sadar antara pengiriman cepat dan kemurnian arsitektur.',
-        guide: 'Sambungkan kata "trade" dan "off" dengan jeda minimal'
+        level: 'Intermediate',
+        example: 'Developing personal resilience helps us overcome unexpected challenges.',
+        exampleMeaning: 'Mengembangkan ketangguhan pribadi membantu kita mengatasi tantangan yang tak terduga.',
+        guide: 'Penekanan suku kata jatuh pada bagian tengah: ri-ZIL-ience.'
       },
       {
         lang: 'en',
-        text: 'Heads-up',
-        phonetic: '/ˌhedz ˈʌp/',
+        text: 'Curiosity',
+        phonetic: '/ˌkjʊə.riˈɒs.ə.ti/',
         furigana: null,
-        meaning: 'Pemberitahuan awal atau peringatan santai sebelum sesuatu terjadi',
-        pos: 'Idiom / Noun',
-        level: 'Daily Work',
-        example: 'Just a quick heads-up: our database migration starts at 8 PM tonight.',
-        exampleMeaning: 'Sekadar pemberitahuan singkat: migrasi database kita dimulai jam 8 malam ini.',
-        guide: 'Sering dipakai dalam bentuk frasa "give someone a heads-up"'
+        meaning: 'Rasa ingin tahu alami yang mendorong eksplorasi dan wawasan baru',
+        pos: 'Noun',
+        level: 'Daily',
+        example: 'Natural curiosity is the secret to discovering new passions and ideas.',
+        exampleMeaning: 'Rasa ingin tahu alami adalah rahasia untuk menemukan minat dan ide-ide baru.',
+        guide: 'Tekankan suku kata: cu-ri-OS-i-ty.'
       },
       {
         lang: 'en',
-        text: 'Bottleneck',
-        phonetic: '/ˈbɒt.əl.nek/',
+        text: 'Consistency',
+        phonetic: '/kənˈsɪs.tən.si/',
         furigana: null,
-        meaning: 'Menyumbat atau memperlambat aliran keseluruhan proses / kinerja sistem',
-        pos: 'Verb / Noun',
-        level: 'Performance',
-        example: 'The synchronous logging call was bottlenecking our API throughput.',
-        exampleMeaning: 'Pemanggilan log sinkron menyumbat throughput API kami.',
-        guide: 'Fokus pada penekanan suku kata pertama: BOT-tl-nek'
+        meaning: 'Konsistensi dan ketekunan melakukan langkah kecil secara teratur',
+        pos: 'Noun',
+        level: 'Daily',
+        example: 'Small daily consistency creates remarkable long-term achievements.',
+        exampleMeaning: 'Konsistensi kecil setiap hari menciptakan pencapaian luar biasa dalam jangka panjang.',
+        guide: 'Syllable stress jatuh pada suku kata kedua: con-SIS-ten-cy.'
       }
     ];
 
@@ -419,63 +419,63 @@ export function initDatabase() {
     const jaCards = [
       {
         lang: 'ja',
-        text: '確認',
-        phonetic: 'かくにん (kakunin)',
-        furigana: '<ruby>確認<rt>かくにん</rt></ruby>',
-        meaning: 'Konfirmasi, pemeriksaan, pengecekan',
+        text: '挨拶',
+        phonetic: 'あいさつ (aisatsu)',
+        furigana: '<ruby>挨拶<rt>あいさつ</rt></ruby>',
+        meaning: 'Salam sapaan ramah di awal pertemuan untuk membuka komunikasi',
         pos: 'Noun / Suru-Verb',
-        level: 'JLPT N4 / Business',
-        example: 'コードの確認をお願いできますか？',
-        exampleMeaning: 'Bisakah saya meminta Anda untuk memeriksa kode ini?',
-        guide: 'Ucapkan dengan vokal jernih: ka-ku-nin, hindari memanjangkan u'
+        level: 'JLPT N5 / Daily',
+        example: '明るい挨拶は良いコミュニケーションの第一歩です。',
+        exampleMeaning: 'Salam yang ceria adalah langkah pertama menuju komunikasi yang baik.',
+        guide: 'Lafalkan dengan nada ramah datar per mora: a-i-sa-tsu tanpa penekanan keras.'
       },
       {
         lang: 'ja',
-        text: '進捗',
-        phonetic: 'しんちょく (shinchoku)',
-        furigana: '<ruby>進捗<rt>しんちょく</rt></ruby>',
-        meaning: 'Progress, kemajuan perkembangan tugas atau proyek',
+        text: '感謝',
+        phonetic: 'かんしゃ (kansha)',
+        furigana: '<ruby>感謝<rt>かんしゃ</rt></ruby>',
+        meaning: 'Rasa terima kasih dan apresiasi tulus atas dukungan orang lain',
+        pos: 'Noun / Suru-Verb',
+        level: 'JLPT N4 / Daily',
+        example: '支えてくれる人たちへの感謝の気持ちを大切にしています。',
+        exampleMeaning: 'Saya menghargai rasa terima kasih yang tulus kepada orang-orang yang mendukung saya.',
+        guide: 'Suku kata "n" (hatsuon) ditahan 1 mora lembut sebelum melafalkan "sha".'
+      },
+      {
+        lang: 'ja',
+        text: '準備',
+        phonetic: 'じゅんび (junbi)',
+        furigana: '<ruby>準備<rt>じゅんび</rt></ruby>',
+        meaning: 'Persiapan matang sebelum memulai suatu hal atau aktivitas baru',
+        pos: 'Noun / Suru-Verb',
+        level: 'JLPT N5 / Daily',
+        example: '明日の旅行に向けて、荷物の準備を楽しく進めています。',
+        exampleMeaning: 'Menjelang perjalanan besok, saya menikmati proses menyiapkan barang bawaan.',
+        guide: 'Ritme mora stabil: jun-bi, pastikan vokal u dan i terdengar bersih.'
+      },
+      {
+        lang: 'ja',
+        text: '成長',
+        phonetic: 'せいちょう (seichou)',
+        furigana: '<ruby>成長<rt>せいちょう</rt></ruby>',
+        meaning: 'Pertumbuhan dan perkembangan kapasitas diri menjadi lebih baik',
+        pos: 'Noun / Suru-Verb',
+        level: 'JLPT N4 / Daily',
+        example: '日々の小さな積み重ねが、大きな自己成長につながります。',
+        exampleMeaning: 'Konsistensi kecil setiap hari akan menghasilkan pertumbuhan diri yang besar.',
+        guide: 'Vokal panjang chouon: tahan bunyi "sei" dan "chou" masing-masing 2 ketukan mora.'
+      },
+      {
+        lang: 'ja',
+        text: '習慣',
+        phonetic: 'しゅうかん (shuukan)',
+        furigana: '<ruby>習慣<rt>しゅうかん</rt></ruby>',
+        meaning: 'Kebiasaan rutin yang dilakukan secara teratur dan konsisten',
         pos: 'Noun',
-        level: 'JLPT N3 / Business',
-        example: '現在の進捗状況を教えてください。',
-        exampleMeaning: 'Tolong beri tahu saya status progres saat ini.',
-        guide: 'Sering dipasangkan dengan 状況 (joukyou) menjadi 進捗状況'
-      },
-      {
-        lang: 'ja',
-        text: '修正',
-        phonetic: 'しゅうせい (shuusei)',
-        furigana: '<ruby>修正<rt>しゅうせい</rt></ruby>',
-        meaning: 'Perbaikan, revisi, koreksi bug atau kesalahan',
-        pos: 'Noun / Suru-Verb',
-        level: 'JLPT N3 / Business',
-        example: 'バグを修正して新しいPRを作成しました。',
-        exampleMeaning: 'Saya telah memperbaiki bug dan membuat PR baru.',
-        guide: 'Vokal panjang pada "shuu" dan "sei"'
-      },
-      {
-        lang: 'ja',
-        text: '了解です',
-        phonetic: 'りょうかいです (ryoukai desu)',
-        furigana: '<ruby>了解<rt>りょうかい</rt></ruby>です',
-        meaning: 'Dimengerti / Diterima (Paham instruksi rekan kerja)',
-        pos: 'Phrase',
-        level: 'Colloquial Work',
-        example: '了解です！すぐに対応いたします。',
-        exampleMeaning: 'Dimengerti! Saya akan segera menanganinya.',
-        guide: 'Digunakan ke rekan sejawat. Ke atasan gunakan 承知いたしました (shouchi itashimashita)'
-      },
-      {
-        lang: 'ja',
-        text: 'デプロイ',
-        phonetic: 'でぷろい (depuroi)',
-        furigana: 'デプロイ',
-        meaning: 'Deploy (Peluncuran aplikasi ke server)',
-        pos: 'Katakana / Loanword',
-        level: 'IT Katakana',
-        example: 'ステージング環境へデプロイが完了しました。',
-        exampleMeaning: 'Deployment ke lingkungan staging telah selesai.',
-        guide: 'Katakana standar tech di Jepang, sering digabung dengan する (suru)'
+        level: 'JLPT N4 / Daily',
+        example: '毎朝30分の読書が良い生活習慣になりました。',
+        exampleMeaning: 'Membaca selama 30 menit setiap pagi telah menjadi kebiasaan hidup yang baik.',
+        guide: 'Vokal panjang pada "shuu" tahan 2 ketukan mora.'
       }
     ];
 
@@ -616,15 +616,15 @@ export function initDatabase() {
     insertPrompt.run(
       'en',
       1,
-      'Write 1 sentence about what feature or goal you are currently working on using the word "Milestone" or "Breakthrough".',
-      'Example: "Reaching our user onboarding target is a major milestone for this quarter."'
+      'Write 1 sentence about your daily goal or habit using the word "Mindset" or "Gratitude".',
+      'Example: "Maintaining a positive mindset helps me enjoy learning each morning."'
     );
 
     insertPrompt.run(
       'ja',
       6,
-      '今日のタスクや目標について、短い日本語で1文書いてみましょう。（「準備」または「進捗」を使って）',
-      'Contoh: 今日のタスクの準備は万全です。確認をお願いします。'
+      '今日の目標や気持ちについて、短い日本語で1文書いてみましょう。（「挨拶」または「感謝」を使って）',
+      'Contoh: 毎日の生活の中で、周りの人への感謝を忘れないようにしています。'
     );
   }
 }
