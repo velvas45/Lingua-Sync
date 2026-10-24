@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Languages, Flame, Zap, Plus } from 'lucide-react';
+import { Languages, Flame, Zap, Plus, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AuthUser } from '@/components/AuthModal';
 
 interface HeaderProps {
   currentLang: {
@@ -23,6 +24,9 @@ interface HeaderProps {
   onOpenAddModal: () => void;
   streakCount: number;
   totalXp: number;
+  currentUser: AuthUser | null;
+  onOpenAuthModal: () => void;
+  onLogout: () => void;
 }
 
 export default function Header({
@@ -31,10 +35,13 @@ export default function Header({
   onSelectLang,
   onOpenAddModal,
   streakCount,
-  totalXp
+  totalXp,
+  currentUser,
+  onOpenAuthModal,
+  onLogout,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-xl px-6 py-3.5">
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-xl px-4 sm:px-6 py-3.5">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
         {/* Brand & Title */}
         <div className="flex items-center gap-3">
@@ -50,7 +57,7 @@ export default function Header({
                 Team MVP
               </span>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground hidden sm:block">
               Daily Micro-Immersion for Tech Teams (English & 日本語)
             </p>
           </div>
@@ -65,7 +72,7 @@ export default function Header({
                 key={l.code}
                 type="button"
                 onClick={() => onSelectLang(l.code)}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
+                className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-all ${
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
                     : 'text-muted-foreground hover:text-foreground hover:bg-secondary/80'
@@ -79,19 +86,19 @@ export default function Header({
         </div>
 
         {/* User Stats & Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           {/* Streak Badge */}
           <div
-            className="flex items-center gap-1.5 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-400"
+            className="flex items-center gap-1.5 rounded-lg border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-xs font-bold text-amber-400"
             title="Streak Harian Tim"
           >
             <Flame className="h-4 w-4" />
-            <span>{streakCount} Hari Streak</span>
+            <span>{streakCount}d Streak</span>
           </div>
 
           {/* XP Points */}
           <div
-            className="flex items-center gap-1.5 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400"
+            className="flex items-center gap-1.5 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-400"
             title="Total Experience Points"
           >
             <Zap className="h-4 w-4" />
@@ -103,12 +110,49 @@ export default function Header({
             type="button"
             variant="secondary"
             size="sm"
-            onClick={onOpenAddModal}
-            className="gap-1.5 border border-border font-medium"
+            onClick={currentUser ? onOpenAddModal : onOpenAuthModal}
+            className="gap-1.5 border border-border font-medium h-8"
           >
-            <Plus className="h-4 w-4" />
-            <span>Tambah Kosakata</span>
+            <Plus className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Tambah Kosakata</span>
           </Button>
+
+          {/* Authentication Section */}
+          {currentUser ? (
+            <div className="flex items-center gap-2 pl-1 border-l border-border/80">
+              <div
+                className="flex items-center gap-1.5 rounded-lg bg-secondary/80 px-2.5 py-1 text-xs font-semibold text-foreground border border-border"
+                title={`Login sebagai: ${currentUser.email}`}
+              >
+                <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center text-[10px] text-primary-foreground font-bold">
+                  {currentUser.username.charAt(0).toUpperCase()}
+                </div>
+                <span>{currentUser.username}</span>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onLogout}
+                className="h-8 gap-1 px-2 text-xs text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10"
+                title="Keluar (Logout)"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden md:inline">Keluar</span>
+              </Button>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={onOpenAuthModal}
+              className="gap-1.5 font-semibold h-8 shadow-md shadow-primary/25"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              <span>Masuk / Daftar</span>
+            </Button>
+          )}
         </div>
       </div>
     </header>

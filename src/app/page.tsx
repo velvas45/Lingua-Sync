@@ -7,6 +7,7 @@ import DailyChallengeForm from '@/components/DailyChallengeForm';
 import TeamFeed, { SubmissionItem } from '@/components/TeamFeed';
 import Leaderboard from '@/components/Leaderboard';
 import AddCardModal from '@/components/AddCardModal';
+import AuthModal, { AuthUser } from '@/components/AuthModal';
 import { Sparkles, Compass, MessageSquareQuote, Layers } from 'lucide-react';
 
 interface LanguageItem {
@@ -41,6 +42,8 @@ interface AppData {
   prompt: PromptItem | null;
   recentSubmissions: SubmissionItem[];
   leaderboard: LeaderboardUser[];
+  currentUser: AuthUser | null;
+  isGuest: boolean;
 }
 
 export default function Home() {
@@ -50,8 +53,8 @@ export default function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [userStreak, setUserStreak] = useState(1);
-  const [userXp, setUserXp] = useState(0);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
     let ignore = false;
@@ -63,19 +66,7 @@ export default function Home() {
           const json: AppData = await res.json();
           if (!ignore) {
             setData(json);
-
-            if (typeof window !== 'undefined') {
-              const savedName = localStorage.getItem('lingua_user_name');
-              if (savedName && json.leaderboard) {
-                const myUser = json.leaderboard.find(
-                  (u) => u.user_name.toLowerCase() === savedName.toLowerCase()
-                );
-                if (myUser) {
-                  setUserStreak(myUser.current_streak);
-                  setUserXp(myUser.xp_points);
-                }
-              }
-            }
+            setCurrentUser(json.currentUser);
           }
         }
       } catch (e: unknown) {
@@ -104,6 +95,21 @@ export default function Home() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setCurrentUser(null);
+      handleRefresh();
+    } catch (e) {
+      console.error('Failed to logout:', e);
+    }
+  };
+
+  const handleAuthSuccess = (user: AuthUser) => {
+    setCurrentUser(user);
+    handleRefresh();
+  };
+
   if (loading || !data) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary gap-3">
@@ -115,6 +121,10 @@ export default function Home() {
     );
   }
 
+  const streakCount = currentUser?.current_streak ?? 1;
+  const totalXp = currentUser?.xp_points ?? 0;
+  const isGuest = !currentUser;
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       {/* Top Header */}
@@ -123,8 +133,11 @@ export default function Home() {
         languages={data.languages}
         onSelectLang={handleLangChange}
         onOpenAddModal={() => setIsAddModalOpen(true)}
-        streakCount={userStreak}
-        totalXp={userXp}
+        streakCount={streakCount}
+        totalXp={totalXp}
+        currentUser={currentUser}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area */}
@@ -146,7 +159,9 @@ export default function Home() {
           <div className="flex items-center gap-4 rounded-xl border border-border/60 bg-black/40 px-5 py-3 backdrop-blur-sm">
             <div className="text-center">
               <span className="text-lg font-extrabold text-cyan-400">{data.cards.length}</span>
-              <span className="block text-[11px] font-medium text-muted-foreground">Kartu Siap</span>
+              <span className="block text-[11px] font-medium text-muted-foreground">
+                {isGuest ? 'Kartu Publik' : 'Koleksi Kartu'}
+              </span>
             </div>
             <div className="h-8 w-px bg-border/60" />
             <div className="text-center">
@@ -162,11 +177,18 @@ export default function Home() {
           <div className="flex flex-col gap-8">
             {/* Flashcard Section */}
             <section>
-              <div className="mb-3.5 flex items-center gap-2">
-                <Layers className="h-5 w-5 text-cyan-400" />
-                <h3 className="text-lg font-bold text-foreground">
-                  1. Flashcard Kosakata & Audio Pelafalan
-                </h3>
+              <div className="mb-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Layers className="h-5 w-5 text-cyan-400" />
+                  <h3 className="text-lg font-bold text-foreground">
+                    1. Flashcard Kosakata & Audio Pelafalan
+                  </h3>
+                </div>
+                {isGuest && (
+                  <span className="rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[11px] font-medium text-cyan-400 border border-cyan-500/20">
+                    5 Kartu Dasar
+                  </span>
+                )}
               </div>
               <FlashcardViewer
                 key={data.currentLang.code}
@@ -190,6 +212,9 @@ export default function Home() {
                 languageCode={data.currentLang.code}
                 speechLocale={data.currentLang.speech_locale}
                 onSubmitted={handleRefresh}
+                isGuest={isGuest}
+                onOpenAuthModal={() => setIsAuthModalOpen(true)}
+                currentUsername={currentUser?.username}
               />
             </section>
           </div>
@@ -217,6 +242,8 @@ export default function Home() {
                 submissions={data.recentSubmissions}
                 speechLocale={data.currentLang.speech_locale}
                 onRefresh={handleRefresh}
+                isGuest={isGuest}
+                onOpenAuthModal={() => setIsAuthModalOpen(true)}
               />
             </section>
           </div>
@@ -234,6 +261,13 @@ export default function Home() {
         onClose={() => setIsAddModalOpen(false)}
         langCode={data.currentLang.code}
         onCardAdded={handleRefresh}
+      />
+
+      {/* Auth Modal (Login & Register) */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
       />
     </div>
   );

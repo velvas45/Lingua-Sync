@@ -15,6 +15,7 @@ export interface SubmissionItem {
   speaking_practiced: number;
   created_at: string;
   likes: number;
+  has_liked?: boolean | number;
   prompt_question?: string;
 }
 
@@ -22,17 +23,37 @@ interface TeamFeedProps {
   submissions: SubmissionItem[];
   speechLocale: string;
   onRefresh: () => void;
+  isGuest?: boolean;
+  onOpenAuthModal?: () => void;
 }
 
 export default function TeamFeed({
   submissions,
   speechLocale,
   onRefresh,
+  isGuest = false,
+  onOpenAuthModal,
 }: TeamFeedProps) {
-  const [likedIds, setLikedIds] = useState<number[]>([]);
+  // Local optimistic overrides: map of submissionId -> { liked: boolean, count: number }
+  const [likeOverrides, setLikeOverrides] = useState<Record<number, { liked: boolean; count: number }>>({});
+  const [pendingIds, setPendingIds] = useState<number[]>([]);
 
-  const handleLike = async (id: number) => {
-    if (likedIds.includes(id)) return;
+  const handleLike = async (id: number, currentLiked: boolean, currentLikes: number) => {
+    if (isGuest) {
+      onOpenAuthModal?.();
+      return;
+    }
+
+    if (pendingIds.includes(id)) return;
+
+    // Optimistic update
+    const nextLiked = !currentLiked;
+    const nextCount = nextLiked ? currentLikes + 1 : Math.max(0, currentLikes - 1);
+    setLikeOverrides((prev) => ({
+      ...prev,
+      [id]: { liked: nextLiked, count: nextCount },
+    }));
+    setPendingIds((prev) => [...prev, id]);
 
     try {
       const res = await fetch('/api/like', {
@@ -42,11 +63,28 @@ export default function TeamFeed({
       });
 
       if (res.ok) {
-        setLikedIds((prev) => [...prev, id]);
+        const data = await res.json();
+        setLikeOverrides((prev) => ({
+          ...prev,
+          [id]: { liked: data.liked, count: data.likes },
+        }));
         onRefresh();
+      } else {
+        // Revert on error
+        setLikeOverrides((prev) => ({
+          ...prev,
+          [id]: { liked: currentLiked, count: currentLikes },
+        }));
       }
     } catch (e: unknown) {
-      console.error('Failed to like submission:', e);
+      console.error('Failed to toggle like:', e);
+      // Revert on error
+      setLikeOverrides((prev) => ({
+        ...prev,
+        [id]: { liked: currentLiked, count: currentLikes },
+      }));
+    } finally {
+      setPendingIds((prev) => prev.filter((item) => item !== id));
     }
   };
 
@@ -81,7 +119,10 @@ export default function TeamFeed({
   return (
     <div className="flex flex-col gap-3.5">
       {submissions.map((sub) => {
-        const isLiked = likedIds.includes(sub.id);
+        const override = likeOverrides[sub.id];
+        const isLiked = override ? override.liked : Boolean(sub.has_liked);
+        const displayLikes = override ? override.count : sub.likes;
+
         return (
           <Card
             key={sub.id}
@@ -120,19 +161,25 @@ export default function TeamFeed({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => handleLike(sub.id)}
+                    onClick={() => handleLike(sub.id, isLiked, displayLikes)}
                     className={`h-8 gap-1.5 px-2.5 text-xs font-semibold transition-all ${
                       isLiked
                         ? 'border-rose-500/40 bg-rose-500/15 text-rose-400 hover:bg-rose-500/25'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
-                    title="Beri apresiasi (Kudos)"
+                    title={
+                      isGuest
+                        ? 'Masuk untuk memberi love'
+                        : isLiked
+                        ? 'Klik untuk batalkan apresiasi'
+                        : 'Beri apresiasi (Kudos)'
+                    }
                   >
                     <Heart
-                      className="h-3.5 w-3.5"
+                      className="h-3.5 w-3.5 transition-transform active:scale-125"
                       fill={isLiked ? 'currentColor' : 'none'}
                     />
-                    <span>{sub.likes}</span>
+                    <span>{displayLikes}</span>
                   </Button>
                 </div>
               </div>

@@ -1,17 +1,29 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/db';
+import { cookies } from 'next/headers';
+import db, { getSessionUser } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { userName, languageCode, promptId, textResponse, speakingPracticed } = body;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('lingua_session')?.value;
+    const user = getSessionUser(token);
 
-    if (!userName || !languageCode || !promptId || !textResponse) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Silakan masuk atau daftar terlebih dahulu untuk menyelesaikan tantangan harian' },
+        { status: 401 }
+      );
     }
 
-    const cleanName = userName.trim();
-    const cleanResponse = textResponse.trim();
+    const body = await request.json();
+    const { languageCode, promptId, textResponse, speakingPracticed } = body;
+
+    if (!languageCode || !promptId || !textResponse) {
+      return NextResponse.json({ error: 'Data tantangan belum lengkap' }, { status: 400 });
+    }
+
+    const cleanName = user.username;
+    const cleanResponse = String(textResponse).trim();
 
     // Insert submission
     const insert = db.prepare(`

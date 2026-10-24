@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'node:crypto';
 
 const dataDir = path.join(process.cwd(), 'data');
 if (!fs.existsSync(dataDir)) {
@@ -12,6 +13,21 @@ const db = new Database(dbPath);
 
 db.pragma('journal_mode = WAL');
 
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  phone_number: string;
+  created_at: string;
+}
+
+export interface Session {
+  id: string;
+  user_id: number;
+  expires_at: string;
+  created_at: string;
+}
+
 export interface Language {
   code: string;
   name: string;
@@ -22,6 +38,7 @@ export interface Language {
 
 export interface Card {
   id: number;
+  user_id: number | null;
   language_code: string;
   primary_text: string;
   phonetic: string | null;
@@ -53,6 +70,7 @@ export interface Submission {
   speaking_practiced: number;
   created_at: string;
   likes: number;
+  has_liked?: boolean;
 }
 
 export interface UserStats {
@@ -63,8 +81,104 @@ export interface UserStats {
   xp_points: number;
 }
 
+// ----------------- Cryptographic & Auth Helpers -----------------
+
+export function hashPassword(password: string): { hash: string; salt: string } {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return { hash, salt };
+}
+
+export function verifyPassword(password: string, salt: string, expectedHash: string): boolean {
+  try {
+    const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+    return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(expectedHash, 'hex'));
+  } catch {
+    return false;
+  }
+}
+
+export function createSession(userId: number): { token: string; expiresAt: Date } {
+  const token = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+  db.prepare(`
+    INSERT INTO sessions (id, user_id, expires_at)
+    VALUES (?, ?, ?)
+  `).run(token, userId, expiresAt.toISOString());
+  return { token, expiresAt };
+}
+
+export function getSessionUser(token: string | null | undefined): User | null {
+  if (!token) return null;
+  const now = new Date().toISOString();
+  const row = db.prepare(`
+    SELECT u.id, u.username, u.email, u.phone_number, u.created_at
+    FROM sessions s
+    JOIN users u ON s.user_id = u.id
+    WHERE s.id = ? AND s.expires_at > ?
+  `).get(token, now) as User | undefined;
+  return row || null;
+}
+
+export function deleteSession(token: string): void {
+  db.prepare('DELETE FROM sessions WHERE id = ?').run(token);
+}
+
+export function cloneDefaultCardsForUser(userId: number): void {
+  const templateCards = db.prepare(`
+    SELECT * FROM cards
+    WHERE user_id IS NULL
+    ORDER BY id ASC
+  `).all() as Card[];
+
+  const insertCard = db.prepare(`
+    INSERT INTO cards (user_id, language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const tx = db.transaction((cards: Card[]) => {
+    for (const card of cards) {
+      insertCard.run(
+        userId,
+        card.language_code,
+        card.primary_text,
+        card.phonetic,
+        card.furigana_html,
+        card.meaning_id,
+        card.part_of_speech,
+        card.level,
+        card.example_source,
+        card.example_meaning,
+        card.audio_guide
+      );
+    }
+  });
+
+  tx(templateCards);
+}
+
+// ----------------- Database Initialization & Schema Migration -----------------
+
 export function initDatabase() {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      phone_number TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      salt TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      id TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      expires_at DATETIME NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS languages (
       code TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -75,6 +189,7 @@ export function initDatabase() {
 
     CREATE TABLE IF NOT EXISTS cards (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
       language_code TEXT NOT NULL,
       primary_text TEXT NOT NULL,
       phonetic TEXT,
@@ -86,6 +201,7 @@ export function initDatabase() {
       example_meaning TEXT NOT NULL,
       audio_guide TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (language_code) REFERENCES languages(code)
     );
 
@@ -113,6 +229,15 @@ export function initDatabase() {
       FOREIGN KEY (prompt_id) REFERENCES daily_prompts(id)
     );
 
+    CREATE TABLE IF NOT EXISTS submission_likes (
+      user_id INTEGER NOT NULL,
+      submission_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (user_id, submission_id),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (submission_id) REFERENCES submissions(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS user_stats (
       user_name TEXT PRIMARY KEY,
       current_streak INTEGER DEFAULT 1,
@@ -121,6 +246,13 @@ export function initDatabase() {
       xp_points INTEGER DEFAULT 0
     );
   `);
+
+  // Non-destructive check for user_id column on cards
+  const cardColumns = db.prepare("PRAGMA table_info(cards)").all() as Array<{ name: string }>;
+  const hasUserId = cardColumns.some((col) => col.name === 'user_id');
+  if (!hasUserId) {
+    db.exec('ALTER TABLE cards ADD COLUMN user_id INTEGER REFERENCES users(id)');
+  }
 
   const countLang = db.prepare('SELECT COUNT(*) as count FROM languages').get() as { count: number };
   if (countLang.count === 0) {
@@ -136,8 +268,8 @@ export function initDatabase() {
   const countCards = db.prepare('SELECT COUNT(*) as count FROM cards').get() as { count: number };
   if (countCards.count === 0) {
     const insertCard = db.prepare(`
-      INSERT INTO cards (language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO cards (user_id, language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
+      VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const enCards = [

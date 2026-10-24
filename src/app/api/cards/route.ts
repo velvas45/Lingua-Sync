@@ -1,9 +1,21 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/db';
+import { cookies } from 'next/headers';
+import db, { getSessionUser } from '@/lib/db';
 import { sanitizeFuriganaInput } from '@/lib/furigana';
 
 export async function POST(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('lingua_session')?.value;
+    const user = getSessionUser(token);
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Silakan masuk atau daftar terlebih dahulu untuk menambahkan kosakata' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const {
       language_code,
@@ -29,11 +41,12 @@ export async function POST(request: Request) {
     const sanitizedFurigana = sanitizeFuriganaInput(furigana_html);
 
     const insert = db.prepare(`
-      INSERT INTO cards (language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO cards (user_id, language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = insert.run(
+      user.id,
       String(language_code).trim(),
       cleanPrimaryText,
       phonetic ? String(phonetic).trim() : null,
