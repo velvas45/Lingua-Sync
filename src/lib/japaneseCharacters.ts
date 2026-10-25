@@ -1,3 +1,5 @@
+export type KanaSubCategory = 'gojuon' | 'dakuon' | 'handakuon' | 'yoon' | 'special';
+
 export interface CharacterItem {
   char: string;
   romaji: string;
@@ -6,6 +8,7 @@ export interface CharacterItem {
   exampleMeaning: string;
   strokes: number;
   category?: string;
+  subCategory?: KanaSubCategory;
 }
 
 export interface KanjiItem {
@@ -14,148 +17,291 @@ export interface KanjiItem {
   onyomi: string;
   kunyomi: string;
   strokes: number;
-  origin: string; // asal muasal piktograf
+  origin: string;
   exampleWord: string;
   exampleReading: string;
   exampleMeaning: string;
 }
 
-// 46 Huruf Hiragana Standar (Gojūon)
+// ----------------- HIRAGANA FULL SPECTRUM (Gojuon, Dakuon, Handakuon, Yoon, Sokuon) -----------------
 export const HIRAGANA_LIST: CharacterItem[] = [
-  // Vokal A I U E O
-  { char: 'あ', romaji: 'a', exampleWord: 'あさ', exampleReading: 'asa', exampleMeaning: 'Pagi', strokes: 3, category: 'vowel' },
-  { char: 'い', romaji: 'i', exampleWord: 'いえ', exampleReading: 'ie', exampleMeaning: 'Rumah', strokes: 2, category: 'vowel' },
-  { char: 'う', romaji: 'u', exampleWord: 'うみ', exampleReading: 'umi', exampleMeaning: 'Laut', strokes: 2, category: 'vowel' },
-  { char: 'え', romaji: 'e', exampleWord: 'えき', exampleReading: 'eki', exampleMeaning: 'Stasiun', strokes: 2, category: 'vowel' },
-  { char: 'お', romaji: 'o', exampleWord: 'お茶', exampleReading: 'ocha', exampleMeaning: 'Teh', strokes: 3, category: 'vowel' },
+  // 1. Gojūon (46 Dasar)
+  { char: 'あ', romaji: 'a', exampleWord: 'あさ', exampleReading: 'asa', exampleMeaning: 'Pagi', strokes: 3, category: 'vowel', subCategory: 'gojuon' },
+  { char: 'い', romaji: 'i', exampleWord: 'いえ', exampleReading: 'ie', exampleMeaning: 'Rumah', strokes: 2, category: 'vowel', subCategory: 'gojuon' },
+  { char: 'う', romaji: 'u', exampleWord: 'うみ', exampleReading: 'umi', exampleMeaning: 'Laut', strokes: 2, category: 'vowel', subCategory: 'gojuon' },
+  { char: 'え', romaji: 'e', exampleWord: 'えき', exampleReading: 'eki', exampleMeaning: 'Stasiun', strokes: 2, category: 'vowel', subCategory: 'gojuon' },
+  { char: 'お', romaji: 'o', exampleWord: 'お茶', exampleReading: 'ocha', exampleMeaning: 'Teh', strokes: 3, category: 'vowel', subCategory: 'gojuon' },
 
-  // Baris K (Ka, Ki, Ku, Ke, Ko)
-  { char: 'か', romaji: 'ka', exampleWord: 'かさ', exampleReading: 'kasa', exampleMeaning: 'Payung', strokes: 3, category: 'k' },
-  { char: 'き', romaji: 'ki', exampleWord: 'き', exampleReading: 'ki', exampleMeaning: 'Pohon', strokes: 4, category: 'k' },
-  { char: 'く', romaji: 'ku', exampleWord: 'くるま', exampleReading: 'kuruma', exampleMeaning: 'Mobil', strokes: 1, category: 'k' },
-  { char: 'け', romaji: 'ke', exampleWord: 'けさ', exampleReading: 'kesa', exampleMeaning: 'Pagi ini', strokes: 3, category: 'k' },
-  { char: 'こ', romaji: 'ko', exampleWord: 'こども', exampleReading: 'kodomo', exampleMeaning: 'Anak', strokes: 2, category: 'k' },
+  { char: 'か', romaji: 'ka', exampleWord: 'かさ', exampleReading: 'kasa', exampleMeaning: 'Payung', strokes: 3, category: 'k', subCategory: 'gojuon' },
+  { char: 'き', romaji: 'ki', exampleWord: 'き', exampleReading: 'ki', exampleMeaning: 'Pohon', strokes: 4, category: 'k', subCategory: 'gojuon' },
+  { char: 'く', romaji: 'ku', exampleWord: 'くるま', exampleReading: 'kuruma', exampleMeaning: 'Mobil', strokes: 1, category: 'k', subCategory: 'gojuon' },
+  { char: 'け', romaji: 'ke', exampleWord: 'けさ', exampleReading: 'kesa', exampleMeaning: 'Pagi ini', strokes: 3, category: 'k', subCategory: 'gojuon' },
+  { char: 'こ', romaji: 'ko', exampleWord: 'こども', exampleReading: 'kodomo', exampleMeaning: 'Anak', strokes: 2, category: 'k', subCategory: 'gojuon' },
 
-  // Baris S (Sa, Shi, Su, Se, So)
-  { char: 'さ', romaji: 'sa', exampleWord: 'さかな', exampleReading: 'sakana', exampleMeaning: 'Ikan', strokes: 3, category: 's' },
-  { char: 'し', romaji: 'shi', exampleWord: 'しお', exampleReading: 'shio', exampleMeaning: 'Garam', strokes: 1, category: 's' },
-  { char: 'す', romaji: 'su', exampleWord: 'すし', exampleReading: 'sushi', exampleMeaning: 'Sushi', strokes: 2, category: 's' },
-  { char: 'せ', romaji: 'se', exampleWord: 'せんせい', exampleReading: 'sensei', exampleMeaning: 'Guru', strokes: 3, category: 's' },
-  { char: 'そ', romaji: 'so', exampleWord: 'そら', exampleReading: 'sora', exampleMeaning: 'Langit', strokes: 1, category: 's' },
+  { char: 'さ', romaji: 'sa', exampleWord: 'さかな', exampleReading: 'sakana', exampleMeaning: 'Ikan', strokes: 3, category: 's', subCategory: 'gojuon' },
+  { char: 'し', romaji: 'shi', exampleWord: 'しお', exampleReading: 'shio', exampleMeaning: 'Garam', strokes: 1, category: 's', subCategory: 'gojuon' },
+  { char: 'す', romaji: 'su', exampleWord: 'すし', exampleReading: 'sushi', exampleMeaning: 'Sushi', strokes: 2, category: 's', subCategory: 'gojuon' },
+  { char: 'せ', romaji: 'se', exampleWord: 'せんせい', exampleReading: 'sensei', exampleMeaning: 'Guru', strokes: 3, category: 's', subCategory: 'gojuon' },
+  { char: 'そ', romaji: 'so', exampleWord: 'そら', exampleReading: 'sora', exampleMeaning: 'Langit', strokes: 1, category: 's', subCategory: 'gojuon' },
 
-  // Baris T (Ta, Chi, Tsu, Te, To)
-  { char: 'た', romaji: 'ta', exampleWord: 'たまご', exampleReading: 'tamago', exampleMeaning: 'Telur', strokes: 4, category: 't' },
-  { char: 'ち', romaji: 'chi', exampleWord: 'ちず', exampleReading: 'chizu', exampleMeaning: 'Peta', strokes: 2, category: 't' },
-  { char: 'つ', romaji: 'tsu', exampleWord: 'つくえ', exampleReading: 'tsukue', exampleMeaning: 'Meja', strokes: 1, category: 't' },
-  { char: 'て', romaji: 'te', exampleWord: 'て', exampleReading: 'te', exampleMeaning: 'Tangan', strokes: 1, category: 't' },
-  { char: 'と', romaji: 'to', exampleWord: 'ともだち', exampleReading: 'tomodachi', exampleMeaning: 'Teman', strokes: 2, category: 't' },
+  { char: 'た', romaji: 'ta', exampleWord: 'たまご', exampleReading: 'tamago', exampleMeaning: 'Telur', strokes: 4, category: 't', subCategory: 'gojuon' },
+  { char: 'ち', romaji: 'chi', exampleWord: 'ちず', exampleReading: 'chizu', exampleMeaning: 'Peta', strokes: 2, category: 't', subCategory: 'gojuon' },
+  { char: 'つ', romaji: 'tsu', exampleWord: 'つくえ', exampleReading: 'tsukue', exampleMeaning: 'Meja', strokes: 1, category: 't', subCategory: 'gojuon' },
+  { char: 'て', romaji: 'te', exampleWord: 'て', exampleReading: 'te', exampleMeaning: 'Tangan', strokes: 1, category: 't', subCategory: 'gojuon' },
+  { char: 'と', romaji: 'to', exampleWord: 'ともだち', exampleReading: 'tomodachi', exampleMeaning: 'Teman', strokes: 2, category: 't', subCategory: 'gojuon' },
 
-  // Baris N (Na, Ni, Nu, Ne, No)
-  { char: 'な', romaji: 'na', exampleWord: 'なつ', exampleReading: 'natsu', exampleMeaning: 'Musim panas', strokes: 4, category: 'n' },
-  { char: 'に', romaji: 'ni', exampleWord: 'にく', exampleReading: 'niku', exampleMeaning: 'Daging', strokes: 3, category: 'n' },
-  { char: 'ぬ', romaji: 'nu', exampleWord: 'いぬ', exampleReading: 'inu', exampleMeaning: 'Anjing', strokes: 2, category: 'n' },
-  { char: 'ね', romaji: 'ne', exampleWord: 'ねこ', exampleReading: 'neko', exampleMeaning: 'Kucing', strokes: 2, category: 'n' },
-  { char: 'の', romaji: 'no', exampleWord: 'のみもの', exampleReading: 'nomimono', exampleMeaning: 'Minuman', strokes: 1, category: 'n' },
+  { char: 'な', romaji: 'na', exampleWord: 'なつ', exampleReading: 'natsu', exampleMeaning: 'Musim panas', strokes: 4, category: 'n', subCategory: 'gojuon' },
+  { char: 'に', romaji: 'ni', exampleWord: 'にく', exampleReading: 'niku', exampleMeaning: 'Daging', strokes: 3, category: 'n', subCategory: 'gojuon' },
+  { char: 'ぬ', romaji: 'nu', exampleWord: 'いぬ', exampleReading: 'inu', exampleMeaning: 'Anjing', strokes: 2, category: 'n', subCategory: 'gojuon' },
+  { char: 'ね', romaji: 'ne', exampleWord: 'ねこ', exampleReading: 'neko', exampleMeaning: 'Kucing', strokes: 2, category: 'n', subCategory: 'gojuon' },
+  { char: 'の', romaji: 'no', exampleWord: 'のみもの', exampleReading: 'nomimono', exampleMeaning: 'Minuman', strokes: 1, category: 'n', subCategory: 'gojuon' },
 
-  // Baris H (Ha, Hi, Fu, He, Ho)
-  { char: 'は', romaji: 'ha', exampleWord: 'はな', exampleReading: 'hana', exampleMeaning: 'Bunga', strokes: 3, category: 'h' },
-  { char: 'ひ', romaji: 'hi', exampleWord: 'ひと', exampleReading: 'hito', exampleMeaning: 'Orang', strokes: 1, category: 'h' },
-  { char: 'ふ', romaji: 'fu', exampleWord: 'ふね', exampleReading: 'fune', exampleMeaning: 'Kapal', strokes: 4, category: 'h' },
-  { char: 'へ', romaji: 'he', exampleWord: 'へや', exampleReading: 'heya', exampleMeaning: 'Kamar', strokes: 1, category: 'h' },
-  { char: 'ほ', romaji: 'ho', exampleWord: 'ほん', exampleReading: 'hon', exampleMeaning: 'Buku', strokes: 4, category: 'h' },
+  { char: 'は', romaji: 'ha', exampleWord: 'はな', exampleReading: 'hana', exampleMeaning: 'Bunga', strokes: 3, category: 'h', subCategory: 'gojuon' },
+  { char: 'ひ', romaji: 'hi', exampleWord: 'ひと', exampleReading: 'hito', exampleMeaning: 'Orang', strokes: 1, category: 'h', subCategory: 'gojuon' },
+  { char: 'ふ', romaji: 'fu', exampleWord: 'ふね', exampleReading: 'fune', exampleMeaning: 'Kapal', strokes: 4, category: 'h', subCategory: 'gojuon' },
+  { char: 'へ', romaji: 'he', exampleWord: 'へや', exampleReading: 'heya', exampleMeaning: 'Kamar', strokes: 1, category: 'h', subCategory: 'gojuon' },
+  { char: 'ほ', romaji: 'ho', exampleWord: 'ほん', exampleReading: 'hon', exampleMeaning: 'Buku', strokes: 4, category: 'h', subCategory: 'gojuon' },
 
-  // Baris M (Ma, Mi, Mu, Me, Mo)
-  { char: 'ま', romaji: 'ma', exampleWord: 'まち', exampleReading: 'machi', exampleMeaning: 'Kota', strokes: 3, category: 'm' },
-  { char: 'み', romaji: 'mi', exampleWord: 'みず', exampleReading: 'mizu', exampleMeaning: 'Air', strokes: 2, category: 'm' },
-  { char: 'む', romaji: 'mu', exampleWord: 'むし', exampleReading: 'mushi', exampleMeaning: 'Serangga', strokes: 3, category: 'm' },
-  { char: 'め', romaji: 'me', exampleWord: 'め', exampleReading: 'me', exampleMeaning: 'Mata', strokes: 2, category: 'm' },
-  { char: 'も', romaji: 'mo', exampleWord: 'もり', exampleReading: 'mori', exampleMeaning: 'Hutan', strokes: 3, category: 'm' },
+  { char: 'ま', romaji: 'ma', exampleWord: 'まち', exampleReading: 'machi', exampleMeaning: 'Kota', strokes: 3, category: 'm', subCategory: 'gojuon' },
+  { char: 'み', romaji: 'mi', exampleWord: 'みず', exampleReading: 'mizu', exampleMeaning: 'Air', strokes: 2, category: 'm', subCategory: 'gojuon' },
+  { char: 'む', romaji: 'mu', exampleWord: 'むし', exampleReading: 'mushi', exampleMeaning: 'Serangga', strokes: 3, category: 'm', subCategory: 'gojuon' },
+  { char: 'め', romaji: 'me', exampleWord: 'め', exampleReading: 'me', exampleMeaning: 'Mata', strokes: 2, category: 'm', subCategory: 'gojuon' },
+  { char: 'も', romaji: 'mo', exampleWord: 'もり', exampleReading: 'mori', exampleMeaning: 'Hutan', strokes: 3, category: 'm', subCategory: 'gojuon' },
 
-  // Baris Y (Ya, Yu, Yo)
-  { char: 'や', romaji: 'ya', exampleWord: 'やま', exampleReading: 'yama', exampleMeaning: 'Gunung', strokes: 3, category: 'y' },
-  { char: 'ゆ', romaji: 'yu', exampleWord: 'ゆき', exampleReading: 'yuki', exampleMeaning: 'Salju', strokes: 2, category: 'y' },
-  { char: 'よ', romaji: 'yo', exampleWord: 'よる', exampleReading: 'yoru', exampleMeaning: 'Malam', strokes: 2, category: 'y' },
+  { char: 'や', romaji: 'ya', exampleWord: 'やま', exampleReading: 'yama', exampleMeaning: 'Gunung', strokes: 3, category: 'y', subCategory: 'gojuon' },
+  { char: 'ゆ', romaji: 'yu', exampleWord: 'ゆき', exampleReading: 'yuki', exampleMeaning: 'Salju', strokes: 2, category: 'y', subCategory: 'gojuon' },
+  { char: 'よ', romaji: 'yo', exampleWord: 'よる', exampleReading: 'yoru', exampleMeaning: 'Malam', strokes: 2, category: 'y', subCategory: 'gojuon' },
 
-  // Baris R (Ra, Ri, Ru, Re, Ro)
-  { char: 'ら', romaji: 'ra', exampleWord: 'らいしゅう', exampleReading: 'raishuu', exampleMeaning: 'Pekan depan', strokes: 2, category: 'r' },
-  { char: 'り', romaji: 'ri', exampleWord: 'りんご', exampleReading: 'ringo', exampleMeaning: 'Apel', strokes: 2, category: 'r' },
-  { char: 'る', romaji: 'ru', exampleWord: 'よる', exampleReading: 'yoru', exampleMeaning: 'Malam', strokes: 1, category: 'r' },
-  { char: 'れ', romaji: 're', exampleWord: 'れきし', exampleReading: 'rekishi', exampleMeaning: 'Sejarah', strokes: 2, category: 'r' },
-  { char: 'ろ', romaji: 'ro', exampleWord: 'ろうそく', exampleReading: 'rousoku', exampleMeaning: 'Lilin', strokes: 1, category: 'r' },
+  { char: 'ら', romaji: 'ra', exampleWord: 'らいしゅう', exampleReading: 'raishuu', exampleMeaning: 'Pekan depan', strokes: 2, category: 'r', subCategory: 'gojuon' },
+  { char: 'り', romaji: 'ri', exampleWord: 'りんご', exampleReading: 'ringo', exampleMeaning: 'Apel', strokes: 2, category: 'r', subCategory: 'gojuon' },
+  { char: 'る', romaji: 'ru', exampleWord: 'よる', exampleReading: 'yoru', exampleMeaning: 'Malam', strokes: 1, category: 'r', subCategory: 'gojuon' },
+  { char: 'れ', romaji: 're', exampleWord: 'れきし', exampleReading: 'rekishi', exampleMeaning: 'Sejarah', strokes: 2, category: 'r', subCategory: 'gojuon' },
+  { char: 'ろ', romaji: 'ro', exampleWord: 'ろうそく', exampleReading: 'rousoku', exampleMeaning: 'Lilin', strokes: 1, category: 'r', subCategory: 'gojuon' },
 
-  // Baris W & N (Wa, Wo, N)
-  { char: 'わ', romaji: 'wa', exampleWord: 'わたし', exampleReading: 'watashi', exampleMeaning: 'Saya', strokes: 2, category: 'w' },
-  { char: 'を', romaji: 'wo (o)', exampleWord: '〜を', exampleReading: 'o', exampleMeaning: 'Partikel penanda objek', strokes: 3, category: 'w' },
-  { char: 'ん', romaji: 'n', exampleWord: 'にほん', exampleReading: 'nihon', exampleMeaning: 'Jepang', strokes: 1, category: 'n_alone' },
+  { char: 'わ', romaji: 'wa', exampleWord: 'わたし', exampleReading: 'watashi', exampleMeaning: 'Saya', strokes: 2, category: 'w', subCategory: 'gojuon' },
+  { char: 'を', romaji: 'wo (o)', exampleWord: '〜を', exampleReading: 'o', exampleMeaning: 'Partikel objek', strokes: 3, category: 'w', subCategory: 'gojuon' },
+  { char: 'ん', romaji: 'n', exampleWord: 'にほん', exampleReading: 'nihon', exampleMeaning: 'Jepang', strokes: 1, category: 'n_alone', subCategory: 'gojuon' },
+
+  // 2. Dakuon (20 Suara Tenten ゛)
+  { char: 'が', romaji: 'ga', exampleWord: 'がいこく', exampleReading: 'gaikoku', exampleMeaning: 'Luar negeri', strokes: 4, category: 'g', subCategory: 'dakuon' },
+  { char: 'ぎ', romaji: 'gi', exampleWord: 'ぎんこう', exampleReading: 'ginkou', exampleMeaning: 'Bank', strokes: 5, category: 'g', subCategory: 'dakuon' },
+  { char: 'ぐ', romaji: 'gu', exampleWord: 'ぐらい', exampleReading: 'gurai', exampleMeaning: 'Kira-kira', strokes: 2, category: 'g', subCategory: 'dakuon' },
+  { char: 'げ', romaji: 'ge', exampleWord: 'げんき', exampleReading: 'genki', exampleMeaning: 'Sehat', strokes: 4, category: 'g', subCategory: 'dakuon' },
+  { char: 'ご', romaji: 'go', exampleWord: 'ごはん', exampleReading: 'gohan', exampleMeaning: 'Nasi / Makanan', strokes: 3, category: 'g', subCategory: 'dakuon' },
+
+  { char: 'ざ', romaji: 'za', exampleWord: 'ざっし', exampleReading: 'zasshi', exampleMeaning: 'Majalah', strokes: 4, category: 'z', subCategory: 'dakuon' },
+  { char: 'じ', romaji: 'ji', exampleWord: 'じかん', exampleReading: 'jikan', exampleMeaning: 'Waktu', strokes: 2, category: 'z', subCategory: 'dakuon' },
+  { char: 'ず', romaji: 'zu', exampleWord: 'ちず', exampleReading: 'chizu', exampleMeaning: 'Peta', strokes: 3, category: 'z', subCategory: 'dakuon' },
+  { char: 'ぜ', romaji: 'ze', exampleWord: 'ぜんぶ', exampleReading: 'zenbu', exampleMeaning: 'Semuanya', strokes: 4, category: 'z', subCategory: 'dakuon' },
+  { char: 'ぞ', romaji: 'zo', exampleWord: 'かぞく', exampleReading: 'kazoku', exampleMeaning: 'Keluarga', strokes: 2, category: 'z', subCategory: 'dakuon' },
+
+  { char: 'だ', romaji: 'da', exampleWord: 'だいがく', exampleReading: 'daigaku', exampleMeaning: 'Universitas', strokes: 5, category: 'd', subCategory: 'dakuon' },
+  { char: 'ぢ', romaji: 'ji (di)', exampleWord: 'はなぢ', exampleReading: 'hanaji', exampleMeaning: 'Mimisan', strokes: 3, category: 'd', subCategory: 'dakuon' },
+  { char: 'づ', romaji: 'zu (du)', exampleWord: 'つづく', exampleReading: 'tsuzuku', exampleMeaning: 'Berlanjut', strokes: 2, category: 'd', subCategory: 'dakuon' },
+  { char: 'で', romaji: 'de', exampleWord: 'でんしゃ', exampleReading: 'densha', exampleMeaning: 'Kereta listrik', strokes: 2, category: 'd', subCategory: 'dakuon' },
+  { char: 'ど', romaji: 'do', exampleWord: 'どこ', exampleReading: 'doko', exampleMeaning: 'Di mana', strokes: 3, category: 'd', subCategory: 'dakuon' },
+
+  { char: 'ば', romaji: 'ba', exampleWord: 'ばんごう', exampleReading: 'bangou', exampleMeaning: 'Nomor', strokes: 5, category: 'b', subCategory: 'dakuon' },
+  { char: 'び', romaji: 'bi', exampleWord: 'びょういん', exampleReading: 'byouin', exampleMeaning: 'Rumah sakit', strokes: 2, category: 'b', subCategory: 'dakuon' },
+  { char: 'ぶ', romaji: 'bu', exampleWord: 'ぶんか', exampleReading: 'bunka', exampleMeaning: 'Budaya', strokes: 5, category: 'b', subCategory: 'dakuon' },
+  { char: 'べ', romaji: 'be', exampleWord: 'べんきょう', exampleReading: 'benkyou', exampleMeaning: 'Belajar', strokes: 2, category: 'b', subCategory: 'dakuon' },
+  { char: 'ぼ', romaji: 'bo', exampleWord: 'ぼうし', exampleReading: 'boushi', exampleMeaning: 'Topi', strokes: 5, category: 'b', subCategory: 'dakuon' },
+
+  // 3. Handakuon (5 Suara Maru ゜)
+  { char: 'ぱ', romaji: 'pa', exampleWord: 'ぱん', exampleReading: 'pan', exampleMeaning: 'Roti', strokes: 4, category: 'p', subCategory: 'handakuon' },
+  { char: 'ぴ', romaji: 'pi', exampleWord: 'ぴかぴか', exampleReading: 'pikapika', exampleMeaning: 'Berkilau', strokes: 2, category: 'p', subCategory: 'handakuon' },
+  { char: 'ぷ', romaji: 'pu', exampleWord: 'ぷれぜんと', exampleReading: 'purezento', exampleMeaning: 'Hadiah', strokes: 5, category: 'p', subCategory: 'handakuon' },
+  { char: 'ぺ', romaji: 'pe', exampleWord: 'ぺん', exampleReading: 'pen', exampleMeaning: 'Pena', strokes: 2, category: 'p', subCategory: 'handakuon' },
+  { char: 'ぽ', romaji: 'po', exampleWord: 'ぽけっと', exampleReading: 'poketto', exampleMeaning: 'Saku', strokes: 5, category: 'p', subCategory: 'handakuon' },
+
+  // 4. Yōon (33 Suara Kombinasi)
+  { char: 'きゃ', romaji: 'kya', exampleWord: 'きゃく', exampleReading: 'kyaku', exampleMeaning: 'Tamu', strokes: 6, category: 'yoon_k', subCategory: 'yoon' },
+  { char: 'きゅ', romaji: 'kyu', exampleWord: 'きゅう', exampleReading: 'kyuu', exampleMeaning: 'Sembilan', strokes: 6, category: 'yoon_k', subCategory: 'yoon' },
+  { char: 'きょ', romaji: 'kyo', exampleWord: 'きょう', exampleReading: 'kyou', exampleMeaning: 'Hari ini', strokes: 5, category: 'yoon_k', subCategory: 'yoon' },
+
+  { char: 'しゃ', romaji: 'sha', exampleWord: 'しゃしん', exampleReading: 'shashin', exampleMeaning: 'Foto', strokes: 3, category: 'yoon_s', subCategory: 'yoon' },
+  { char: 'しゅ', romaji: 'shu', exampleWord: 'しゅくだい', exampleReading: 'shukudai', exampleMeaning: 'PR', strokes: 3, category: 'yoon_s', subCategory: 'yoon' },
+  { char: 'しょ', romaji: 'sho', exampleWord: 'しょくどう', exampleReading: 'shokudou', exampleMeaning: 'Kantin', strokes: 2, category: 'yoon_s', subCategory: 'yoon' },
+
+  { char: 'ちゃ', romaji: 'cha', exampleWord: 'おちゃ', exampleReading: 'ocha', exampleMeaning: 'Teh', strokes: 4, category: 'yoon_t', subCategory: 'yoon' },
+  { char: 'ちゅ', romaji: 'chu', exampleWord: 'ちゅうごく', exampleReading: 'chuugoku', exampleMeaning: 'Tiongkok', strokes: 4, category: 'yoon_t', subCategory: 'yoon' },
+  { char: 'ちょ', romaji: 'cho', exampleWord: 'ちょっと', exampleReading: 'chotto', exampleMeaning: 'Sebentar', strokes: 3, category: 'yoon_t', subCategory: 'yoon' },
+
+  { char: 'にゃ', romaji: 'nya', exampleWord: 'にゃー', exampleReading: 'nyaa', exampleMeaning: 'Suara kucing', strokes: 5, category: 'yoon_n', subCategory: 'yoon' },
+  { char: 'にゅ', romaji: 'nyu', exampleWord: 'にゅうがく', exampleReading: 'nyuugaku', exampleMeaning: 'Masuk sekolah', strokes: 5, category: 'yoon_n', subCategory: 'yoon' },
+  { char: 'にょ', romaji: 'nyo', exampleWord: 'にょきにょき', exampleReading: 'nyokinyoki', exampleMeaning: 'Tumbuh cepat', strokes: 4, category: 'yoon_n', subCategory: 'yoon' },
+
+  { char: 'ひゃ', romaji: 'hya', exampleWord: 'ひゃく', exampleReading: 'hyaku', exampleMeaning: 'Seratus', strokes: 3, category: 'yoon_h', subCategory: 'yoon' },
+  { char: 'ひゅ', romaji: 'hyu', exampleWord: 'ひゅうひゅう', exampleReading: 'hyuuhyuu', exampleMeaning: 'Desau angin', strokes: 3, category: 'yoon_h', subCategory: 'yoon' },
+  { char: 'ひょ', romaji: 'hyo', exampleWord: 'ひょう', exampleReading: 'hyou', exampleMeaning: 'Tabel grafis', strokes: 2, category: 'yoon_h', subCategory: 'yoon' },
+
+  { char: 'みゃ', romaji: 'mya', exampleWord: 'みゃく', exampleReading: 'myaku', exampleMeaning: 'Denyut nadi', strokes: 4, category: 'yoon_m', subCategory: 'yoon' },
+  { char: 'みゅ', romaji: 'myu', exampleWord: 'みゅーじかる', exampleReading: 'myuujikaru', exampleMeaning: 'Musikal', strokes: 4, category: 'yoon_m', subCategory: 'yoon' },
+  { char: 'みょ', romaji: 'myo', exampleWord: 'みょうじ', exampleReading: 'myouji', exampleMeaning: 'Nama keluarga', strokes: 3, category: 'yoon_m', subCategory: 'yoon' },
+
+  { char: 'りゃ', romaji: 'rya', exampleWord: 'りゃくご', exampleReading: 'ryakugo', exampleMeaning: 'Singkatan kata', strokes: 4, category: 'yoon_r', subCategory: 'yoon' },
+  { char: 'りゅ', romaji: 'ryu', exampleWord: 'りゅうがく', exampleReading: 'ryuugaku', exampleMeaning: 'Studi di luar negeri', strokes: 4, category: 'yoon_r', subCategory: 'yoon' },
+  { char: 'りょ', romaji: 'ryo', exampleWord: 'りょこう', exampleReading: 'ryokou', exampleMeaning: 'Wisata', strokes: 3, category: 'yoon_r', subCategory: 'yoon' },
+
+  { char: 'ぎゃ', romaji: 'gya', exampleWord: 'ぎゃく', exampleReading: 'gyaku', exampleMeaning: 'Kebalikan', strokes: 7, category: 'yoon_g', subCategory: 'yoon' },
+  { char: 'ぎゅ', romaji: 'gyu', exampleWord: 'ぎゅうにゅう', exampleReading: 'gyuunyuu', exampleMeaning: 'Susu sapi', strokes: 7, category: 'yoon_g', subCategory: 'yoon' },
+  { char: 'ぎょ', romaji: 'gyo', exampleWord: 'ぎょうざ', exampleReading: 'gyouza', exampleMeaning: 'Gyoza', strokes: 6, category: 'yoon_g', subCategory: 'yoon' },
+
+  { char: 'じゃ', romaji: 'ja', exampleWord: 'じゃがいも', exampleReading: 'jagaimo', exampleMeaning: 'Kentang', strokes: 4, category: 'yoon_z', subCategory: 'yoon' },
+  { char: 'じゅ', romaji: 'ju', exampleWord: 'じゅぎょう', exampleReading: 'jugyou', exampleMeaning: 'Pelajaran', strokes: 4, category: 'yoon_z', subCategory: 'yoon' },
+  { char: 'じょ', romaji: 'jo', exampleWord: 'じょせい', exampleReading: 'josei', exampleMeaning: 'Wanita', strokes: 3, category: 'yoon_z', subCategory: 'yoon' },
+
+  { char: 'びゃ', romaji: 'bya', exampleWord: 'さんびゃく', exampleReading: 'sanbyaku', exampleMeaning: 'Tiga ratus', strokes: 4, category: 'yoon_b', subCategory: 'yoon' },
+  { char: 'びゅ', romaji: 'byu', exampleWord: 'びゅうびゅう', exampleReading: 'byuubyuu', exampleMeaning: 'Desau kencang', strokes: 4, category: 'yoon_b', subCategory: 'yoon' },
+  { char: 'びょ', romaji: 'byo', exampleWord: 'びょういん', exampleReading: 'byouin', exampleMeaning: 'Rumah sakit', strokes: 3, category: 'yoon_b', subCategory: 'yoon' },
+
+  { char: 'ぴゃ', romaji: 'pya', exampleWord: 'ろっぴゃく', exampleReading: 'roppyaku', exampleMeaning: 'Enam ratus', strokes: 4, category: 'yoon_p', subCategory: 'yoon' },
+  { char: 'ぴゅ', romaji: 'pyu', exampleWord: 'ぴゅうぴゅう', exampleReading: 'pyuupyuu', exampleMeaning: 'Tiupan peluit', strokes: 4, category: 'yoon_p', subCategory: 'yoon' },
+  { char: 'ぴょ', romaji: 'pyo', exampleWord: 'ぴょんぴょん', exampleReading: 'pyonpyon', exampleMeaning: 'Lompat-lompat', strokes: 3, category: 'yoon_p', subCategory: 'yoon' },
+
+  // 5. Special Signs (Sokuon)
+  { char: 'っ', romaji: '(konsonan ganda)', exampleWord: 'がっこう', exampleReading: 'gakkou', exampleMeaning: 'Sekolah (pause sokuon)', strokes: 1, category: 'special', subCategory: 'special' },
 ];
 
-// 46 Huruf Katakana Standar (Gojūon)
+// ----------------- KATAKANA FULL SPECTRUM (Gojuon, Dakuon, Handakuon, Yoon, Sokuon, Choon) -----------------
 export const KATAKANA_LIST: CharacterItem[] = [
-  // Vokal A I U E O
-  { char: 'ア', romaji: 'a', exampleWord: 'アメリカ', exampleReading: 'Amerika', exampleMeaning: 'Amerika Serikat', strokes: 2, category: 'vowel' },
-  { char: 'イ', romaji: 'i', exampleWord: 'インドネシア', exampleReading: 'Indoneshia', exampleMeaning: 'Indonesia', strokes: 2, category: 'vowel' },
-  { char: 'ウ', romaji: 'u', exampleWord: 'ウェブ', exampleReading: 'webu', exampleMeaning: 'Web / Situs', strokes: 3, category: 'vowel' },
-  { char: 'エ', romaji: 'e', exampleWord: 'エレベーター', exampleReading: 'erebeetaa', exampleMeaning: 'Elevator / Lift', strokes: 3, category: 'vowel' },
-  { char: 'オ', romaji: 'o', exampleWord: 'オフィス', exampleReading: 'ofisu', exampleMeaning: 'Kantor', strokes: 3, category: 'vowel' },
+  // 1. Gojūon (46 Dasar)
+  { char: 'ア', romaji: 'a', exampleWord: 'アメリカ', exampleReading: 'Amerika', exampleMeaning: 'Amerika Serikat', strokes: 2, category: 'vowel', subCategory: 'gojuon' },
+  { char: 'イ', romaji: 'i', exampleWord: 'インドネシア', exampleReading: 'Indoneshia', exampleMeaning: 'Indonesia', strokes: 2, category: 'vowel', subCategory: 'gojuon' },
+  { char: 'ウ', romaji: 'u', exampleWord: 'ウェブ', exampleReading: 'webu', exampleMeaning: 'Web / Situs', strokes: 3, category: 'vowel', subCategory: 'gojuon' },
+  { char: 'エ', romaji: 'e', exampleWord: 'エレベーター', exampleReading: 'erebeetaa', exampleMeaning: 'Elevator / Lift', strokes: 3, category: 'vowel', subCategory: 'gojuon' },
+  { char: 'オ', romaji: 'o', exampleWord: 'オフィス', exampleReading: 'ofisu', exampleMeaning: 'Kantor', strokes: 3, category: 'vowel', subCategory: 'gojuon' },
 
-  // Baris K
-  { char: 'カ', romaji: 'ka', exampleWord: 'カフェ', exampleReading: 'kafe', exampleMeaning: 'Kafe', strokes: 2, category: 'k' },
-  { char: 'キ', romaji: 'ki', exampleWord: 'キッチン', exampleReading: 'kicchin', exampleMeaning: 'Dapur', strokes: 3, category: 'k' },
-  { char: 'ク', romaji: 'ku', exampleWord: 'クラス', exampleReading: 'kurasu', exampleMeaning: 'Kelas', strokes: 2, category: 'k' },
-  { char: 'ケ', romaji: 'ke', exampleWord: 'ケーキ', exampleReading: 'keeki', exampleMeaning: 'Kue', strokes: 3, category: 'k' },
-  { char: 'コ', romaji: 'ko', exampleWord: 'コーヒー', exampleReading: 'koohii', exampleMeaning: 'Kopi', strokes: 2, category: 'k' },
+  { char: 'カ', romaji: 'ka', exampleWord: 'カフェ', exampleReading: 'kafe', exampleMeaning: 'Kafe', strokes: 2, category: 'k', subCategory: 'gojuon' },
+  { char: 'キ', romaji: 'ki', exampleWord: 'キッチン', exampleReading: 'kicchin', exampleMeaning: 'Dapur', strokes: 3, category: 'k', subCategory: 'gojuon' },
+  { char: 'ク', romaji: 'ku', exampleWord: 'クラス', exampleReading: 'kurasu', exampleMeaning: 'Kelas', strokes: 2, category: 'k', subCategory: 'gojuon' },
+  { char: 'ケ', romaji: 'ke', exampleWord: 'ケーキ', exampleReading: 'keeki', exampleMeaning: 'Kue', strokes: 3, category: 'k', subCategory: 'gojuon' },
+  { char: 'コ', romaji: 'ko', exampleWord: 'コーヒー', exampleReading: 'koohii', exampleMeaning: 'Kopi', strokes: 2, category: 'k', subCategory: 'gojuon' },
 
-  // Baris S
-  { char: 'サ', romaji: 'sa', exampleWord: 'サラダ', exampleReading: 'sarada', exampleMeaning: 'Salad', strokes: 3, category: 's' },
-  { char: 'シ', romaji: 'shi', exampleWord: 'シャツ', exampleReading: 'shatsu', exampleMeaning: 'Kemeja', strokes: 3, category: 's' },
-  { char: 'ス', romaji: 'su', exampleWord: 'スポーツ', exampleReading: 'supootsu', exampleMeaning: 'Olahraga', strokes: 2, category: 's' },
-  { char: 'セ', romaji: 'se', exampleWord: 'セーター', exampleReading: 'seetaa', exampleMeaning: 'Sweater', strokes: 2, category: 's' },
-  { char: 'ソ', romaji: 'so', exampleWord: 'ソファ', exampleReading: 'sofa', exampleMeaning: 'Sofa', strokes: 2, category: 's' },
+  { char: 'サ', romaji: 'sa', exampleWord: 'サラダ', exampleReading: 'sarada', exampleMeaning: 'Salad', strokes: 3, category: 's', subCategory: 'gojuon' },
+  { char: 'シ', romaji: 'shi', exampleWord: 'シャツ', exampleReading: 'shatsu', exampleMeaning: 'Kemeja', strokes: 3, category: 's', subCategory: 'gojuon' },
+  { char: 'ス', romaji: 'su', exampleWord: 'スポーツ', exampleReading: 'supootsu', exampleMeaning: 'Olahraga', strokes: 2, category: 's', subCategory: 'gojuon' },
+  { char: 'セ', romaji: 'se', exampleWord: 'セーター', exampleReading: 'seetaa', exampleMeaning: 'Sweater', strokes: 2, category: 's', subCategory: 'gojuon' },
+  { char: 'ソ', romaji: 'so', exampleWord: 'ソファ', exampleReading: 'sofa', exampleMeaning: 'Sofa', strokes: 2, category: 's', subCategory: 'gojuon' },
 
-  // Baris T
-  { char: 'タ', romaji: 'ta', exampleWord: 'タクシー', exampleReading: 'takushii', exampleMeaning: 'Taksi', strokes: 3, category: 't' },
-  { char: 'チ', romaji: 'chi', exampleWord: 'チーズ', exampleReading: 'chiizu', exampleMeaning: 'Keju', strokes: 3, category: 't' },
-  { char: 'ツ', romaji: 'tsu', exampleWord: 'ツアー', exampleReading: 'tsuaa', exampleMeaning: 'Tur perjalanan', strokes: 3, category: 't' },
-  { char: 'テ', romaji: 'te', exampleWord: 'テーブル', exampleReading: 'teeburu', exampleMeaning: 'Meja makan', strokes: 3, category: 't' },
-  { char: 'ト', romaji: 'to', exampleWord: 'トイレ', exampleReading: 'toire', exampleMeaning: 'Toilet', strokes: 2, category: 't' },
+  { char: 'タ', romaji: 'ta', exampleWord: 'タクシー', exampleReading: 'takushii', exampleMeaning: 'Taksi', strokes: 3, category: 't', subCategory: 'gojuon' },
+  { char: 'チ', romaji: 'chi', exampleWord: 'チーズ', exampleReading: 'chiizu', exampleMeaning: 'Keju', strokes: 3, category: 't', subCategory: 'gojuon' },
+  { char: 'ツ', romaji: 'tsu', exampleWord: 'ツアー', exampleReading: 'tsuaa', exampleMeaning: 'Tur perjalanan', strokes: 3, category: 't', subCategory: 'gojuon' },
+  { char: 'テ', romaji: 'te', exampleWord: 'テーブル', exampleReading: 'teeburu', exampleMeaning: 'Meja makan', strokes: 3, category: 't', subCategory: 'gojuon' },
+  { char: 'ト', romaji: 'to', exampleWord: 'トイレ', exampleReading: 'toire', exampleMeaning: 'Toilet', strokes: 2, category: 't', subCategory: 'gojuon' },
 
-  // Baris N
-  { char: 'ナ', romaji: 'na', exampleWord: 'ナイフ', exampleReading: 'naifu', exampleMeaning: 'Pisau', strokes: 2, category: 'n' },
-  { char: 'ニ', romaji: 'ni', exampleWord: 'ニュース', exampleReading: 'nyuusu', exampleMeaning: 'Berita', strokes: 2, category: 'n' },
-  { char: 'ヌ', romaji: 'nu', exampleWord: 'カヌー', exampleReading: 'kanuu', exampleMeaning: 'Kano', strokes: 2, category: 'n' },
-  { char: 'ネ', romaji: 'ne', exampleWord: 'ネクタイ', exampleReading: 'nekutai', exampleMeaning: 'Dasi', strokes: 4, category: 'n' },
-  { char: 'ノ', romaji: 'no', exampleWord: 'ノート', exampleReading: 'nooto', exampleMeaning: 'Buku catatan', strokes: 1, category: 'n' },
+  { char: 'ナ', romaji: 'na', exampleWord: 'ナイフ', exampleReading: 'naifu', exampleMeaning: 'Pisau', strokes: 2, category: 'n', subCategory: 'gojuon' },
+  { char: 'ニ', romaji: 'ni', exampleWord: 'ニュース', exampleReading: 'nyuusu', exampleMeaning: 'Berita', strokes: 2, category: 'n', subCategory: 'gojuon' },
+  { char: 'ヌ', romaji: 'nu', exampleWord: 'カヌー', exampleReading: 'kanuu', exampleMeaning: 'Kano', strokes: 2, category: 'n', subCategory: 'gojuon' },
+  { char: 'ネ', romaji: 'ne', exampleWord: 'ネクタイ', exampleReading: 'nekutai', exampleMeaning: 'Dasi', strokes: 4, category: 'n', subCategory: 'gojuon' },
+  { char: 'ノ', romaji: 'no', exampleWord: 'ノート', exampleReading: 'nooto', exampleMeaning: 'Buku catatan', strokes: 1, category: 'n', subCategory: 'gojuon' },
 
-  // Baris H
-  { char: 'ハ', romaji: 'ha', exampleWord: 'ハンバーガー', exampleReading: 'hanbaagaa', exampleMeaning: 'Hamburger', strokes: 2, category: 'h' },
-  { char: 'ヒ', romaji: 'hi', exampleWord: 'ヒーター', exampleReading: 'hiitaa', exampleMeaning: 'Pemanas ruangan', strokes: 2, category: 'h' },
-  { char: 'フ', romaji: 'fu', exampleWord: 'フォーク', exampleReading: 'fooku', exampleMeaning: 'Garpu', strokes: 1, category: 'h' },
-  { char: 'ヘ', romaji: 'he', exampleWord: 'ヘルメット', exampleReading: 'herumetto', exampleMeaning: 'Helm', strokes: 1, category: 'h' },
-  { char: 'ホ', romaji: 'ho', exampleWord: 'ホテル', exampleReading: 'hoteru', exampleMeaning: 'Hotel', strokes: 4, category: 'h' },
+  { char: 'ハ', romaji: 'ha', exampleWord: 'ハンバーガー', exampleReading: 'hanbaagaa', exampleMeaning: 'Hamburger', strokes: 2, category: 'h', subCategory: 'gojuon' },
+  { char: 'ヒ', romaji: 'hi', exampleWord: 'ヒーター', exampleReading: 'hiitaa', exampleMeaning: 'Pemanas ruangan', strokes: 2, category: 'h', subCategory: 'gojuon' },
+  { char: 'フ', romaji: 'fu', exampleWord: 'フォーク', exampleReading: 'fooku', exampleMeaning: 'Garpu', strokes: 1, category: 'h', subCategory: 'gojuon' },
+  { char: 'ヘ', romaji: 'he', exampleWord: 'ヘルメット', exampleReading: 'herumetto', exampleMeaning: 'Helm', strokes: 1, category: 'h', subCategory: 'gojuon' },
+  { char: 'ホ', romaji: 'ho', exampleWord: 'ホテル', exampleReading: 'hoteru', exampleMeaning: 'Hotel', strokes: 4, category: 'h', subCategory: 'gojuon' },
 
-  // Baris M
-  { char: 'マ', romaji: 'ma', exampleWord: 'マスク', exampleReading: 'masuku', exampleMeaning: 'Masker', strokes: 2, category: 'm' },
-  { char: 'ミ', romaji: 'mi', exampleWord: 'ミルク', exampleReading: 'miruku', exampleMeaning: 'Susu', strokes: 3, category: 'm' },
-  { char: 'ム', romaji: 'mu', exampleWord: 'ムービー', exampleReading: 'muubii', exampleMeaning: 'Film', strokes: 2, category: 'm' },
-  { char: 'メ', romaji: 'me', exampleWord: 'メール', exampleReading: 'meeru', exampleMeaning: 'Email / Surat elektronik', strokes: 2, category: 'm' },
-  { char: 'モ', romaji: 'mo', exampleWord: 'モデル', exampleReading: 'moderu', exampleMeaning: 'Model', strokes: 3, category: 'm' },
+  { char: 'マ', romaji: 'ma', exampleWord: 'マスク', exampleReading: 'masuku', exampleMeaning: 'Masker', strokes: 2, category: 'm', subCategory: 'gojuon' },
+  { char: 'ミ', romaji: 'mi', exampleWord: 'ミルク', exampleReading: 'miruku', exampleMeaning: 'Susu', strokes: 3, category: 'm', subCategory: 'gojuon' },
+  { char: 'ム', romaji: 'mu', exampleWord: 'ムービー', exampleReading: 'muubii', exampleMeaning: 'Film', strokes: 2, category: 'm', subCategory: 'gojuon' },
+  { char: 'メ', romaji: 'me', exampleWord: 'メール', exampleReading: 'meeru', exampleMeaning: 'Email', strokes: 2, category: 'm', subCategory: 'gojuon' },
+  { char: 'モ', romaji: 'mo', exampleWord: 'モデル', exampleReading: 'moderu', exampleMeaning: 'Model', strokes: 3, category: 'm', subCategory: 'gojuon' },
 
-  // Baris Y
-  { char: 'ヤ', romaji: 'ya', exampleWord: 'ヤシ', exampleReading: 'yashi', exampleMeaning: 'Kelapa', strokes: 2, category: 'y' },
-  { char: 'ユ', romaji: 'yu', exampleWord: 'ユーザー', exampleReading: 'yuuzaa', exampleMeaning: 'Pengguna', strokes: 2, category: 'y' },
-  { char: 'ヨ', romaji: 'yo', exampleWord: 'ヨーグルト', exampleReading: 'yooguruto', exampleMeaning: 'Yogurt', strokes: 3, category: 'y' },
+  { char: 'ヤ', romaji: 'ya', exampleWord: 'ヤシ', exampleReading: 'yashi', exampleMeaning: 'Kelapa', strokes: 2, category: 'y', subCategory: 'gojuon' },
+  { char: 'ユ', romaji: 'yu', exampleWord: 'ユーザー', exampleReading: 'yuuzaa', exampleMeaning: 'Pengguna', strokes: 2, category: 'y', subCategory: 'gojuon' },
+  { char: 'ヨ', romaji: 'yo', exampleWord: 'ヨーグルト', exampleReading: 'yooguruto', exampleMeaning: 'Yogurt', strokes: 3, category: 'y', subCategory: 'gojuon' },
 
-  // Baris R
-  { char: 'ラ', romaji: 'ra', exampleWord: 'ラジオ', exampleReading: 'rajio', exampleMeaning: 'Radio', strokes: 2, category: 'r' },
-  { char: 'リ', romaji: 'ri', exampleWord: 'リーダー', exampleReading: 'riidaa', exampleMeaning: 'Pemimpin', strokes: 2, category: 'r' },
-  { char: 'ル', romaji: 'ru', exampleWord: 'ルール', exampleReading: 'ruuru', exampleMeaning: 'Aturan', strokes: 2, category: 'r' },
-  { char: 'レ', romaji: 're', exampleWord: 'レストラン', exampleReading: 'resutoran', exampleMeaning: 'Restoran', strokes: 1, category: 'r' },
-  { char: 'ロ', romaji: 'ro', exampleWord: 'ロボット', exampleReading: 'robotto', exampleMeaning: 'Robot', strokes: 3, category: 'r' },
+  { char: 'ラ', romaji: 'ra', exampleWord: 'ラジオ', exampleReading: 'rajio', exampleMeaning: 'Radio', strokes: 2, category: 'r', subCategory: 'gojuon' },
+  { char: 'リ', romaji: 'ri', exampleWord: 'リーダー', exampleReading: 'riidaa', exampleMeaning: 'Pemimpin', strokes: 2, category: 'r', subCategory: 'gojuon' },
+  { char: 'ル', romaji: 'ru', exampleWord: 'ルール', exampleReading: 'ruuru', exampleMeaning: 'Aturan', strokes: 2, category: 'r', subCategory: 'gojuon' },
+  { char: 'レ', romaji: 're', exampleWord: 'レストラン', exampleReading: 'resutoran', exampleMeaning: 'Restoran', strokes: 1, category: 'r', subCategory: 'gojuon' },
+  { char: 'ロ', romaji: 'ro', exampleWord: 'ロボット', exampleReading: 'robotto', exampleMeaning: 'Robot', strokes: 3, category: 'r', subCategory: 'gojuon' },
 
-  // Baris W & N
-  { char: 'ワ', romaji: 'wa', exampleWord: 'ワイン', exampleReading: 'wain', exampleMeaning: 'Anggur (Wine)', strokes: 2, category: 'w' },
-  { char: 'ヲ', romaji: 'wo', exampleWord: 'ヲタク (slang)', exampleReading: 'otaku', exampleMeaning: 'Penggemar antusias', strokes: 3, category: 'w' },
-  { char: 'ン', romaji: 'n', exampleWord: 'パン', exampleReading: 'pan', exampleMeaning: 'Roti', strokes: 2, category: 'n_alone' },
+  { char: 'ワ', romaji: 'wa', exampleWord: 'ワイン', exampleReading: 'wain', exampleMeaning: 'Anggur (Wine)', strokes: 2, category: 'w', subCategory: 'gojuon' },
+  { char: 'ヲ', romaji: 'wo', exampleWord: 'ヲタク (slang)', exampleReading: 'otaku', exampleMeaning: 'Penggemar antusias', strokes: 3, category: 'w', subCategory: 'gojuon' },
+  { char: 'ン', romaji: 'n', exampleWord: 'パン', exampleReading: 'pan', exampleMeaning: 'Roti', strokes: 2, category: 'n_alone', subCategory: 'gojuon' },
+
+  // 2. Dakuon (20 Suara Tenten ゛)
+  { char: 'ガ', romaji: 'ga', exampleWord: 'ガラス', exampleReading: 'garasu', exampleMeaning: 'Kaca', strokes: 4, category: 'g', subCategory: 'dakuon' },
+  { char: 'ギ', romaji: 'gi', exampleWord: 'ギター', exampleReading: 'gitaa', exampleMeaning: 'Gitar', strokes: 5, category: 'g', subCategory: 'dakuon' },
+  { char: 'グ', romaji: 'gu', exampleWord: 'グラス', exampleReading: 'gurasu', exampleMeaning: 'Gelas kaca', strokes: 4, category: 'g', subCategory: 'dakuon' },
+  { char: 'ゲ', romaji: 'ge', exampleWord: 'ゲーム', exampleReading: 'geemu', exampleMeaning: 'Game / Permainan', strokes: 5, category: 'g', subCategory: 'dakuon' },
+  { char: 'ゴ', romaji: 'go', exampleWord: 'ゴルフ', exampleReading: 'gorufu', exampleMeaning: 'Golf', strokes: 4, category: 'g', subCategory: 'dakuon' },
+
+  { char: 'ザ', romaji: 'za', exampleWord: 'デザイン', exampleReading: 'dezain', exampleMeaning: 'Desain', strokes: 5, category: 'z', subCategory: 'dakuon' },
+  { char: 'ジ', romaji: 'ji', exampleWord: 'ジュース', exampleReading: 'juusu', exampleMeaning: 'Jus', strokes: 5, category: 'z', subCategory: 'dakuon' },
+  { char: 'ズ', romaji: 'zu', exampleWord: 'ズボン', exampleReading: 'zubon', exampleMeaning: 'Celana', strokes: 4, category: 'z', subCategory: 'dakuon' },
+  { char: 'ゼ', romaji: 'ze', exampleWord: 'ゼロ', exampleReading: 'zero', exampleMeaning: 'Nol', strokes: 4, category: 'z', subCategory: 'dakuon' },
+  { char: 'ゾ', romaji: 'zo', exampleWord: 'ゾーン', exampleReading: 'zoon', exampleMeaning: 'Zona wilayah', strokes: 4, category: 'z', subCategory: 'dakuon' },
+
+  { char: 'ダ', romaji: 'da', exampleWord: 'ダンス', exampleReading: 'dansu', exampleMeaning: 'Tarian', strokes: 5, category: 'd', subCategory: 'dakuon' },
+  { char: 'ヂ', romaji: 'ji (di)', exampleWord: 'ラジオヂャック', exampleReading: 'rajiojakku', exampleMeaning: 'Colokan radio', strokes: 5, category: 'd', subCategory: 'dakuon' },
+  { char: 'ヅ', romaji: 'zu (du)', exampleWord: 'キッズヅ', exampleReading: 'kizzu', exampleMeaning: 'Anak-anak', strokes: 5, category: 'd', subCategory: 'dakuon' },
+  { char: 'デ', romaji: 'de', exampleWord: 'デスク', exampleReading: 'desuku', exampleMeaning: 'Meja kerja', strokes: 5, category: 'd', subCategory: 'dakuon' },
+  { char: 'ド', romaji: 'do', exampleWord: 'ドア', exampleReading: 'doa', exampleMeaning: 'Pintu', strokes: 4, category: 'd', subCategory: 'dakuon' },
+
+  { char: 'バ', romaji: 'ba', exampleWord: 'バス', exampleReading: 'basu', exampleMeaning: 'Bus', strokes: 4, category: 'b', subCategory: 'dakuon' },
+  { char: 'ビ', romaji: 'bi', exampleWord: 'ビル', exampleReading: 'biru', exampleMeaning: 'Gedung bertingkat', strokes: 4, category: 'b', subCategory: 'dakuon' },
+  { char: 'ブ', romaji: 'bu', exampleWord: 'ブーツ', exampleReading: 'buutsu', exampleMeaning: 'Sepatu bot', strokes: 3, category: 'b', subCategory: 'dakuon' },
+  { char: 'ベ', romaji: 'be', exampleWord: 'ベッド', exampleReading: 'beddo', exampleMeaning: 'Tempat tidur', strokes: 3, category: 'b', subCategory: 'dakuon' },
+  { char: 'ボ', romaji: 'bo', exampleWord: 'ボタン', exampleReading: 'botan', exampleMeaning: 'Tombol', strokes: 6, category: 'b', subCategory: 'dakuon' },
+
+  // 3. Handakuon (5 Suara Maru ゜)
+  { char: 'パ', romaji: 'pa', exampleWord: 'パン', exampleReading: 'pan', exampleMeaning: 'Roti', strokes: 3, category: 'p', subCategory: 'handakuon' },
+  { char: 'ピ', romaji: 'pi', exampleWord: 'ピアノ', exampleReading: 'piano', exampleMeaning: 'Piano', strokes: 3, category: 'p', subCategory: 'handakuon' },
+  { char: 'プ', romaji: 'pu', exampleWord: 'プール', exampleReading: 'puuru', exampleMeaning: 'Kolam renang', strokes: 2, category: 'p', subCategory: 'handakuon' },
+  { char: 'ペ', romaji: 'pe', exampleWord: 'ペン', exampleReading: 'pen', exampleMeaning: 'Pena', strokes: 2, category: 'p', subCategory: 'handakuon' },
+  { char: 'ポ', romaji: 'po', exampleWord: 'ポスト', exampleReading: 'posuto', exampleMeaning: 'Kotak pos', strokes: 5, category: 'p', subCategory: 'handakuon' },
+
+  // 4. Yōon (33 Suara Kombinasi)
+  { char: 'キャ', romaji: 'kya', exampleWord: 'キャンプ', exampleReading: 'kyanpu', exampleMeaning: 'Berkemah', strokes: 5, category: 'yoon_k', subCategory: 'yoon' },
+  { char: 'キュ', romaji: 'kyu', exampleWord: 'キューブ', exampleReading: 'kyuubu', exampleMeaning: 'Kubus', strokes: 5, category: 'yoon_k', subCategory: 'yoon' },
+  { char: 'キョ', romaji: 'kyo', exampleWord: 'キロ', exampleReading: 'kiro', exampleMeaning: 'Kilometer / Kilogram', strokes: 6, category: 'yoon_k', subCategory: 'yoon' },
+
+  { char: 'シャ', romaji: 'sha', exampleWord: 'シャツ', exampleReading: 'shatsu', exampleMeaning: 'Kemeja', strokes: 5, category: 'yoon_s', subCategory: 'yoon' },
+  { char: 'シュ', romaji: 'shu', exampleWord: 'シュークリーム', exampleReading: 'shuukuriimu', exampleMeaning: 'Kue sus krim', strokes: 5, category: 'yoon_s', subCategory: 'yoon' },
+  { char: 'ショ', romaji: 'sho', exampleWord: 'ショップ', exampleReading: 'shoppu', exampleMeaning: 'Toko belanja', strokes: 6, category: 'yoon_s', subCategory: 'yoon' },
+
+  { char: 'チャ', romaji: 'cha', exampleWord: 'チャット', exampleReading: 'chatto', exampleMeaning: 'Obrolan / Chat', strokes: 5, category: 'yoon_t', subCategory: 'yoon' },
+  { char: 'チュ', romaji: 'chu', exampleWord: 'チューブ', exampleReading: 'chuubu', exampleMeaning: 'Tabung', strokes: 5, category: 'yoon_t', subCategory: 'yoon' },
+  { char: 'チョ', romaji: 'cho', exampleWord: 'チョコ', exampleReading: 'choko', exampleMeaning: 'Cokelat', strokes: 6, category: 'yoon_t', subCategory: 'yoon' },
+
+  { char: 'ニャ', romaji: 'nya', exampleWord: 'ニャー', exampleReading: 'nyaa', exampleMeaning: 'Meong (suara kucing)', strokes: 4, category: 'yoon_n', subCategory: 'yoon' },
+  { char: 'ニュ', romaji: 'nyu', exampleWord: 'ニュース', exampleReading: 'nyuusu', exampleMeaning: 'Berita', strokes: 4, category: 'yoon_n', subCategory: 'yoon' },
+  { char: 'ニョ', romaji: 'nyo', exampleWord: 'ニョッキ', exampleReading: 'nyokki', exampleMeaning: 'Gnocchi (makanan)', strokes: 5, category: 'yoon_n', subCategory: 'yoon' },
+
+  { char: 'ヒャ', romaji: 'hya', exampleWord: 'ヒャッホー', exampleReading: 'hyahhoo', exampleMeaning: 'Sorakan gembira', strokes: 4, category: 'yoon_h', subCategory: 'yoon' },
+  { char: 'ヒュ', romaji: 'hyu', exampleWord: 'ヒューズ', exampleReading: 'hyuuzu', exampleMeaning: 'Sekring listrik', strokes: 4, category: 'yoon_h', subCategory: 'yoon' },
+  { char: 'ヒョ', romaji: 'hyo', exampleWord: 'ヒョウ', exampleReading: 'hyou', exampleMeaning: 'Macan tutul', strokes: 5, category: 'yoon_h', subCategory: 'yoon' },
+
+  { char: 'ミャ', romaji: 'mya', exampleWord: 'ミャンマー', exampleReading: 'Myanmaa', exampleMeaning: 'Negara Myanmar', strokes: 5, category: 'yoon_m', subCategory: 'yoon' },
+  { char: 'ミュ', romaji: 'myu', exampleWord: 'ミュージカル', exampleReading: 'myuujikaru', exampleMeaning: 'Drama musikal', strokes: 5, category: 'yoon_m', subCategory: 'yoon' },
+  { char: 'ミョ', romaji: 'myo', exampleWord: 'ミョウバン', exampleReading: 'myouban', exampleMeaning: 'Tawas', strokes: 6, category: 'yoon_m', subCategory: 'yoon' },
+
+  { char: 'リャ', romaji: 'rya', exampleWord: 'リャマ', exampleReading: 'ryama', exampleMeaning: 'Llama (hewan)', strokes: 4, category: 'yoon_r', subCategory: 'yoon' },
+  { char: 'リュ', romaji: 'ryu', exampleWord: 'リュック', exampleReading: 'ryukku', exampleMeaning: 'Ransel tas', strokes: 4, category: 'yoon_r', subCategory: 'yoon' },
+  { char: 'リョ', romaji: 'ryo', exampleWord: 'リョクトウ', exampleReading: 'ryokutou', exampleMeaning: 'Kacang hijau', strokes: 5, category: 'yoon_r', subCategory: 'yoon' },
+
+  { char: 'ギャ', romaji: 'gya', exampleWord: 'ギャング', exampleReading: 'gyangu', exampleMeaning: 'Gengster', strokes: 6, category: 'yoon_g', subCategory: 'yoon' },
+  { char: 'ギュ', romaji: 'gyu', exampleWord: 'ギュッと', exampleReading: 'gyutto', exampleMeaning: 'Erat-erat', strokes: 6, category: 'yoon_g', subCategory: 'yoon' },
+  { char: 'ギョ', romaji: 'gyo', exampleWord: 'ギョーザ', exampleReading: 'gyooza', exampleMeaning: 'Gyoza panggang', strokes: 8, category: 'yoon_g', subCategory: 'yoon' },
+
+  { char: 'ジャ', romaji: 'ja', exampleWord: 'ジャケット', exampleReading: 'jaketto', exampleMeaning: 'Jaket', strokes: 7, category: 'yoon_z', subCategory: 'yoon' },
+  { char: 'ジュ', romaji: 'ju', exampleWord: 'ジュース', exampleReading: 'juusu', exampleMeaning: 'Minuman jus', strokes: 7, category: 'yoon_z', subCategory: 'yoon' },
+  { char: 'ジョ', romaji: 'jo', exampleWord: 'ジョギング', exampleReading: 'jogingu', exampleMeaning: 'Joging lari santai', strokes: 8, category: 'yoon_z', subCategory: 'yoon' },
+
+  { char: 'ビャ', romaji: 'bya', exampleWord: 'ビャンビャン麺', exampleReading: 'byanbyanmen', exampleMeaning: 'Mie Biang Biang', strokes: 6, category: 'yoon_b', subCategory: 'yoon' },
+  { char: 'ビュ', romaji: 'byu', exampleWord: 'ビュッフェ', exampleReading: 'byuffe', exampleMeaning: 'Prasmanan', strokes: 6, category: 'yoon_b', subCategory: 'yoon' },
+  { char: 'ビョ', romaji: 'byo', exampleWord: 'ビョウ', exampleReading: 'byou', exampleMeaning: 'Paku payung', strokes: 7, category: 'yoon_b', subCategory: 'yoon' },
+
+  { char: 'ピャ', romaji: 'pya', exampleWord: 'ピャー', exampleReading: 'pyaa', exampleMeaning: 'Pekikan riang', strokes: 5, category: 'yoon_p', subCategory: 'yoon' },
+  { char: 'ピュ', romaji: 'pyu', exampleWord: 'ピューマ', exampleReading: 'pyuuma', exampleMeaning: 'Puma (kucing liar)', strokes: 5, category: 'yoon_p', subCategory: 'yoon' },
+  { char: 'ピョ', romaji: 'pyo', exampleWord: 'ピョコピョコ', exampleReading: 'pyokopyoko', exampleMeaning: 'Berjalan terantuk', strokes: 6, category: 'yoon_p', subCategory: 'yoon' },
+
+  // 5. Special Signs (Sokuon & Choonpu)
+  { char: 'ッ', romaji: '(konsonan ganda)', exampleWord: 'チケット', exampleReading: 'chiketto', exampleMeaning: 'Tiket (pause sokuon)', strokes: 3, category: 'special', subCategory: 'special' },
+  { char: 'ー', romaji: '(vokal panjang)', exampleWord: 'コーヒー', exampleReading: 'koohii', exampleMeaning: 'Kopi (chōonpu)', strokes: 1, category: 'special', subCategory: 'special' },
 ];
 
 // 20 Kanji Dasar Fondasi JLPT N5 (Piktograf Alam & Kehidupan)
@@ -424,7 +570,7 @@ export const STROKE_ORDER_RULES = [
 
 export interface StrokeTrajectory {
   strokeNumber: number;
-  startX: number; // Percentage 0 - 100
+  startX: number;
   startY: number;
   endX: number;
   endY: number;
@@ -432,9 +578,7 @@ export interface StrokeTrajectory {
   instruction: string;
 }
 
-// Curated stroke trajectory database for accurate Japanese textbook Kakujun guidance
 const CURATED_TRAJECTORIES: Record<string, StrokeTrajectory[]> = {
-  // Hiragana Vowels
   'あ': [
     { strokeNumber: 1, startX: 25, startY: 30, endX: 75, endY: 30, directionLabel: '──▶ Kiri ke Kanan', instruction: 'Tarik garis horizontal di bagian atas secara mendatar.' },
     { strokeNumber: 2, startX: 50, startY: 18, endX: 45, endY: 82, directionLabel: '│▼ Atas ke Bawah', instruction: 'Tarik garis melengkung tegak lurus menembus garis pertama.' },
@@ -457,7 +601,6 @@ const CURATED_TRAJECTORIES: Record<string, StrokeTrajectory[]> = {
     { strokeNumber: 2, startX: 45, startY: 20, endX: 60, endY: 78, directionLabel: '⤵ Tegak lalu Melingkar', instruction: 'Tarik garis tegak turun, lalu bentuk lingkaran simpul ke kiri dan kanan.' },
     { strokeNumber: 3, startX: 72, startY: 28, endX: 78, endY: 38, directionLabel: '╲▼ Titik Aksen', instruction: 'Beri titik aksen di pojok kanan atas.' },
   ],
-  // Katakana
   'ア': [
     { strokeNumber: 1, startX: 28, startY: 32, endX: 72, endY: 48, directionLabel: '──▶ Sudut Menekuk', instruction: 'Tarik garis horizontal lalu tekuk miring ke kiri bawah.' },
     { strokeNumber: 2, startX: 42, startY: 46, endX: 35, endY: 82, directionLabel: '│▼ Sapuan Melengkung', instruction: 'Tarik sapuan kurva melengkung ke kiri bawah.' },
@@ -466,7 +609,6 @@ const CURATED_TRAJECTORIES: Record<string, StrokeTrajectory[]> = {
     { strokeNumber: 1, startX: 48, startY: 22, endX: 32, endY: 55, directionLabel: '╱▼ Sapuan Kiri', instruction: 'Tarik garis sapuan diagonal dari kanan atas ke kiri tengah.' },
     { strokeNumber: 2, startX: 44, startY: 42, endX: 44, endY: 82, directionLabel: '│▼ Tegak Lurus', instruction: 'Tarik garis vertikal tegak lurus dari tengah ke bawah.' },
   ],
-  // Kanji Dasar
   '日': [
     { strokeNumber: 1, startX: 30, startY: 25, endX: 30, endY: 78, directionLabel: '│▼ Sisi Kiri', instruction: 'Tarik garis vertikal sisi kiri bingkai dari atas ke bawah.' },
     { strokeNumber: 2, startX: 30, startY: 25, endX: 70, endY: 78, directionLabel: '──▶ Sudut Bingkai Kanan', instruction: 'Mulai dari atas, tarik mendatar lalu tekuk vertikal ke bawah.' },
@@ -484,7 +626,6 @@ export function getStrokeTrajectories(char: string, totalStrokes: number = 3): S
     return CURATED_TRAJECTORIES[char];
   }
 
-  // Deterministic standard quadrant heuristic following the 4 Golden Rules of Kakujun
   const count = Math.max(1, totalStrokes);
   const trajectories: StrokeTrajectory[] = [];
 

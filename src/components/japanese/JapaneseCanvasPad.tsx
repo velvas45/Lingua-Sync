@@ -171,7 +171,7 @@ function KanjiVgAnimatedViewer({
           {/* 2. Faint Background Silhouette of ALL Strokes (Watermark) */}
           <g fill="none" stroke="rgba(148, 163, 184, 0.22)" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
             {data.strokes.map((s) => (
-              <path key={`bg-${s.id}`} d={s.d} />
+              <path key={`bg-${s.id}`} d={s.d} transform={s.transform} />
             ))}
           </g>
 
@@ -188,6 +188,7 @@ function KanjiVgAnimatedViewer({
                   <path
                     key={`done-${s.id}`}
                     d={s.d}
+                    transform={s.transform}
                     stroke={isFinishedCycle ? '#0284c7' : '#4f46e5'}
                     strokeWidth={isFinishedCycle ? '5' : '4.5'}
                     className="transition-colors duration-300"
@@ -203,6 +204,7 @@ function KanjiVgAnimatedViewer({
                   <path
                     key={`active-${s.id}`}
                     d={s.d}
+                    transform={s.transform}
                     stroke="#0284c7"
                     strokeWidth="5"
                     strokeDasharray={dashLen}
@@ -359,7 +361,8 @@ export default function JapaneseCanvasPad({
       // Faint watermark for natural tracing (Zero obstruction, zero arrows)
       if (showWatermark && character) {
         ctx.save();
-        ctx.font = `bold ${Math.floor(size * 0.65)}px "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif`;
+        const fontSize = character.length > 1 ? Math.floor(size * 0.42) : Math.floor(size * 0.65);
+        ctx.font = `bold ${fontSize}px "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
@@ -473,7 +476,11 @@ export default function JapaneseCanvasPad({
       {/* 1. Header Information Bar */}
       <div className="flex w-full items-center justify-between border-b border-border/80 pb-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold text-2xl border border-indigo-500/20 shadow-sm">
+          <div
+            className={`flex h-11 min-w-[44px] px-2.5 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-500/20 shadow-sm shrink-0 ${
+              character.length > 1 ? 'text-lg tracking-tight' : 'text-2xl'
+            }`}
+          >
             {character}
           </div>
           <div>
@@ -652,7 +659,11 @@ export default function JapaneseCanvasPad({
         <DialogContent className="sm:max-w-md border-border bg-card/95 backdrop-blur-xl">
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold text-lg border border-indigo-500/25">
+              <div
+                className={`flex h-9 min-w-[36px] px-2 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-500/25 shrink-0 ${
+                  character.length > 1 ? 'text-sm tracking-tight' : 'text-lg'
+                }`}
+              >
                 {character}
               </div>
               <div>

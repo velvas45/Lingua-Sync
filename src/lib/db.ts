@@ -98,6 +98,25 @@ export interface GrammarLesson {
   created_at: string;
 }
 
+export interface JapaneseCharacterRecord {
+  id: number;
+  type: 'hiragana' | 'katakana' | 'kanji';
+  sub_category?: string | null;
+  character: string;
+  romaji: string;
+  meaning: string | null;
+  onyomi: string | null;
+  kunyomi: string | null;
+  strokes: number;
+  jlpt_level: string | null;
+  grade: number | null;
+  origin: string | null;
+  example_word: string | null;
+  example_reading: string | null;
+  example_meaning: string | null;
+  created_at: string;
+}
+
 export interface Submission {
   id: number;
   user_name: string;
@@ -327,12 +346,44 @@ export function initDatabase() {
       FOREIGN KEY (level) REFERENCES level_tracks(code)
     );
 
+    CREATE TABLE IF NOT EXISTS japanese_characters (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      sub_category TEXT DEFAULT 'gojuon',
+      character TEXT UNIQUE NOT NULL,
+      romaji TEXT NOT NULL,
+      meaning TEXT,
+      onyomi TEXT,
+      kunyomi TEXT,
+      strokes INTEGER NOT NULL DEFAULT 1,
+      jlpt_level TEXT,
+      grade INTEGER,
+      origin TEXT,
+      example_word TEXT,
+      example_reading TEXT,
+      example_meaning TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE INDEX IF NOT EXISTS idx_cards_user_lang ON cards(user_id, language_code);
     CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(language_code, created_at);
     CREATE INDEX IF NOT EXISTS idx_vocab_bank_lang ON vocabulary_bank(language_code, category);
     CREATE INDEX IF NOT EXISTS idx_grammar_lang_level ON grammar_lessons(language_code, level);
     CREATE INDEX IF NOT EXISTS idx_levels_lang ON level_tracks(language_code, order_num);
+    CREATE INDEX IF NOT EXISTS idx_jap_chars_type ON japanese_characters(type);
+    CREATE INDEX IF NOT EXISTS idx_jap_chars_char ON japanese_characters(character);
   `);
+
+  // Non-destructive check for sub_category column on japanese_characters
+  try {
+    const jcCols = db.prepare("PRAGMA table_info(japanese_characters)").all() as Array<{ name: string }>;
+    if (!jcCols.some((col) => col.name === 'sub_category')) {
+      db.exec("ALTER TABLE japanese_characters ADD COLUMN sub_category TEXT DEFAULT 'gojuon'");
+    }
+    db.exec("CREATE INDEX IF NOT EXISTS idx_jap_chars_sub_cat ON japanese_characters(type, sub_category)");
+  } catch (e) {
+    console.error('Error adding sub_category column to japanese_characters:', e);
+  }
 
   // Non-destructive check for prompt_id foreign key constraint in submissions
   try {

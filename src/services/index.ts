@@ -7,3 +7,4 @@ export * from './communityService';
 export * from './vocabBankService';
 export * from './phoneticService';
 export * from './kanjiVgService';
+export * from './japaneseCharactersService';

@@ -1,17 +1,26 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { LogIn, UserPlus, Sparkles, AlertCircle, Phone, Mail, Lock, User } from 'lucide-react';
-import { authService } from '@/services/authService';
+} from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  LogIn,
+  UserPlus,
+  Sparkles,
+  AlertCircle,
+  Phone,
+  Mail,
+  Lock,
+  User,
+} from "lucide-react";
+import { authService } from "@/services/authService";
 
 export interface AuthUser {
   id: number;
@@ -27,38 +36,38 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (user: AuthUser) => void;
-  defaultTab?: 'login' | 'register';
+  defaultTab?: "login" | "register";
 }
 
 export default function AuthModal({
   isOpen,
   onClose,
   onSuccess,
-  defaultTab = 'login',
+  defaultTab = "login",
 }: AuthModalProps) {
-  const [tab, setTab] = useState<'login' | 'register'>(defaultTab);
+  const [tab, setTab] = useState<"login" | "register">(defaultTab);
 
   // Login form state
-  const [loginIdentifier, setLoginIdentifier] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+  const [loginIdentifier, setLoginIdentifier] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
 
   // Register form state
-  const [regUsername, setRegUsername] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPhone, setRegPhone] = useState('');
-  const [regPassword, setRegPassword] = useState('');
+  const [regUsername, setRegUsername] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regPassword, setRegPassword] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const resetForm = () => {
     setErrorMsg(null);
-    setLoginIdentifier('');
-    setLoginPassword('');
-    setRegUsername('');
-    setRegEmail('');
-    setRegPhone('');
-    setRegPassword('');
+    setLoginIdentifier("");
+    setLoginPassword("");
+    setRegUsername("");
+    setRegEmail("");
+    setRegPhone("");
+    setRegPassword("");
   };
 
   const handleClose = () => {
@@ -71,7 +80,7 @@ export default function AuthModal({
     setErrorMsg(null);
 
     if (!loginIdentifier.trim() || !loginPassword) {
-      setErrorMsg('Mohon isi Email/Username dan Password');
+      setErrorMsg("Mohon isi Email/Username dan Password");
       return;
     }
 
@@ -86,7 +95,8 @@ export default function AuthModal({
       onSuccess(data.user);
       onClose();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Terjadi kesalahan jaringan';
+      const msg =
+        err instanceof Error ? err.message : "Terjadi kesalahan jaringan";
       setErrorMsg(msg);
     } finally {
       setIsLoading(false);
@@ -97,13 +107,18 @@ export default function AuthModal({
     e.preventDefault();
     setErrorMsg(null);
 
-    if (!regUsername.trim() || !regEmail.trim() || !regPhone.trim() || !regPassword) {
-      setErrorMsg('Semua kolom pendaftaran wajib diisi');
+    if (
+      !regUsername.trim() ||
+      !regEmail.trim() ||
+      !regPhone.trim() ||
+      !regPassword
+    ) {
+      setErrorMsg("Semua kolom pendaftaran wajib diisi");
       return;
     }
 
     if (regPassword.length < 6) {
-      setErrorMsg('Password minimal harus 6 karakter');
+      setErrorMsg("Password minimal harus 6 karakter");
       return;
     }
 
@@ -120,7 +135,8 @@ export default function AuthModal({
       onSuccess(data.user);
       onClose();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Terjadi kesalahan jaringan';
+      const msg =
+        err instanceof Error ? err.message : "Terjadi kesalahan jaringan";
       setErrorMsg(msg);
     } finally {
       setIsLoading(false);
@@ -140,7 +156,8 @@ export default function AuthModal({
                 Akses Anggota LinguaSync
               </DialogTitle>
               <p className="text-xs text-muted-foreground">
-                Masuk atau buat akun untuk latihan harian & koleksi kosakata pribadi
+                Masuk atau buat akun untuk latihan harian & koleksi kosakata
+                pribadi
               </p>
             </div>
           </div>
@@ -157,15 +174,21 @@ export default function AuthModal({
           value={tab}
           onValueChange={(val) => {
             setErrorMsg(null);
-            setTab(val as 'login' | 'register');
+            setTab(val as "login" | "register");
           }}
           className="w-full pt-1"
         >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login" className="gap-1.5 text-xs font-semibold">
+            <TabsTrigger
+              value="login"
+              className="gap-1.5 text-xs font-semibold"
+            >
               <LogIn className="h-3.5 w-3.5" /> Masuk
             </TabsTrigger>
-            <TabsTrigger value="register" className="gap-1.5 text-xs font-semibold">
+            <TabsTrigger
+              value="register"
+              className="gap-1.5 text-xs font-semibold"
+            >
               <UserPlus className="h-3.5 w-3.5" /> Buat Akun
             </TabsTrigger>
           </TabsList>
@@ -213,7 +236,9 @@ export default function AuthModal({
                 className="w-full gap-2 font-semibold shadow-md shadow-primary/25 mt-2"
               >
                 <LogIn className="h-4 w-4" />
-                <span>{isLoading ? 'Memverifikasi...' : 'Masuk ke LinguaSync'}</span>
+                <span>
+                  {isLoading ? "Memverifikasi..." : "Masuk ke LinguaSync"}
+                </span>
               </Button>
             </form>
           </TabsContent>
@@ -230,7 +255,7 @@ export default function AuthModal({
                     type="text"
                     value={regUsername}
                     onChange={(e) => setRegUsername(e.target.value)}
-                    placeholder="misal: helmitech"
+                    placeholder="misal: userlearn"
                     className="pl-9"
                     required
                   />
@@ -240,7 +265,7 @@ export default function AuthModal({
 
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">
-                  Email Kantor / Pribadi:
+                  Email:
                 </label>
                 <div className="relative">
                   <Input
@@ -295,7 +320,11 @@ export default function AuthModal({
                 className="w-full gap-2 font-semibold shadow-md shadow-primary/25 mt-2"
               >
                 <UserPlus className="h-4 w-4" />
-                <span>{isLoading ? 'Mendaftarkan...' : 'Daftar & Klaim 5 Flashcard Awal'}</span>
+                <span>
+                  {isLoading
+                    ? "Mendaftarkan..."
+                    : "Daftar & Klaim 5 Flashcard Awal"}
+                </span>
               </Button>
             </form>
           </TabsContent>

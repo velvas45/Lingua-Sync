@@ -29,6 +29,9 @@ import {
   CharacterItem,
   KanjiItem,
 } from '@/lib/japaneseCharacters';
+import { japaneseCharactersService } from '@/services/japaneseCharactersService';
+import { JapaneseCharacterRecord } from '@/lib/db';
+import { Input } from '@/components/ui/input';
 
 type WritingTab = 'hiragana' | 'katakana' | 'kanji' | 'guide';
 
@@ -49,10 +52,68 @@ export default function JapaneseBasicsPage() {
   const { user, isGuest, isLoading, openAuthModal } = useAuth();
 
   const [activeTab, setActiveTab] = useState<WritingTab>('hiragana');
+  const [kanaCategoryFilter, setKanaCategoryFilter] = useState<'all' | 'gojuon' | 'dakuon' | 'handakuon' | 'yoon' | 'special'>('all');
   const [selectedHiragana, setSelectedHiragana] = useState<CharacterItem>(HIRAGANA_LIST[0]);
   const [selectedKatakana, setSelectedKatakana] = useState<CharacterItem>(KATAKANA_LIST[0]);
   const [selectedKanji, setSelectedKanji] = useState<KanjiItem>(KANJI_BASIC_LIST[0]);
   const [highlightedComponentIndex, setHighlightedComponentIndex] = useState<number | null>(null);
+
+  // Dynamic Kanji Level and Search State
+  const [kanjiLevel, setKanjiLevel] = useState<'N5' | 'N4'>('N5');
+  const [kanjiSearch, setKanjiSearch] = useState('');
+  const [dbKanjiList, setDbKanjiList] = useState<JapaneseCharacterRecord[]>([]);
+  const [isKanjiLoading, setIsKanjiLoading] = useState(false);
+
+  // Fetch Kanji from SQLite via service
+  useEffect(() => {
+    if (activeTab !== 'kanji') return;
+    let ignore = false;
+
+    japaneseCharactersService
+      .getCharacters({
+        type: 'kanji',
+        level: kanjiLevel,
+        search: kanjiSearch.trim() || undefined,
+      })
+      .then((res) => {
+        if (!ignore) {
+          setDbKanjiList(res.characters);
+          setIsKanjiLoading(false);
+          // Auto-select first kanji of the new level if current selection doesn't match
+          if (res.characters.length > 0 && res.characters[0].jlpt_level === kanjiLevel) {
+            const first = res.characters[0];
+            setSelectedKanji({
+              kanji: first.character,
+              meaning: first.meaning || '',
+              onyomi: first.onyomi || '-',
+              kunyomi: first.kunyomi || '-',
+              strokes: first.strokes,
+              origin: first.origin || `Kanji resmi KANJIDIC (JLPT ${first.jlpt_level || 'N5'}).`,
+              exampleWord: first.example_word || first.character,
+              exampleReading: first.example_reading || first.romaji,
+              exampleMeaning: first.example_meaning || (first.meaning || ''),
+            });
+          }
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          console.warn('Failed fetching kanji list:', err);
+          setIsKanjiLoading(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [activeTab, kanjiLevel, kanjiSearch]);
+
+  const filteredHiragana = HIRAGANA_LIST.filter(
+    (item) => kanaCategoryFilter === 'all' || item.subCategory === kanaCategoryFilter
+  );
+  const filteredKatakana = KATAKANA_LIST.filter(
+    (item) => kanaCategoryFilter === 'all' || item.subCategory === kanaCategoryFilter
+  );
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -318,22 +379,28 @@ export default function JapaneseBasicsPage() {
                 type="button"
                 variant={activeTab === 'hiragana' ? 'default' : 'secondary'}
                 size="sm"
-                onClick={() => setActiveTab('hiragana')}
+                onClick={() => {
+                  setActiveTab('hiragana');
+                  setKanaCategoryFilter('all');
+                }}
                 className="gap-1.5 text-xs font-bold"
               >
                 <span>Hiragana (平仮名)</span>
-                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">46</Badge>
+                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">{HIRAGANA_LIST.length}</Badge>
               </Button>
 
               <Button
                 type="button"
                 variant={activeTab === 'katakana' ? 'default' : 'secondary'}
                 size="sm"
-                onClick={() => setActiveTab('katakana')}
+                onClick={() => {
+                  setActiveTab('katakana');
+                  setKanaCategoryFilter('all');
+                }}
                 className="gap-1.5 text-xs font-bold"
               >
                 <span>Katakana (片仮名)</span>
-                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">46</Badge>
+                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">{KATAKANA_LIST.length}</Badge>
               </Button>
 
               <Button
@@ -343,8 +410,8 @@ export default function JapaneseBasicsPage() {
                 onClick={() => setActiveTab('kanji')}
                 className="gap-1.5 text-xs font-bold"
               >
-                <span>Kanji Dasar (漢字)</span>
-                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">20 N5</Badge>
+                <span>Kanji Fondasi (漢字)</span>
+                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">240 N5+N4</Badge>
               </Button>
 
               <Button
@@ -362,13 +429,83 @@ export default function JapaneseBasicsPage() {
             {/* TAB 1: HIRAGANA GRID */}
             {activeTab === 'hiragana' && (
               <div className="space-y-3">
+                {/* Category Filter Pills */}
+                <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-secondary/40 border border-border">
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('all')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'all'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    🌟 Semua ({HIRAGANA_LIST.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('gojuon')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'gojuon'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    🔤 Dasar (46)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('dakuon')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'dakuon'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    ゛ Dakuon (20)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('handakuon')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'handakuon'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    ゜ Handakuon (5)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('yoon')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'yoon'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    🎋 Kombinasi (33)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('special')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'special'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    ⚡ Khusus (っ)
+                  </button>
+                </div>
+
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Klik karakter di bawah untuk memuat di papan kanvas:</span>
+                  <span>Klik karakter di bawah untuk memuat di papan kanvas ({filteredHiragana.length} huruf):</span>
                   <span className="font-semibold text-primary">Karakter Terpilih: {selectedHiragana.char} ({selectedHiragana.romaji})</span>
                 </div>
 
                 <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                  {HIRAGANA_LIST.map((item) => {
+                  {filteredHiragana.map((item) => {
                     const isSelected = selectedHiragana.char === item.char;
                     return (
                       <button
@@ -393,13 +530,83 @@ export default function JapaneseBasicsPage() {
             {/* TAB 2: KATAKANA GRID */}
             {activeTab === 'katakana' && (
               <div className="space-y-3">
+                {/* Category Filter Pills */}
+                <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-secondary/40 border border-border">
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('all')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'all'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    🌟 Semua ({KATAKANA_LIST.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('gojuon')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'gojuon'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    🔤 Dasar (46)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('dakuon')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'dakuon'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    ゛ Dakuon (20)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('handakuon')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'handakuon'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    ゜ Handakuon (5)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('yoon')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'yoon'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    🎋 Kombinasi (33)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKanaCategoryFilter('special')}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                      kanaCategoryFilter === 'special'
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    ⚡ Khusus (ッ, ー)
+                  </button>
+                </div>
+
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Klik karakter katakana untuk latihan kata serapan asing:</span>
+                  <span>Klik karakter katakana untuk latihan ({filteredKatakana.length} huruf):</span>
                   <span className="font-semibold text-indigo-500">Karakter: {selectedKatakana.char} ({selectedKatakana.romaji})</span>
                 </div>
 
                 <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-2">
-                  {KATAKANA_LIST.map((item) => {
+                  {filteredKatakana.map((item) => {
                     const isSelected = selectedKatakana.char === item.char;
                     return (
                       <button
@@ -431,42 +638,128 @@ export default function JapaneseBasicsPage() {
               </div>
             )}
 
-            {/* TAB 3: BASIC KANJI N5 GRID */}
+            {/* TAB 3: DYNAMIC KANJI N5 & N4 GRID */}
             {activeTab === 'kanji' && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>20 Kanji Piktograf Alam & Fondasi Kehidupan (JLPT N5):</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">Kanji: {selectedKanji.kanji}</span>
+              <div className="space-y-3.5">
+                {/* Level Selector Tabs */}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 p-1 rounded-xl bg-secondary/50 border border-border">
+                    <button
+                      type="button"
+                      onClick={() => setKanjiLevel('N5')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        kanjiLevel === 'N5'
+                          ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-500'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      🟢 JLPT N5: Dasar (110 Kanji)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setKanjiLevel('N4')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        kanjiLevel === 'N4'
+                          ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-500'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      🔵 JLPT N4: Pemula Lanjutan (130 Kanji)
+                    </button>
+                  </div>
+
+                  <span className="text-xs text-muted-foreground font-medium">
+                    Koleksi: <strong className="text-foreground">{dbKanjiList.length}</strong> Kanji
+                  </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {KANJI_BASIC_LIST.map((item) => {
-                    const isSelected = selectedKanji.kanji === item.kanji;
-                    return (
-                      <button
-                        key={item.kanji}
-                        type="button"
-                        onClick={() => setSelectedKanji(item)}
-                        className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
-                          isSelected
-                            ? 'border-emerald-500 bg-emerald-500/15 shadow-md ring-2 ring-emerald-500 scale-[1.02]'
-                            : 'border-border bg-card/60 hover:bg-secondary'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between w-full mb-1">
-                          <span className="text-2xl font-black text-foreground">{item.kanji}</span>
-                          <Badge variant="outline" className="text-[10px] text-muted-foreground">
-                            {item.strokes} Gores
-                          </Badge>
-                        </div>
-                        <span className="text-xs font-bold text-foreground leading-tight">{item.meaning}</span>
-                        <span className="text-[10px] text-muted-foreground mt-1 truncate w-full">
-                          K: {item.kunyomi}
-                        </span>
-                      </button>
-                    );
-                  })}
+                {/* Instant Quick Search Bar */}
+                <div className="relative">
+                  <Input
+                    type="text"
+                    value={kanjiSearch}
+                    onChange={(e) => setKanjiSearch(e.target.value)}
+                    placeholder="🔍 Cari kanji, arti (cth: hari, air, buku), atau cara baca..."
+                    className="h-9 text-xs pl-3 pr-8 bg-card/80 border-border"
+                  />
+                  {kanjiSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setKanjiSearch('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
+
+                {/* Status Bar */}
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Klik kanji untuk melihat goresan & latihan tulis:</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    Aktif: {selectedKanji.kanji} ({selectedKanji.meaning})
+                  </span>
+                </div>
+
+                {/* Kanji Grid Container */}
+                {isKanjiLoading ? (
+                  <div className="flex items-center justify-center p-12 text-xs text-muted-foreground gap-2">
+                    <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                    <span>Memuat daftar kanji...</span>
+                  </div>
+                ) : dbKanjiList.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-border p-8 text-center text-xs text-muted-foreground">
+                    Tidak ada kanji yang cocok dengan pencarian &ldquo;{kanjiSearch}&rdquo;.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-[480px] overflow-y-auto pr-1">
+                    {dbKanjiList.map((item) => {
+                      const isSelected = selectedKanji.kanji === item.character;
+                      return (
+                        <button
+                          key={item.character}
+                          type="button"
+                          onClick={() => {
+                            setSelectedKanji({
+                              kanji: item.character,
+                              meaning: item.meaning || '',
+                              onyomi: item.onyomi || '-',
+                              kunyomi: item.kunyomi || '-',
+                              strokes: item.strokes,
+                              origin: item.origin || `Kanji resmi KANJIDIC (JLPT ${item.jlpt_level || 'N5'}).`,
+                              exampleWord: item.example_word || item.character,
+                              exampleReading: item.example_reading || item.romaji,
+                              exampleMeaning: item.example_meaning || (item.meaning || ''),
+                            });
+                          }}
+                          className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
+                            isSelected
+                              ? 'border-emerald-500 bg-emerald-500/15 shadow-md ring-2 ring-emerald-500 scale-[1.02]'
+                              : 'border-border bg-card/60 hover:bg-secondary'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-2xl font-black text-foreground">{item.character}</span>
+                            <div className="flex items-center gap-1">
+                              <Badge variant="outline" className="text-[9px] px-1 py-0 text-muted-foreground">
+                                {item.strokes} Gores
+                              </Badge>
+                              <Badge className={`text-[9px] px-1 py-0 font-bold ${item.jlpt_level === 'N5' ? 'bg-emerald-600' : 'bg-indigo-600'} text-white`}>
+                                {item.jlpt_level}
+                              </Badge>
+                            </div>
+                          </div>
+                          <span className="text-xs font-bold text-foreground leading-tight truncate w-full">
+                            {item.meaning}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground mt-1 truncate w-full">
+                            {item.kunyomi || item.onyomi || item.romaji}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Selected Kanji Detail Banner */}
                 <Card className="border-border bg-card/90 shadow-md">
