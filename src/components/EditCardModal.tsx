@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Pencil, Sparkles, Wand2 } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Pencil, Sparkles, Wand2, Lock, Unlock } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,10 +11,14 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { CardItem } from './FlashcardViewer';
 import { generateHeuristicAudioGuide } from './AddCardModal';
 import { toast } from './Toast';
 import { cardsService } from '@/services/cardsService';
+import { phoneticService } from '@/services/phoneticService';
+import { generatePhonetic } from '@/lib/phoneticGenerator';
+import { generateFuriganaHtml } from '@/lib/furigana';
 
 interface EditCardModalProps {
   isOpen: boolean;
@@ -39,6 +43,49 @@ export default function EditCardModal({
   const [exampleMeaning, setExampleMeaning] = useState(card?.example_meaning || '');
   const [audioGuide, setAudioGuide] = useState(card?.audio_guide || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isManualPhonetic, setIsManualPhonetic] = useState(false);
+  const [isManualFurigana, setIsManualFurigana] = useState(false);
+  const debouncePhoneticRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handlePrimaryTextChange = (val: string) => {
+    setPrimaryText(val);
+
+    if (!val.trim()) {
+      if (!isManualPhonetic) setPhonetic('');
+      if (!isManualFurigana) setFuriganaHtml('');
+      return;
+    }
+
+    // 1. Instant local optimistic phonetic & furigana
+    if (!isManualPhonetic) {
+      const localGuess = generatePhonetic(val, langCode === 'ja' ? 'ja' : 'en');
+      setPhonetic(localGuess);
+    }
+
+    if (langCode === 'ja' && !isManualFurigana) {
+      const instantFurigana = generateFuriganaHtml(val);
+      setFuriganaHtml(instantFurigana || '');
+    }
+
+    // 2. Debounced authentic dictionary lookup
+    if (debouncePhoneticRef.current) {
+      clearTimeout(debouncePhoneticRef.current);
+    }
+
+    debouncePhoneticRef.current = setTimeout(async () => {
+      try {
+        const res = await phoneticService.resolvePhonetic(val, langCode);
+        if (res.phonetic && !isManualPhonetic) {
+          setPhonetic(res.phonetic);
+        }
+        if (res.furigana_html !== undefined && !isManualFurigana && langCode === 'ja') {
+          setFuriganaHtml(res.furigana_html || '');
+        }
+      } catch (err) {
+        console.warn('Silent phonetic resolution error:', err);
+      }
+    }, 250);
+  };
 
   const handleAutoGenerateGuide = () => {
     if (!primaryText.trim()) return;
@@ -113,34 +160,69 @@ export default function EditCardModal({
             <Input
               type="text"
               value={primaryText}
-              onChange={(e) => setPrimaryText(e.target.value)}
+              onChange={(e) => handlePrimaryTextChange(e.target.value)}
               required
             />
           </div>
 
           {langCode === 'ja' && (
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">
-                Furigana HTML (Opsional):
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                  <span>Furigana HTML:</span>
+                  {!isManualFurigana && (
+                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold">
+                      <Sparkles className="h-2.5 w-2.5 mr-0.5 inline" /> Otomatis
+                    </Badge>
+                  )}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsManualFurigana(!isManualFurigana)}
+                  className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 font-semibold"
+                  title={isManualFurigana ? "Kunci ke mode otomatis" : "Buka untuk mengedit manual"}
+                >
+                  {isManualFurigana ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+                  <span>{isManualFurigana ? "Kunci Otomatis" : "Ubah Manual"}</span>
+                </button>
+              </div>
               <Input
                 type="text"
                 value={furiganaHtml}
                 onChange={(e) => setFuriganaHtml(e.target.value)}
+                disabled={!isManualFurigana}
+                className={`font-mono text-xs ${!isManualFurigana ? "bg-secondary/40 text-muted-foreground cursor-not-allowed" : ""}`}
                 placeholder="<ruby>漢字<rt>かんじ</rt></ruby>"
-                className="font-mono text-xs"
               />
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">
-              Fonetik / Romaji (Opsional):
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                <span>Fonetik / Romaji:</span>
+                {!isManualPhonetic && (
+                  <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold">
+                    <Sparkles className="h-2.5 w-2.5 mr-0.5 inline" /> Otomatis
+                  </Badge>
+                )}
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsManualPhonetic(!isManualPhonetic)}
+                className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 font-semibold"
+                title={isManualPhonetic ? "Kunci ke mode otomatis" : "Buka untuk mengedit manual"}
+              >
+                {isManualPhonetic ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+                <span>{isManualPhonetic ? "Kunci Otomatis" : "Ubah Manual"}</span>
+              </button>
+            </div>
             <Input
               type="text"
               value={phonetic}
               onChange={(e) => setPhonetic(e.target.value)}
+              disabled={!isManualPhonetic}
+              className={!isManualPhonetic ? "bg-secondary/40 text-muted-foreground cursor-not-allowed" : ""}
             />
           </div>
 

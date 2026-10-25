@@ -5,3 +5,5 @@ export * from './curriculumService';
 export * from './dataService';
 export * from './communityService';
 export * from './vocabBankService';
+export * from './phoneticService';
+export * from './kanjiVgService';
