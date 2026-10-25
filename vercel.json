@@ -4,14 +4,4 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "env": {
-    "TURSO_DATABASE_URL": {
-      "description": "Turso database URL (format: libsql://your-db.turso.io)",
-      "required": true
-    },
-    "TURSO_AUTH_TOKEN": {
-      "description": "Turso authentication token",
-      "required": true
-    }
-  }
 }
