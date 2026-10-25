@@ -184,7 +184,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      submissionId: insertResult.lastInsertRowid,
+      submissionId: Number(insertResult.lastInsertRowid),
       earnedXp: calculatedXp,
       durationSeconds: validDurationSeconds,
       timeTierLabel,

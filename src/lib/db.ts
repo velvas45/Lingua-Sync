@@ -3,6 +3,13 @@ import crypto from 'node:crypto';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 
+// Global defensive serializer to prevent JSON.stringify BigInt runtime crashes across all API routes
+if (typeof BigInt !== 'undefined' && !(BigInt.prototype as unknown as { toJSON?: () => number }).toJSON) {
+  (BigInt.prototype as unknown as { toJSON: () => number }).toJSON = function () {
+    return Number(this);
+  };
+}
+
 // Load .env.local first (for scripts), fallback to .env
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });

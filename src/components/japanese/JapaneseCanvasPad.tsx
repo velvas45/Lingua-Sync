@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   RotateCcw,
   Volume2,
@@ -321,6 +321,23 @@ export default function JapaneseCanvasPad({
 }: JapaneseCanvasPadProps) {
   const [activeMode, setActiveMode] = useState<PadMode>('practice');
 
+  // Multi-Character Segmentation (Genkō Yōshi: 1-box-1-character standard)
+  const charUnits = useMemo(() => {
+    const raw = Array.from(character || '').filter((c) => c.trim().length > 0);
+    return raw.length > 0 ? raw : ['あ'];
+  }, [character]);
+
+  const [prevCharacter, setPrevCharacter] = useState(character);
+  const [activeCharIndex, setActiveCharIndex] = useState(0);
+
+  if (prevCharacter !== character) {
+    setPrevCharacter(character);
+    setActiveCharIndex(0);
+  }
+
+  const safeCharIndex = activeCharIndex < charUnits.length ? activeCharIndex : 0;
+  const activeChar = charUnits[safeCharIndex] || charUnits[0];
+
   // Clean Practice Canvas
   const practiceCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -333,9 +350,9 @@ export default function JapaneseCanvasPad({
   const [activeStepTab, setActiveStepTab] = useState(1);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  const trajectories = getStrokeTrajectories(character, strokes);
+  const trajectories = getStrokeTrajectories(activeChar, strokes);
 
-  // 1. PRACTICE CANVAS: 100% CLEAN & UNOBSTRUCTED
+  // 1. PRACTICE CANVAS: 100% CLEAN & UNOBSTRUCTED (Always renders focused single activeChar)
   const drawPracticeBackground = useCallback(
     (ctx: CanvasRenderingContext2D, size: number) => {
       ctx.clearRect(0, 0, size, size);
@@ -360,19 +377,18 @@ export default function JapaneseCanvasPad({
       ctx.strokeRect(0, 0, size, size);
       ctx.restore();
 
-      // Faint watermark for natural tracing (Zero obstruction, zero arrows)
-      if (showWatermark && character) {
+      // Faint watermark for natural tracing (Zero obstruction, always focused single character)
+      if (showWatermark && activeChar) {
         ctx.save();
-        const fontSize = character.length > 1 ? Math.floor(size * 0.42) : Math.floor(size * 0.65);
-        ctx.font = `bold ${fontSize}px "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif`;
+        ctx.font = `bold ${Math.floor(size * 0.65)}px "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = 'rgba(148, 163, 184, 0.22)';
-        ctx.fillText(character, size / 2, size / 2 + size * 0.04);
+        ctx.fillText(activeChar, size / 2, size / 2 + size * 0.04);
         ctx.restore();
       }
     },
-    [character, showWatermark]
+    [activeChar, showWatermark]
   );
 
   const initPracticeCanvas = useCallback(() => {
@@ -397,7 +413,7 @@ export default function JapaneseCanvasPad({
     if (activeMode === 'practice') {
       initPracticeCanvas();
     }
-  }, [character, activeMode, showWatermark, initPracticeCanvas]);
+  }, [activeChar, activeMode, showWatermark, initPracticeCanvas]);
 
   // Pointer drawing handlers for practice canvas
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -486,10 +502,10 @@ export default function JapaneseCanvasPad({
         <div className="flex items-center gap-3">
           <div
             className={`flex h-11 min-w-[44px] px-2.5 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-500/20 shadow-sm shrink-0 ${
-              character.length > 1 ? 'text-lg tracking-tight' : 'text-2xl'
+              activeChar.length > 1 ? 'text-lg tracking-tight' : 'text-2xl'
             }`}
           >
-            {character}
+            {activeChar}
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -500,6 +516,11 @@ export default function JapaneseCanvasPad({
                 {strokes} Goresan
               </Badge>
             </div>
+            {charUnits.length > 1 && (
+              <span className="text-[11px] text-primary font-bold block">
+                Kata: <strong className="text-foreground">{character}</strong>
+              </span>
+            )}
             {meaning && (
               <span className="text-xs text-muted-foreground block truncate max-w-[180px] sm:max-w-[240px]">
                 Arti: <strong className="text-foreground">{meaning}</strong>
@@ -522,6 +543,45 @@ export default function JapaneseCanvasPad({
           <span>{isSpeaking ? 'Memutar...' : 'Dengar'}</span>
         </Button>
       </div>
+
+      {/* Multi-Character Stepper Bar (Genkō Yōshi Word Practice) */}
+      {charUnits.length > 1 && (
+        <div className="flex flex-col items-center gap-1.5 w-full bg-secondary/40 p-2.5 rounded-xl border border-border">
+          <div className="flex items-center justify-between w-full px-1">
+            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <PenTool className="h-3.5 w-3.5 text-primary" />
+              <span>Latih Per Huruf: &ldquo;{character}&rdquo;</span>
+            </span>
+            <Badge variant="outline" className="text-[10px] font-semibold text-muted-foreground">
+              Huruf {safeCharIndex + 1} dari {charUnits.length}
+            </Badge>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-1.5 w-full pt-1">
+            {charUnits.map((c, idx) => {
+              const isActive = safeCharIndex === idx;
+              return (
+                <button
+                  key={`${c}-${idx}`}
+                  type="button"
+                  onClick={() => {
+                    setActiveCharIndex(idx);
+                    handleClearPractice();
+                  }}
+                  className={`flex flex-col items-center justify-center h-10 min-w-[42px] px-2.5 rounded-xl text-xs font-extrabold transition-all ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary ring-offset-1 scale-105'
+                      : 'bg-background/80 text-foreground border border-border hover:bg-secondary'
+                  }`}
+                >
+                  <span className="text-sm">{c}</span>
+                  <span className="text-[9px] opacity-70">#{idx + 1}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 2. Mode Selector Tabs */}
       <div className="grid grid-cols-2 gap-1.5 w-full bg-secondary/50 p-1 rounded-xl border border-border">
@@ -613,11 +673,48 @@ export default function JapaneseCanvasPad({
               <span>Lihat Demo</span>
             </Button>
           </div>
+
+          {/* Stepper Navigation: Previous & Next Character in Word */}
+          {charUnits.length > 1 && (
+            <div className="flex items-center justify-between w-full pt-1.5 border-t border-border/60">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setActiveCharIndex((prev) => Math.max(0, prev - 1));
+                  handleClearPractice();
+                }}
+                disabled={safeCharIndex <= 0}
+                className="h-7 text-xs font-semibold"
+              >
+                ⬅ Huruf #{safeCharIndex}
+              </Button>
+
+              <span className="text-[11px] font-bold text-muted-foreground">
+                Menulis: <strong className="text-primary text-sm">{activeChar}</strong> ({safeCharIndex + 1}/{charUnits.length})
+              </span>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setActiveCharIndex((prev) => Math.min(charUnits.length - 1, prev + 1));
+                  handleClearPractice();
+                }}
+                disabled={safeCharIndex >= charUnits.length - 1}
+                className="h-7 text-xs font-bold text-primary hover:text-primary"
+              >
+                Huruf Berikutnya ({charUnits[safeCharIndex + 1] || ''}) ➔
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         /* MODE 2: KANJIVG VECTOR STROKE ANIMATOR (100% GLYPH ACCURATE) */
         <KanjiVgAnimatedViewer
-          character={character}
+          character={activeChar}
           onSwitchToPractice={() => setActiveMode('practice')}
           onOpenStepDialog={() => {
             setActiveStepTab(1);
@@ -669,17 +766,17 @@ export default function JapaneseCanvasPad({
             <div className="flex items-center gap-2">
               <div
                 className={`flex h-9 min-w-[36px] px-2 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold border border-indigo-500/25 shrink-0 ${
-                  character.length > 1 ? 'text-sm tracking-tight' : 'text-lg'
+                  activeChar.length > 1 ? 'text-sm tracking-tight' : 'text-lg'
                 }`}
               >
-                {character}
+                {activeChar}
               </div>
               <div>
                 <DialogTitle className="text-base font-extrabold text-foreground">
-                  Diagram Langkah Demi Langkah: &ldquo;{character}&rdquo;
+                  Diagram Langkah Demi Langkah: &ldquo;{activeChar}&rdquo;
                 </DialogTitle>
                 <p className="text-xs text-muted-foreground">
-                  Tahapan urutan goresan satu per satu ({strokes} goresan)
+                  {charUnits.length > 1 ? `Karakter dari kata "${character}" • ` : ''}Tahapan urutan goresan satu per satu ({strokes} goresan)
                 </p>
               </div>
             </div>
