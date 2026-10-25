@@ -26,6 +26,7 @@ export interface LeaderboardUser {
   total_submissions: number;
   last_active_date: string | null;
   xp_points: number;
+  fastest_completion_seconds?: number;
 }
 
 export interface AppDataResponse {
@@ -37,6 +38,14 @@ export interface AppDataResponse {
   leaderboard: LeaderboardUser[];
   currentUser: AuthUser | null;
   isGuest: boolean;
+  hasCompletedToday?: boolean;
+  todaySubmission?: {
+    id: number;
+    text_response: string;
+    earned_xp: number;
+    completion_seconds: number;
+    created_at: string;
+  } | null;
 }
 
 export const dataService = {

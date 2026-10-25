@@ -130,7 +130,7 @@ export default function Home() {
     return () => {
       ignore = true;
     };
-  }, [selectedLang, refreshTrigger]);
+  }, [selectedLang, refreshTrigger, currentUser?.id]);
 
   // Fetch curriculum & grammar lessons
   useEffect(() => {
@@ -420,10 +420,12 @@ export default function Home() {
                 </h3>
               </div>
               <DailyChallengeForm
-                key={data.currentLang.code}
+                key={`${data.currentLang.code}-${currentUser?.id || 'guest'}`}
                 prompt={data.prompt}
                 languageCode={data.currentLang.code}
                 speechLocale={data.currentLang.speech_locale}
+                hasCompletedToday={Boolean(data.hasCompletedToday)}
+                todaySubmission={data.todaySubmission}
                 onSubmitted={handleRefresh}
               />
             </section>

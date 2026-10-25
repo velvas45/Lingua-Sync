@@ -105,6 +105,8 @@ export interface Submission {
   prompt_id: number;
   text_response: string;
   speaking_practiced: number;
+  completion_seconds?: number;
+  earned_xp?: number;
   created_at: string;
   likes: number;
   has_liked?: boolean;
@@ -116,6 +118,7 @@ export interface UserStats {
   total_submissions: number;
   last_active_date: string | null;
   xp_points: number;
+  fastest_completion_seconds?: number;
 }
 
 // ----------------- Cryptographic & Auth Helpers -----------------
@@ -365,6 +368,21 @@ export function initDatabase() {
   const hasUserId = cardColumns.some((col) => col.name === 'user_id');
   if (!hasUserId) {
     db.exec('ALTER TABLE cards ADD COLUMN user_id INTEGER REFERENCES users(id)');
+  }
+
+  // Non-destructive check for fastest_completion_seconds in user_stats
+  const statCols = db.prepare("PRAGMA table_info(user_stats)").all() as Array<{ name: string }>;
+  if (!statCols.some((col) => col.name === 'fastest_completion_seconds')) {
+    db.exec('ALTER TABLE user_stats ADD COLUMN fastest_completion_seconds INTEGER DEFAULT 9999');
+  }
+
+  // Non-destructive check for completion_seconds & earned_xp in submissions
+  const subCols = db.prepare("PRAGMA table_info(submissions)").all() as Array<{ name: string }>;
+  if (!subCols.some((col) => col.name === 'completion_seconds')) {
+    db.exec('ALTER TABLE submissions ADD COLUMN completion_seconds INTEGER DEFAULT 60');
+  }
+  if (!subCols.some((col) => col.name === 'earned_xp')) {
+    db.exec('ALTER TABLE submissions ADD COLUMN earned_xp INTEGER DEFAULT 15');
   }
 
   const countLang = db.prepare('SELECT COUNT(*) as count FROM languages').get() as { count: number };

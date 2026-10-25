@@ -105,20 +105,42 @@ export async function GET(request: Request) {
     }
 
     const leaderboard = db.prepare(`
-      SELECT * FROM user_stats
-      ORDER BY xp_points DESC, total_submissions DESC
+      SELECT user_name, current_streak, total_submissions, last_active_date, xp_points,
+             COALESCE(fastest_completion_seconds, 9999) as fastest_completion_seconds
+      FROM user_stats
+      ORDER BY xp_points DESC,
+               (CASE WHEN fastest_completion_seconds > 0 THEN fastest_completion_seconds ELSE 9999 END) ASC,
+               current_streak DESC
       LIMIT 10
     `).all();
 
     let userProfile = null;
+    let hasCompletedToday = false;
+    let todaySubmission = null;
+
     if (user) {
-      const stats = db.prepare('SELECT current_streak, total_submissions, xp_points FROM user_stats WHERE user_name = ?').get(user.username) as UserStats | undefined;
+      const stats = db.prepare('SELECT current_streak, total_submissions, xp_points, fastest_completion_seconds FROM user_stats WHERE user_name = ?').get(user.username) as UserStats | undefined;
       userProfile = {
         ...user,
         current_streak: stats?.current_streak ?? 1,
         total_submissions: stats?.total_submissions ?? 0,
         xp_points: stats?.xp_points ?? 0,
+        fastest_completion_seconds: stats?.fastest_completion_seconds ?? 9999,
       };
+
+      const today = new Date().toISOString().split('T')[0];
+      const existing = db.prepare(`
+        SELECT id, text_response, earned_xp, completion_seconds, created_at
+        FROM submissions
+        WHERE user_name = ? AND language_code = ? AND date(created_at) = ?
+        ORDER BY created_at DESC
+        LIMIT 1
+      `).get(user.username, lang, today) as { id: number; text_response: string; earned_xp: number; completion_seconds: number; created_at: string } | undefined;
+
+      if (existing) {
+        hasCompletedToday = true;
+        todaySubmission = existing;
+      }
     }
 
     return NextResponse.json({
@@ -130,6 +152,8 @@ export async function GET(request: Request) {
       leaderboard,
       currentUser: userProfile,
       isGuest: !user,
+      hasCompletedToday,
+      todaySubmission,
     });
   } catch (error: unknown) {
     console.error('Error fetching data:', error);

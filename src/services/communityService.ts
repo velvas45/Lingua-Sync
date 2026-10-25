@@ -1,4 +1,5 @@
 import { request } from './apiClient';
+import { AnalysisResult } from '@/lib/grammarAnalyzer';
 
 export interface SubmitChallengePayload {
   userName: string;
@@ -6,14 +7,26 @@ export interface SubmitChallengePayload {
   promptId: number;
   textResponse: string;
   speakingPracticed: boolean;
+  clientLocalHour?: number;
+  completionSeconds?: number;
 }
 
 export interface SubmitChallengeResponse {
   success: boolean;
+  submissionId: number;
   earnedXp: number;
-  isRepeat: boolean;
+  durationSeconds: number;
+  timeTierLabel: string;
+  breakdown: {
+    base: number;
+    voice: number;
+    grammarBonus: number;
+    multiplier: number;
+  };
+  analysis: AnalysisResult;
   streak: number;
   error?: string;
+  suggestions?: string[];
 }
 
 export interface ToggleLikeResponse {
