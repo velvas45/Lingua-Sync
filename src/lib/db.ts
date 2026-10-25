@@ -1,17 +1,28 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+import { createClient, Client } from '@libsql/client';
 import crypto from 'node:crypto';
+import { config } from 'dotenv';
+import { resolve } from 'path';
 
-const dataDir = path.join(process.cwd(), 'data');
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+// Load .env.local first (for scripts), fallback to .env
+config({ path: resolve(process.cwd(), '.env.local') });
+config({ path: resolve(process.cwd(), '.env') });
+
+// Initialize Turso client
+let db: Client;
+
+if (process.env.TURSO_DATABASE_URL && process.env.TURSO_AUTH_TOKEN) {
+  // Production/Turso mode
+  db = createClient({
+    url: process.env.TURSO_DATABASE_URL,
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  });
+} else {
+  // Local development fallback
+  console.warn('⚠️ Turso credentials not found. Using local SQLite file for development.');
+  db = createClient({
+    url: 'file:./data/lingua_drill.db',
+  });
 }
-
-const dbPath = path.join(dataDir, 'lingua_drill.db');
-const db = new Database(dbPath);
-
-db.pragma('journal_mode = WAL');
 
 export interface User {
   id: number;
@@ -157,69 +168,84 @@ export function verifyPassword(password: string, salt: string, expectedHash: str
   }
 }
 
-export function createSession(userId: number): { token: string; expiresAt: Date } {
+export async function createSession(userId: number): Promise<{ token: string; expiresAt: Date }> {
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-  db.prepare(`
-    INSERT INTO sessions (id, user_id, expires_at)
-    VALUES (?, ?, ?)
-  `).run(token, userId, expiresAt.toISOString());
+  
+  await db.execute({
+    sql: `INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)`,
+    args: [token, userId, expiresAt.toISOString()],
+  });
+  
   return { token, expiresAt };
 }
 
-export function getSessionUser(token: string | null | undefined): User | null {
+export async function getSessionUser(token: string | null | undefined): Promise<User | null> {
   if (!token) return null;
+  
   const now = new Date().toISOString();
-  const row = db.prepare(`
-    SELECT u.id, u.username, u.email, u.phone_number, u.created_at
-    FROM sessions s
-    JOIN users u ON s.user_id = u.id
-    WHERE s.id = ? AND s.expires_at > ?
-  `).get(token, now) as User | undefined;
-  return row || null;
+  const result = await db.execute({
+    sql: `
+      SELECT u.id, u.username, u.email, u.phone_number, u.created_at
+      FROM sessions s
+      JOIN users u ON s.user_id = u.id
+      WHERE s.id = ? AND s.expires_at > ?
+    `,
+    args: [token, now],
+  });
+  
+  return result.rows.length > 0 ? (result.rows[0] as unknown as User) : null;
 }
 
-export function deleteSession(token: string): void {
-  db.prepare('DELETE FROM sessions WHERE id = ?').run(token);
+export async function deleteSession(token: string): Promise<void> {
+  await db.execute({
+    sql: 'DELETE FROM sessions WHERE id = ?',
+    args: [token],
+  });
 }
 
-export function cloneDefaultCardsForUser(userId: number): void {
-  const templateCards = db.prepare(`
-    SELECT * FROM cards
-    WHERE user_id IS NULL
-    ORDER BY id ASC
-  `).all() as Card[];
-
-  const insertCard = db.prepare(`
-    INSERT INTO cards (user_id, language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
-  const tx = db.transaction((cards: Card[]) => {
-    for (const card of cards) {
-      insertCard.run(
-        userId,
-        card.language_code,
-        card.primary_text,
-        card.phonetic,
-        card.furigana_html,
-        card.meaning_id,
-        card.part_of_speech,
-        card.level,
-        card.example_source,
-        card.example_meaning,
-        card.audio_guide
-      );
-    }
+export async function cloneDefaultCardsForUser(userId: number): Promise<void> {
+  const templateCards = await db.execute({
+    sql: `SELECT * FROM cards WHERE user_id IS NULL ORDER BY id ASC`,
+    args: [],
   });
 
-  tx(templateCards);
+  const transaction = await db.transaction('write');
+  
+  try {
+    for (const card of templateCards.rows) {
+      const c = card as unknown as Card;
+      await transaction.execute({
+        sql: `
+          INSERT INTO cards (user_id, language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        args: [
+          userId,
+          c.language_code,
+          c.primary_text,
+          c.phonetic,
+          c.furigana_html,
+          c.meaning_id,
+          c.part_of_speech,
+          c.level,
+          c.example_source,
+          c.example_meaning,
+          c.audio_guide,
+        ],
+      });
+    }
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 }
 
 // ----------------- Database Initialization & Schema Migration -----------------
 
-export function initDatabase() {
-  db.exec(`
+export async function initDatabase() {
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
@@ -229,7 +255,9 @@ export function initDatabase() {
       salt TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS sessions (
       id TEXT PRIMARY KEY,
       user_id INTEGER NOT NULL,
@@ -237,7 +265,9 @@ export function initDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS languages (
       code TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -245,7 +275,9 @@ export function initDatabase() {
       flag TEXT NOT NULL,
       speech_locale TEXT NOT NULL
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS cards (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER,
@@ -263,7 +295,9 @@ export function initDatabase() {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (language_code) REFERENCES languages(code)
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS vocabulary_bank (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       language_code TEXT NOT NULL,
@@ -281,7 +315,9 @@ export function initDatabase() {
       UNIQUE(language_code, primary_text),
       FOREIGN KEY (language_code) REFERENCES languages(code)
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS daily_prompts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       language_code TEXT NOT NULL,
@@ -292,7 +328,9 @@ export function initDatabase() {
       FOREIGN KEY (language_code) REFERENCES languages(code),
       FOREIGN KEY (card_id) REFERENCES cards(id)
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS submissions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_name TEXT NOT NULL,
@@ -300,11 +338,15 @@ export function initDatabase() {
       prompt_id INTEGER,
       text_response TEXT NOT NULL,
       speaking_practiced INTEGER DEFAULT 0,
+      completion_seconds INTEGER DEFAULT 60,
+      earned_xp INTEGER DEFAULT 15,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       likes INTEGER DEFAULT 0,
       FOREIGN KEY (language_code) REFERENCES languages(code)
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS submission_likes (
       user_id INTEGER NOT NULL,
       submission_id INTEGER NOT NULL,
@@ -313,15 +355,20 @@ export function initDatabase() {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (submission_id) REFERENCES submissions(id) ON DELETE CASCADE
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS user_stats (
       user_name TEXT PRIMARY KEY,
       current_streak INTEGER DEFAULT 1,
       total_submissions INTEGER DEFAULT 0,
       last_active_date TEXT,
-      xp_points INTEGER DEFAULT 0
+      xp_points INTEGER DEFAULT 0,
+      fastest_completion_seconds INTEGER DEFAULT 9999
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS level_tracks (
       code TEXT PRIMARY KEY,
       language_code TEXT NOT NULL,
@@ -330,7 +377,9 @@ export function initDatabase() {
       order_num INTEGER NOT NULL,
       FOREIGN KEY (language_code) REFERENCES languages(code)
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS grammar_lessons (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       language_code TEXT NOT NULL,
@@ -345,7 +394,9 @@ export function initDatabase() {
       FOREIGN KEY (language_code) REFERENCES languages(code),
       FOREIGN KEY (level) REFERENCES level_tracks(code)
     );
+  `);
 
+  await db.execute(`
     CREATE TABLE IF NOT EXISTS japanese_characters (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,
@@ -364,452 +415,19 @@ export function initDatabase() {
       example_meaning TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
-
-    CREATE INDEX IF NOT EXISTS idx_cards_user_lang ON cards(user_id, language_code);
-    CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(language_code, created_at);
-    CREATE INDEX IF NOT EXISTS idx_vocab_bank_lang ON vocabulary_bank(language_code, category);
-    CREATE INDEX IF NOT EXISTS idx_grammar_lang_level ON grammar_lessons(language_code, level);
-    CREATE INDEX IF NOT EXISTS idx_levels_lang ON level_tracks(language_code, order_num);
-    CREATE INDEX IF NOT EXISTS idx_jap_chars_type ON japanese_characters(type);
-    CREATE INDEX IF NOT EXISTS idx_jap_chars_char ON japanese_characters(character);
   `);
 
-  // Non-destructive check for sub_category column on japanese_characters
-  try {
-    const jcCols = db.prepare("PRAGMA table_info(japanese_characters)").all() as Array<{ name: string }>;
-    if (!jcCols.some((col) => col.name === 'sub_category')) {
-      db.exec("ALTER TABLE japanese_characters ADD COLUMN sub_category TEXT DEFAULT 'gojuon'");
-    }
-    db.exec("CREATE INDEX IF NOT EXISTS idx_jap_chars_sub_cat ON japanese_characters(type, sub_category)");
-  } catch (e) {
-    console.error('Error adding sub_category column to japanese_characters:', e);
-  }
+  // Create indexes
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_cards_user_lang ON cards(user_id, language_code);`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(language_code, created_at);`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_vocab_bank_lang ON vocabulary_bank(language_code, category);`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_grammar_lang_level ON grammar_lessons(language_code, level);`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_levels_lang ON level_tracks(language_code, order_num);`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_jap_chars_type ON japanese_characters(type);`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_jap_chars_char ON japanese_characters(character);`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_jap_chars_sub_cat ON japanese_characters(type, sub_category);`);
 
-  // Non-destructive check for prompt_id foreign key constraint in submissions
-  try {
-    const fkList = db.prepare("PRAGMA foreign_key_list(submissions)").all() as Array<{ table: string; from: string }>;
-    const hasPromptFk = fkList.some((fk) => fk.table === 'daily_prompts');
-    if (hasPromptFk) {
-      db.exec(`
-        PRAGMA foreign_keys = OFF;
-        CREATE TABLE submissions_temp (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          user_name TEXT NOT NULL,
-          language_code TEXT NOT NULL,
-          prompt_id INTEGER,
-          text_response TEXT NOT NULL,
-          speaking_practiced INTEGER DEFAULT 0,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          likes INTEGER DEFAULT 0,
-          FOREIGN KEY (language_code) REFERENCES languages(code)
-        );
-        INSERT INTO submissions_temp SELECT id, user_name, language_code, prompt_id, text_response, speaking_practiced, created_at, likes FROM submissions;
-        DROP TABLE submissions;
-        ALTER TABLE submissions_temp RENAME TO submissions;
-        CREATE INDEX IF NOT EXISTS idx_submissions_created ON submissions(language_code, created_at);
-        PRAGMA foreign_keys = ON;
-      `);
-    }
-  } catch (e) {
-    console.error('Error migrating submissions table constraint:', e);
-  }
-
-  // Non-destructive check for user_id column on cards
-  const cardColumns = db.prepare("PRAGMA table_info(cards)").all() as Array<{ name: string }>;
-  const hasUserId = cardColumns.some((col) => col.name === 'user_id');
-  if (!hasUserId) {
-    db.exec('ALTER TABLE cards ADD COLUMN user_id INTEGER REFERENCES users(id)');
-  }
-
-  // Non-destructive check for fastest_completion_seconds in user_stats
-  const statCols = db.prepare("PRAGMA table_info(user_stats)").all() as Array<{ name: string }>;
-  if (!statCols.some((col) => col.name === 'fastest_completion_seconds')) {
-    db.exec('ALTER TABLE user_stats ADD COLUMN fastest_completion_seconds INTEGER DEFAULT 9999');
-  }
-
-  // Non-destructive check for completion_seconds & earned_xp in submissions
-  const subCols = db.prepare("PRAGMA table_info(submissions)").all() as Array<{ name: string }>;
-  if (!subCols.some((col) => col.name === 'completion_seconds')) {
-    db.exec('ALTER TABLE submissions ADD COLUMN completion_seconds INTEGER DEFAULT 60');
-  }
-  if (!subCols.some((col) => col.name === 'earned_xp')) {
-    db.exec('ALTER TABLE submissions ADD COLUMN earned_xp INTEGER DEFAULT 15');
-  }
-
-  const countLang = db.prepare('SELECT COUNT(*) as count FROM languages').get() as { count: number };
-  if (countLang.count === 0) {
-    const insertLang = db.prepare(`
-      INSERT INTO languages (code, name, native_name, flag, speech_locale)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-
-    insertLang.run('en', 'English', 'English', '🇺🇸', 'en-US');
-    insertLang.run('ja', 'Japanese', '日本語', '🇯🇵', 'ja-JP');
-  }
-
-  const countCards = db.prepare('SELECT COUNT(*) as count FROM cards').get() as { count: number };
-  if (countCards.count === 0) {
-    const insertCard = db.prepare(`
-      INSERT INTO cards (user_id, language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
-      VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    const enCards = [
-      {
-        lang: 'en',
-        text: 'Mindset',
-        phonetic: '/ˈmaɪnd.set/',
-        furigana: null,
-        meaning: 'Pola pikir atau sikap mental positif dalam memandang kehidupan dan belajar',
-        pos: 'Noun',
-        level: 'Daily',
-        example: 'Adopting a growth mindset turns every failure into valuable wisdom.',
-        exampleMeaning: 'Mengadopsi pola pikir bertumbuh mengubah setiap kegagalan menjadi kebijaksanaan berharga.',
-        guide: 'Sambungkan kata "mind" dan "set" dengan artikulasi tegas pada d dan t.'
-      },
-      {
-        lang: 'en',
-        text: 'Gratitude',
-        phonetic: '/ˈɡræt.ɪ.tʃuːd/',
-        furigana: null,
-        meaning: 'Rasa syukur dan apresiasi mendalam atas kebaikan yang diterima',
-        pos: 'Noun',
-        level: 'Daily',
-        example: 'Expressing gratitude every day brings calm and joy into our routine.',
-        exampleMeaning: 'Mengungkapkan rasa syukur setiap hari membawa ketenangan dan kegembiraan ke dalam rutinitas kita.',
-        guide: 'Lafalkan "gra" pendek dan bersih, diakhiri dengan tude lembut.'
-      },
-      {
-        lang: 'en',
-        text: 'Resilience',
-        phonetic: '/rɪˈzɪl.jəns/',
-        furigana: null,
-        meaning: 'Ketangguhan dan kemampuan bangkit kembali menghadapi kesulitan hidup',
-        pos: 'Noun',
-        level: 'Intermediate',
-        example: 'Developing personal resilience helps us overcome unexpected challenges.',
-        exampleMeaning: 'Mengembangkan ketangguhan pribadi membantu kita mengatasi tantangan yang tak terduga.',
-        guide: 'Penekanan suku kata jatuh pada bagian tengah: ri-ZIL-ience.'
-      },
-      {
-        lang: 'en',
-        text: 'Curiosity',
-        phonetic: '/ˌkjʊə.riˈɒs.ə.ti/',
-        furigana: null,
-        meaning: 'Rasa ingin tahu alami yang mendorong eksplorasi dan wawasan baru',
-        pos: 'Noun',
-        level: 'Daily',
-        example: 'Natural curiosity is the secret to discovering new passions and ideas.',
-        exampleMeaning: 'Rasa ingin tahu alami adalah rahasia untuk menemukan minat dan ide-ide baru.',
-        guide: 'Tekankan suku kata: cu-ri-OS-i-ty.'
-      },
-      {
-        lang: 'en',
-        text: 'Consistency',
-        phonetic: '/kənˈsɪs.tən.si/',
-        furigana: null,
-        meaning: 'Konsistensi dan ketekunan melakukan langkah kecil secara teratur',
-        pos: 'Noun',
-        level: 'Daily',
-        example: 'Small daily consistency creates remarkable long-term achievements.',
-        exampleMeaning: 'Konsistensi kecil setiap hari menciptakan pencapaian luar biasa dalam jangka panjang.',
-        guide: 'Syllable stress jatuh pada suku kata kedua: con-SIS-ten-cy.'
-      }
-    ];
-
-    for (const card of enCards) {
-      insertCard.run(
-        card.lang,
-        card.text,
-        card.phonetic,
-        card.furigana,
-        card.meaning,
-        card.pos,
-        card.level,
-        card.example,
-        card.exampleMeaning,
-        card.guide
-      );
-    }
-
-    const jaCards = [
-      {
-        lang: 'ja',
-        text: '挨拶',
-        phonetic: 'あいさつ (aisatsu)',
-        furigana: '<ruby>挨拶<rt>あいさつ</rt></ruby>',
-        meaning: 'Salam sapaan ramah di awal pertemuan untuk membuka komunikasi',
-        pos: 'Noun / Suru-Verb',
-        level: 'JLPT N5 / Daily',
-        example: '明るい挨拶は良いコミュニケーションの第一歩です。',
-        exampleMeaning: 'Salam yang ceria adalah langkah pertama menuju komunikasi yang baik.',
-        guide: 'Lafalkan dengan nada ramah datar per mora: a-i-sa-tsu tanpa penekanan keras.'
-      },
-      {
-        lang: 'ja',
-        text: '感謝',
-        phonetic: 'かんしゃ (kansha)',
-        furigana: '<ruby>感謝<rt>かんしゃ</rt></ruby>',
-        meaning: 'Rasa terima kasih dan apresiasi tulus atas dukungan orang lain',
-        pos: 'Noun / Suru-Verb',
-        level: 'JLPT N4 / Daily',
-        example: '支えてくれる人たちへの感謝の気持ちを大切にしています。',
-        exampleMeaning: 'Saya menghargai rasa terima kasih yang tulus kepada orang-orang yang mendukung saya.',
-        guide: 'Suku kata "n" (hatsuon) ditahan 1 mora lembut sebelum melafalkan "sha".'
-      },
-      {
-        lang: 'ja',
-        text: '準備',
-        phonetic: 'じゅんび (junbi)',
-        furigana: '<ruby>準備<rt>じゅんび</rt></ruby>',
-        meaning: 'Persiapan matang sebelum memulai suatu hal atau aktivitas baru',
-        pos: 'Noun / Suru-Verb',
-        level: 'JLPT N5 / Daily',
-        example: '明日の旅行に向けて、荷物の準備を楽しく進めています。',
-        exampleMeaning: 'Menjelang perjalanan besok, saya menikmati proses menyiapkan barang bawaan.',
-        guide: 'Ritme mora stabil: jun-bi, pastikan vokal u dan i terdengar bersih.'
-      },
-      {
-        lang: 'ja',
-        text: '成長',
-        phonetic: 'せいちょう (seichou)',
-        furigana: '<ruby>成長<rt>せいちょう</rt></ruby>',
-        meaning: 'Pertumbuhan dan perkembangan kapasitas diri menjadi lebih baik',
-        pos: 'Noun / Suru-Verb',
-        level: 'JLPT N4 / Daily',
-        example: '日々の小さな積み重ねが、大きな自己成長につながります。',
-        exampleMeaning: 'Konsistensi kecil setiap hari akan menghasilkan pertumbuhan diri yang besar.',
-        guide: 'Vokal panjang chouon: tahan bunyi "sei" dan "chou" masing-masing 2 ketukan mora.'
-      },
-      {
-        lang: 'ja',
-        text: '習慣',
-        phonetic: 'しゅうかん (shuukan)',
-        furigana: '<ruby>習慣<rt>しゅうかん</rt></ruby>',
-        meaning: 'Kebiasaan rutin yang dilakukan secara teratur dan konsisten',
-        pos: 'Noun',
-        level: 'JLPT N4 / Daily',
-        example: '毎朝30分の読書が良い生活習慣になりました。',
-        exampleMeaning: 'Membaca selama 30 menit setiap pagi telah menjadi kebiasaan hidup yang baik.',
-        guide: 'Vokal panjang pada "shuu" tahan 2 ketukan mora.'
-      }
-    ];
-
-    for (const card of jaCards) {
-      insertCard.run(
-        card.lang,
-        card.text,
-        card.phonetic,
-        card.furigana,
-        card.meaning,
-        card.pos,
-        card.level,
-        card.example,
-        card.exampleMeaning,
-        card.guide
-      );
-    }
-  }
-
-  // Seed vocabulary_bank if empty
-  const countVocab = db.prepare('SELECT COUNT(*) as count FROM vocabulary_bank').get() as { count: number };
-  if (countVocab.count === 0) {
-    const insertVocab = db.prepare(`
-      INSERT OR IGNORE INTO vocabulary_bank (
-        language_code, category, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    const enBank = [
-      // Daily & Growth
-      { cat: 'daily', text: 'Milestone', pho: '/ˈmaɪl.stəʊn/', fur: null, mean: 'Tonggak pencapaian penting dalam proses proyek atau karier', pos: 'Noun', lvl: 'Intermediate', ex: 'Completing the beta release is a major milestone for our product.', exm: 'Menyelesaikan rilis beta adalah tonggak pencapaian besar untuk produk kita.', g: 'Tekankan suku kata pertama "MILE" dan sambungkan halus dengan "stone".' },
-      { cat: 'daily', text: 'Breakthrough', pho: '/ˈbreɪk.θruː/', fur: null, mean: 'Terobosan besar atau kemajuan signifikan setelah usaha keras', pos: 'Noun', lvl: 'Intermediate', ex: 'Our research led to an unexpected breakthrough in energy efficiency.', exm: 'Penelitian kami membuahkan terobosan tak terduga dalam efisiensi energi.', g: 'Bunyi "th" diucapkan lembut dengan lidah di antara gigi atas dan bawah.' },
-      { cat: 'daily', text: 'Resilience', pho: '/rɪˈzɪl.jəns/', fur: null, mean: 'Ketangguhan dan kemampuan bangkit kembali menghadapi kesulitan', pos: 'Noun', lvl: 'Advanced', ex: 'Showing resilience during challenging moments builds true confidence.', exm: 'Menunjukkan ketangguhan di saat-saat menantang membangun kepercayaan diri sejati.', g: 'Penekanan suku kata jatuh pada bagian tengah: ri-ZIL-ience.' },
-      { cat: 'daily', text: 'Perspective', pho: '/pəˈspek.tɪv/', fur: null, mean: 'Sudut pandang atau cara memandang suatu persoalan secara jernih', pos: 'Noun', lvl: 'Intermediate', ex: 'Listening to different opinions gives us a broader perspective on life.', exm: 'Mendengarkan beragam opini memberi kita sudut pandang yang lebih luas dalam hidup.', g: 'Tekankan suku kata kedua: per-SPEC-tive.' },
-      { cat: 'daily', text: 'Gratitude', pho: '/ˈɡræt.ɪ.tʃuːd/', fur: null, mean: 'Rasa syukur dan penghargaan mendalam atas kebaikan yang diterima', pos: 'Noun', lvl: 'Daily', ex: 'Expressing gratitude each morning fosters a joyful mindset.', exm: 'Mengungkapkan rasa syukur setiap pagi menumbuhkan pola pikir yang bahagia.', g: 'Lafalkan "gra" pendek dan bersih, diakhiri dengan tude lembut.' },
-      { cat: 'daily', text: 'Empathy', pho: '/ˈem.pə.θi/', fur: null, mean: 'Kemampuan memahami dan ikut merasakan perasaan orang lain', pos: 'Noun', lvl: 'Daily', ex: 'Active empathy helps bridge gaps between differing viewpoints.', exm: 'Empati aktif membantu menjembatani jurang pemisah antara sudut pandang yang berbeda.', g: 'Tekankan suku kata awal "EM" dan akhiri dengan thi lembut.' },
-      { cat: 'daily', text: 'Curiosity', pho: '/ˌkjʊə.riˈɒs.ə.ti/', fur: null, mean: 'Rasa ingin tahu yang mendorong eksplorasi dan pembelajaran aktif', pos: 'Noun', lvl: 'Intermediate', ex: 'Curiosity is the fundamental engine that powers lifelong learning.', exm: 'Rasa ingin tahu adalah mesin dasar yang menggerakkan pembelajaran seumur hidup.', g: 'Tekankan suku kata: cu-ri-OS-i-ty.' },
-      { cat: 'daily', text: 'Mindset', pho: '/ˈmaɪnd.set/', fur: null, mean: 'Pola pikir atau sikap mental dalam menyikapi suatu keadaan', pos: 'Noun', lvl: 'Daily', ex: 'Adopting a continuous learning mindset turns failures into wisdom.', exm: 'Mengadopsi pola pikir terus belajar mengubah kegagalan menjadi kebijaksanaan.', g: 'Sambungkan kata "mind" dan "set" dengan artikulasi tegas pada d dan t.' },
-      { cat: 'daily', text: 'Consistency', pho: '/kənˈsɪs.tən.si/', fur: null, mean: 'Konsistensi dan keteraturan tindakan dalam jangka waktu panjang', pos: 'Noun', lvl: 'Intermediate', ex: 'Consistency in daily practice is far more powerful than sporadic intensity.', exm: 'Konsistensi latihan harian jauh lebih dahsyat dibanding usaha intens yang jarang.', g: 'Syllable stress jatuh pada suku kata kedua: con-SIS-ten-cy.' },
-      { cat: 'daily', text: 'Balance', pho: '/ˈbæl.əns/', fur: null, mean: 'Keseimbangan harmonis antara berbagai prioritas hidup', pos: 'Noun', lvl: 'Daily', ex: 'Finding balance between ambition and rest prevents chronic burnout.', exm: 'Menemukan keseimbangan antara ambisi dan istirahat mencegah kejenuhan kronis.', g: 'Tekankan suku kata pertama: BAL-ance.' },
-
-      // Work & Communication
-      { cat: 'work', text: 'Collaboration', pho: '/kəˌlæb.əˈreɪ.ʃən/', fur: null, mean: 'Kerja sama harmonis antara banyak pihak untuk tujuan bersama', pos: 'Noun', lvl: 'Intermediate', ex: 'Effective collaboration helps diverse people achieve incredible results.', exm: 'Kerja sama yang efektif membantu banyak orang mencapai hasil luar biasa.', g: 'Syllable stress utama jatuh tepat sebelum akhiran "-tion" pada "RAY-shun".' },
-      { cat: 'work', text: 'Insight', pho: '/ˈɪn.saɪt/', fur: null, mean: 'Wawasan mendalam atau pemahaman baru yang berharga', pos: 'Noun', lvl: 'Intermediate', ex: 'Thank you for sharing your valuable insight during the discussion.', exm: 'Terima kasih telah membagikan wawasan berharga Anda saat diskusi.', g: 'Tekankan suku kata "IN" dengan artikulasi t tegas di akhir kata.' },
-      { cat: 'work', text: 'Deadline', pho: '/ˈded.laɪn/', fur: null, mean: 'Batas waktu akhir penyelesaian suatu tugas atau kewajiban', pos: 'Noun', lvl: 'Daily', ex: 'We submitted all deliverables two days ahead of the scheduled deadline.', exm: 'Kami mengumpulkan seluruh hasil pekerjaan dua hari sebelum batas waktu yang dijadwalkan.', g: 'Tekankan suku kata awal "DEAD" dengan jelas.' },
-      { cat: 'work', text: 'Feasibility', pho: '/ˌfiː.zəˈbɪl.ə.ti/', fur: null, mean: 'Kelayakan atau kemungkinan terlaksananya suatu rencana', pos: 'Noun', lvl: 'Advanced', ex: 'We conducted a quick feasibility study before launching the initiative.', exm: 'Kami melakukan studi kelayakan singkat sebelum meluncurkan inisiatif tersebut.', g: 'Tekankan suku kata: fea-si-BIL-i-ty.' },
-      { cat: 'work', text: 'Prioritize', pho: '/praɪˈɒr.ɪ.taɪz/', fur: null, mean: 'Menentukan dan mendahulukan hal-hal yang paling krusial', pos: 'Verb', lvl: 'Intermediate', ex: 'It is essential to prioritize high-value tasks during busy weeks.', exm: 'Sangat penting untuk memprioritaskan tugas bernilai tinggi saat pekan sibuk.', g: 'Tekankan suku kata awal: pri-OR-i-tize.' },
-      { cat: 'work', text: 'Roadmap', pho: '/ˈrəʊd.mæp/', fur: null, mean: 'Peta jalan atau rencana strategis jangka panjang pencapaian tujuan', pos: 'Noun', lvl: 'Intermediate', ex: 'Our product roadmap outlines the key releases planned for this quarter.', exm: 'Peta jalan produk kami menguraikan rilis-rilis kunci yang direncanakan kuartal ini.', g: 'Ucapkan road dan map bersambung halus.' },
-      { cat: 'work', text: 'Streamline', pho: '/ˈstriːm.laɪn/', fur: null, mean: 'Menyederhanakan proses agar lebih efisien, hemat waktu, dan rapi', pos: 'Verb', lvl: 'Intermediate', ex: 'Automation allows us to streamline everyday administrative tasks.', exm: 'Otomatisasi memungkinkan kita menyederhanakan tugas-tugas administratif harian.', g: 'Lafalkan stream dan line tanpa jeda.' },
-      { cat: 'work', text: 'Accountability', pho: '/əˌkaʊn.təˈbɪl.ə.ti/', fur: null, mean: 'Tanggung jawab penuh dan transparansi atas hasil keputusan', pos: 'Noun', lvl: 'Advanced', ex: 'Holding personal accountability builds strong professional trust.', exm: 'Memegang tanggung jawab pribadi membangun kepercayaan profesional yang kuat.', g: 'Tekankan suku kata: ac-coun-ta-BIL-i-ty.' },
-      { cat: 'work', text: 'Feedback', pho: '/ˈfiːd.bæk/', fur: null, mean: 'Masukan konstruktif untuk evaluasi dan pengembangan kualitas', pos: 'Noun', lvl: 'Daily', ex: 'Regular feedback helps every learner fine-tune their practice.', exm: 'Masukan berkala membantu setiap pembelajar menyempurnakan latihan mereka.', g: 'Tekankan suku kata awal "FEED".' },
-      { cat: 'work', text: 'Consensus', pho: '/kənˈsen.səs/', fur: null, mean: 'Kesepakatan bersama yang disetujui secara mufakat oleh semua pihak', pos: 'Noun', lvl: 'Advanced', ex: 'After a productive debate, the team reached a clear consensus.', exm: 'Setelah debat yang produktif, tim mencapai mufakat yang jelas.', g: 'Tekankan suku kata tengah: con-SEN-sus.' },
-
-      // Expressions & Socializing
-      { cat: 'expression', text: 'Catch up', pho: '/kætʃ ʌp/', fur: null, mean: 'Mengobrol santai untuk mengetahui kabar terbaru seseorang', pos: 'Phrasal Verb', lvl: 'Daily', ex: 'Let us grab a coffee tomorrow and catch up on everything.', exm: 'Mari minum kopi besok dan mengobrol tentang kabar terbaru kita.', g: 'Sambungkan bunyi "ch" pada catch langsung ke "up".' },
-      { cat: 'expression', text: 'Touch base', pho: '/tʌtʃ beɪs/', fur: null, mean: 'Menghubungi singkat seseorang untuk konfirmasi kabar atau status', pos: 'Idiom', lvl: 'Daily', ex: 'I will touch base with you on Friday to see how things are going.', exm: 'Saya akan menghubungi Anda hari Jumat untuk melihat bagaimana perkembangan semuanya.', g: 'Idiom umum untuk "kontak singkat".' },
-      { cat: 'expression', text: 'On the same page', pho: '/ɒn ðə seɪm peɪdʒ/', fur: null, mean: 'Memiliki pemahaman dan kesepakatan yang selaras satu sama lain', pos: 'Idiom', lvl: 'Daily', ex: 'A quick sync ensures all contributors are on the same page.', exm: 'Sinkronisasi singkat memastikan semua kontributor berada pada pemahaman yang sama.', g: 'Intonasi mengalir dengan penekanan pada "same page".' },
-      { cat: 'expression', text: 'Call it a day', pho: '/kɔːl ɪt ə deɪ/', fur: null, mean: 'Menyudahi kegiatan untuk hari ini dan melanjutkannya besok', pos: 'Idiom', lvl: 'Daily', ex: 'We accomplished all goals today, so let us call it a day.', exm: 'Kita menyelesaikan semua target hari ini, jadi mari kita sudahi hari ini.', g: 'Sambungkan call-it-a-day secara mengalir.' },
-      { cat: 'expression', text: 'Think outside the box', pho: '/θɪŋk ˌaʊtˈsaɪd ðə bɒks/', fur: null, mean: 'Berpikir kreatif dan inovatif melampaui batasan kebiasaan lama', pos: 'Idiom', lvl: 'Intermediate', ex: 'To overcome unusual obstacles, we must think outside the box.', exm: 'Untuk mengatasi rintangan yang tak biasa, kita harus berpikir kreatif di luar kebiasaan.', g: 'Bunyi "th" interdental lembut pada think.' }
-    ];
-
-    const jaBank = [
-      // Daily & Life
-      { cat: 'daily', text: '挨拶', pho: 'あいさつ (aisatsu)', fur: '<ruby>挨拶<rt>あいさつ</rt></ruby>', mean: 'Salam sapaan ramah di awal pertemuan', pos: 'Noun / Suru-Verb', lvl: 'N5 / Daily', ex: '明るい挨拶は良いコミュニケーションの第一歩です。', exm: 'Salam yang ceria adalah langkah pertama menuju komunikasi yang baik.', g: 'Lafalkan dengan nada ramah datar per mora: a-i-sa-tsu tanpa penekanan keras.' },
-      { cat: 'daily', text: '感謝', pho: 'かんしゃ (kansha)', fur: '<ruby>感謝<rt>かんしゃ</rt></ruby>', mean: 'Rasa terima kasih dan apresiasi tulus atas dukungan orang lain', pos: 'Noun / Suru-Verb', lvl: 'N4 / Daily', ex: 'いつも温かいサポートをしていただき、心から感謝しています。', exm: 'Saya berterima kasih dari lubuk hati atas dukungan hangat Anda selama ini.', g: 'Suku kata "n" (hatsuon) ditahan 1 mora lembut sebelum melafalkan "sha".' },
-      { cat: 'daily', text: '準備', pho: 'じゅんび (junbi)', fur: '<ruby>準備<rt>じゅんび</rt></ruby>', mean: 'Persiapan matang sebelum memulai suatu hal atau aktivitas', pos: 'Noun / Suru-Verb', lvl: 'N5 / Daily', ex: '明日からの新しい挑戦に向けて、しっかり準備を整えました。', exm: 'Menjelang tantangan baru mulai besok, saya sudah mempersiapkannya dengan baik.', g: 'Ritme mora stabil: jun-bi, pastikan vokal u dan i terdengar bersih.' },
-      { cat: 'daily', text: '成長', pho: 'せいちょう (seichou)', fur: '<ruby>成長<rt>せいちょう</rt></ruby>', mean: 'Pertumbuhan dan perkembangan kapasitas diri menjadi lebih baik', pos: 'Noun / Suru-Verb', lvl: 'N4 / Daily', ex: '日々の小さな積み重ねが、大きな自己成長につながります。', exm: 'Konsistensi kecil setiap hari akan menghasilkan pertumbuhan diri yang besar.', g: 'Vokal panjang chouon: tahan bunyi "sei" dan "chou" masing-masing 2 ketukan mora.' },
-      { cat: 'daily', text: '経験', pho: 'けいけん (keiken)', fur: '<ruby>経験<rt>けいけん</rt></ruby>', mean: 'Pengalaman berharga yang dipelajari dari proses nyata', pos: 'Noun / Suru-Verb', lvl: 'N4 / Daily', ex: '失敗を恐れずに挑戦することで、貴重な経験が得られます。', exm: 'Dengan mencoba tanpa takut gagal, kita akan mendapatkan pengalaman berharga.', g: 'Vokal panjang pada "kei": lafalkan bersambung halus dengan "ken".' },
-      { cat: 'daily', text: '習慣', pho: 'しゅうかん (shuukan)', fur: '<ruby>習慣<rt>しゅうかん</rt></ruby>', mean: 'Kebiasaan rutin yang dilakukan secara teratur dan konsisten', pos: 'Noun', lvl: 'N4 / Daily', ex: '毎朝の散歩と読書が良い生活習慣になりました。', exm: 'Jalan santai dan membaca setiap pagi telah menjadi kebiasaan hidup yang baik.', g: 'Vokal panjang pada "shuu" tahan 2 ketukan mora.' },
-      { cat: 'daily', text: '安心', pho: 'あんしん (anshin)', fur: '<ruby>安心<rt>あんしん</rt></ruby>', mean: 'Rasa tenang, aman, damai, dan bebas dari kekhawatiran', pos: 'Noun / Suru-Verb', lvl: 'N4 / Daily', ex: '無事に目的地に到着した知らせを聞いて、とても安心しました。', exm: 'Mendengar kabar bahwa mereka telah tiba dengan selamat, saya merasa sangat lega.', g: 'Ucapkan an-shin dengan getaran lembut di rongga hidung.' },
-      { cat: 'daily', text: '理解', pho: 'りかい (rikai)', fur: '<ruby>理解<rt>りかい</rt></ruby>', mean: 'Pemahaman mendalam mengenai suatu konsep atau perasaan orang lain', pos: 'Noun / Suru-Verb', lvl: 'N4 / Daily', ex: 'お互いの背景を理解することが、円滑な関係の鍵です。', exm: 'Memahami latar belakang satu sama lain adalah kunci hubungan yang harmonis.', g: 'Ucapkan ri-ka-i dengan ketukan ritme datar per mora.' },
-      { cat: 'daily', text: '柔軟', pho: 'じゅうなん (juunan)', fur: '<ruby>柔軟<rt>じゅうなん</rt></ruby>', mean: 'Fleksibel, luwes, dan dapat beradaptasi dengan perubahan', pos: 'Na-Adj / Noun', lvl: 'N3 / Daily', ex: '状況の変化に合わせて、柔軟に行動することが大切です。', exm: 'Sangat penting untuk bertindak secara luwes menyesuaikan perubahan situasi.', g: 'Vokal panjang pada "juu".' },
-      { cat: 'daily', text: '継続', pho: 'けいぞく (keizoku)', fur: '<ruby>継続<rt>けいぞく</rt></ruby>', mean: 'Keberlanjutan dan konsistensi terus menerus tanpa putus', pos: 'Noun / Suru-Verb', lvl: 'N3 / Daily', ex: '継続は力なりという言葉通り、毎日少しずつ学びましょう。', exm: 'Sesuai pepatah bahwa konsistensi adalah kekuatan, mari belajar sedikit demi sedikit setiap hari.', g: 'Vokal panjang halus pada "kei" berlanjut ke "zoku".' },
-
-      // Work & Cooperation
-      { cat: 'work', text: '相談', pho: 'そうだん (soudan)', fur: '<ruby>相談<rt>そうだん</rt></ruby>', mean: 'Konsultasi, berdiskusi untuk meminta saran atau pertimbangan', pos: 'Noun / Suru-Verb', lvl: 'N4 / Business', ex: '分からないことがあれば、いつでも気軽に相談してください。', exm: 'Jika ada hal yang belum dipahami, jangan ragu untuk berkonsultasi kapan saja.', g: 'Vokal panjang pada "sou" tahan 2 ketukan mora.' },
-      { cat: 'work', text: '連絡', pho: 'れんらく (renraku)', fur: '<ruby>連絡<rt>れんらく</rt></ruby>', mean: 'Menghubungi, memberi kabar, atau berkabar kabar terbaru', pos: 'Noun / Suru-Verb', lvl: 'N4 / Business', ex: 'スケジュールに変更が生じた際は、速やかに連絡します。', exm: 'Jika terjadi perubahan jadwal, saya akan segera memberi kabar.', g: 'Lafalkan ren-ra-ku secara berirama dan lancar.' },
-      { cat: 'work', text: '報告', pho: 'ほうこく (houkoku)', fur: '<ruby>報告<rt>ほうこく</rt></ruby>', mean: 'Laporan resmi mengenai hasil kemajuan, status, atau temuan', pos: 'Noun / Suru-Verb', lvl: 'N4 / Business', ex: '本日の打ち合わせの結果について、上司に報告を行いました。', exm: 'Saya telah menyampaikan laporan kepada atasan mengenai hasil pertemuan hari ini.', g: 'Vokal panjang pada "hou" tahan 2 ketukan mora.' },
-      { cat: 'work', text: '効率', pho: 'こうりつ (kouritsu)', fur: '<ruby>効率<rt>こうりつ</rt></ruby>', mean: 'Efisiensi dan ketepatan alur kerja dalam mencapai hasil optimal', pos: 'Noun', lvl: 'N3 / Business', ex: '新しい工夫を取り入れて、毎日の作業効率を大きく高めました。', exm: 'Dengan menerapkan inovasi baru, kami meningkatkan efisiensi kerja harian secara signifikan.', g: 'Sokuon pada "tsu": tahan sejenak sebelum suku kata berikutnya.' },
-      { cat: 'work', text: '挑戦', pho: 'ちょうせん (chousen)', fur: '<ruby>挑戦<rt>ちょうせん</rt></ruby>', mean: 'Menghadapi tantangan baru dengan tekad dan semangat maju', pos: 'Noun / Suru-Verb', lvl: 'N3 / Business', ex: '未知の分野であっても、情熱を持って挑戦し続けたいです。', exm: 'Meskipun di bidang yang belum dikenal, saya ingin terus berusaha menghadapinya dengan antusias.', g: 'Vokal panjang pada "chou" (2 mora).' },
-      { cat: 'work', text: '丁寧', pho: 'ていねい (teinei)', fur: '<ruby>丁寧<rt>ていねい</rt></ruby>', mean: 'Sopan santun, cermat, teliti, dan berhati-hati dalam bertindak', pos: 'Na-Adj / Noun', lvl: 'N4 / Business', ex: 'お客様からの問い合わせには、いつも丁寧な対応を心がけています。', exm: 'Saya selalu berupaya merespons pertanyaan dari pelanggan dengan sopan dan ramah.', g: 'Vokal panjang halus pada "tei" dan "nei".' },
-      { cat: 'work', text: '共有', pho: 'きょうゆう (kyouyuu)', fur: '<ruby>共有<rt>きょうゆう</rt></ruby>', mean: 'Berbagi informasi, wawasan, atau pemahaman bersama', pos: 'Noun / Suru-Verb', lvl: 'N3 / Business', ex: 'ミーティングの決定事項をチーム全体に共有しました。', exm: 'Saya telah membagikan poin-poin keputusan rapat kepada seluruh anggota.', g: 'Vokal panjang pada "kyou" dan "yuu".' },
-      { cat: 'work', text: '優先', pho: 'ゆうせん (yuusen)', fur: '<ruby>優先<rt>ゆうせん</rt></ruby>', mean: 'Mendahulukan hal-hal penting atau prioritas utama', pos: 'Noun / Suru-Verb', lvl: 'N3 / Business', ex: '緊急度の高い案件から優先して取り組む方針です。', exm: 'Kebijakan kami adalah memprioritaskan penyelesaian dari hal yang paling mendesak.', g: 'Vokal panjang pada "yuu".' },
-      { cat: 'work', text: '納得', pho: 'なっとく (nattoku)', fur: '<ruby>納得<rt>なっとく</rt></ruby>', mean: 'Puas, mengerti, dan dapat menerima penjelasan dengan lapang dada', pos: 'Noun / Suru-Verb', lvl: 'N3 / Business', ex: '理由を丁寧に説明してもらい、全員が深く納得しました。', exm: 'Setelah alasannya dijelaskan secara cermat, semua orang memahaminya dengan puas.', g: 'Sokuon (っ) pada "nat": tahan sejenak sebelum toku.' },
-      { cat: 'work', text: '工夫', pho: 'くふう (kufuu)', fur: '<ruby>工夫<rt>くふう</rt></ruby>', mean: 'Mencari akal cerdik atau cara kreatif untuk menyempurnakan hal', pos: 'Noun / Suru-Verb', lvl: 'N3 / Business', ex: '限られた予算の中で、様々な工夫を凝らして成功させました。', exm: 'Dalam anggaran terbatas, kami menggunakan berbagai cara kreatif hingga sukses.', g: 'Vokal panjang pada "fuu" (2 mora).' },
-
-      // Expressions & Etiquette
-      { cat: 'expression', text: 'お疲れ様です', pho: 'おつかれさまです (otsukaresama desu)', fur: 'お<ruby>疲<rt>つか</rt></ruby>れ<ruby>様<rt>さま</rt></ruby>です', mean: 'Ungkapan salam apresiasi terima kasih atas kerja keras', pos: 'Phrase', lvl: 'Daily / Business', ex: '今日も一日お疲れ様でした！明日も頑張りましょう。', exm: 'Terima kasih atas kerja keras hari ini! Mari bersemangat lagi besok.', g: 'Pelemahan vokal "u" pada "su" di akhir kalimat (des).' },
-      { cat: 'expression', text: 'よろしくお願いします', pho: 'よろしくおねがいします (yoroshiku onegaishimasu)', fur: 'よろしくお<ruby>願<rt>ねが</rt></ruby>いします', mean: 'Ungkapan mohon kerja sama, bimbingan, dan perkenalan yang baik', pos: 'Phrase', lvl: 'Daily / Business', ex: '新しいプロジェクトでも、どうぞよろしくお願いします。', exm: 'Dalam proyek baru ini pun, mohon kerja sama dan dukungannya.', g: 'Salam paling mendasar dalam kebudayaan sosial Jepang.' },
-      { cat: 'expression', text: '遠慮', pho: 'えんりょ (enryo)', fur: '<ruby>遠慮<rt>えんりょ</rt></ruby>', mean: 'Rasa sungkan, segan, atau menahan diri karena kesopanan', pos: 'Noun / Suru-Verb', lvl: 'N3 / Daily', ex: '分からない点があれば、遠慮なくいつでも質問してください。', exm: 'Jika ada hal yang belum dimengerti, jangan sungkan untuk bertanya kapan saja.', g: 'Sering dipakai dalam bentuk "enryo naku" (jangan sungkan).' },
-      { cat: 'expression', text: '大丈夫', pho: 'だいじょうぶ (daijoubu)', fur: '<ruby>大丈夫<rt>だいじょうぶ</rt></ruby>', mean: 'Baik-baik saja, tidak apa-apa, aman terkendali', pos: 'Na-Adj / Phrase', lvl: 'N5 / Daily', ex: '少し失敗しても、私たちがサポートするから大丈夫ですよ。', exm: 'Meskipun sedikit gagal, kami akan membantu jadi semuanya akan baik-baik saja.', g: 'Vokal panjang pada "jou".' },
-      { cat: 'expression', text: '共感', pho: 'きょうかん (kyoukan)', fur: '<ruby>共感<rt>きょうかん</rt></ruby>', mean: 'Rasa empati, simpati, atau sepemikiran dengan orang lain', pos: 'Noun / Suru-Verb', lvl: 'N3 / Daily', ex: '仲間と共感し合うことで、モチベーションが自然と高まります。', exm: 'Saling berempati dengan rekan membuat motivasi bertumbuh secara alami.', g: 'Vokal panjang pada "kyou".' }
-    ];
-
-    const insertTx = db.transaction(() => {
-      for (const item of enBank) {
-        insertVocab.run(
-          'en',
-          item.cat,
-          item.text,
-          item.pho,
-          item.fur,
-          item.mean,
-          item.pos,
-          item.lvl,
-          item.ex,
-          item.exm,
-          item.g
-        );
-      }
-      for (const item of jaBank) {
-        insertVocab.run(
-          'ja',
-          item.cat,
-          item.text,
-          item.pho,
-          item.fur,
-          item.mean,
-          item.pos,
-          item.lvl,
-          item.ex,
-          item.exm,
-          item.g
-        );
-      }
-    });
-
-    insertTx();
-  }
-
-  const countPrompts = db.prepare('SELECT COUNT(*) as count FROM daily_prompts').get() as { count: number };
-  if (countPrompts.count === 0) {
-    const insertPrompt = db.prepare(`
-      INSERT INTO daily_prompts (language_code, card_id, prompt_question, hint)
-      VALUES (?, ?, ?, ?)
-    `);
-
-    insertPrompt.run(
-      'en',
-      1,
-      'Write 1 sentence about your daily goal or habit using the word "Mindset" or "Gratitude".',
-      'Example: "Maintaining a positive mindset helps me enjoy learning each morning."'
-    );
-
-    insertPrompt.run(
-      'ja',
-      6,
-      '今日の目標や気持ちについて、短い日本語で1文書いてみましょう。（「挨拶」または「感謝」を使って）',
-      'Contoh: 毎日の生活の中で、周りの人への感謝を忘れないようにしています。'
-    );
-  }
-
-  // Ensure all level tracks exist
-  const insertLevel = db.prepare(`
-    INSERT OR IGNORE INTO level_tracks (code, language_code, name, description, order_num)
-    VALUES (?, ?, ?, ?, ?)
-  `);
-
-  // Japanese JLPT Levels
-  insertLevel.run('N5', 'ja', 'JLPT N5', 'Pemula Dasar: Hiragana, Katakana, dan tata bahasa percakapan paling esensial', 1);
-  insertLevel.run('N4', 'ja', 'JLPT N4', 'Praktik Sehari-hari: Pola izin, kebiasaan, pengalaman, dan kalimat bersambung', 2);
-  insertLevel.run('N3', 'ja', 'JLPT N3', 'Menengah Mandiri: Ungkapan situasional kerja, nuansa bahasa, dan artikel praktis', 3);
-  insertLevel.run('N2', 'ja', 'JLPT N2', 'Tingkat Mahir: Komunikasi profesional, media berita, dan wacana formal', 4);
-  insertLevel.run('N1', 'ja', 'JLPT N1', 'Fasih Sempurna: Pemahaman mendalam wacana abstrak, idiom sastra, dan perdebatan', 5);
-
-  // English CEFR Levels
-  insertLevel.run('A1', 'en', 'CEFR A1', 'Beginner: Kebutuhan dasar, perkenalan diri, tenses sederhana, dan kosakata esensial', 1);
-  insertLevel.run('A2', 'en', 'CEFR A2', 'Elementary: Rutinitas, mendeskripsikan masa lalu, dan rencana masa depan', 2);
-  insertLevel.run('B1', 'en', 'CEFR B1', 'Intermediate: Berkomunikasi mandiri, berpendapat, conditionals, dan pengalaman hidup', 3);
-  insertLevel.run('B2', 'en', 'CEFR B2', 'Upper Intermediate: Berdiskusi lancar, argumen kompleks, pasif, dan nuansa profesional', 4);
-  insertLevel.run('C1', 'en', 'CEFR C1', 'Advanced: Penguasaan bahasa tingkat tinggi, fleksibel untuk keperluan akademis & bisnis', 5);
-  insertLevel.run('C2', 'en', 'CEFR C2', 'Proficient: Penguasaan bahasa tingkat penutur asli yang presisi, luwes, dan spontan', 6);
-
-  // Seed grammar_lessons if empty or incomplete (< 50)
-  const countGrammar = db.prepare('SELECT COUNT(*) as count FROM grammar_lessons').get() as { count: number };
-  if (countGrammar.count < 50) {
-    const grammarSeedPath = path.join(process.cwd(), 'data', 'seeds', 'grammar_curriculum.json');
-    if (fs.existsSync(grammarSeedPath)) {
-      try {
-        const curriculumData = JSON.parse(fs.readFileSync(grammarSeedPath, 'utf8'));
-        const insertGrammar = db.prepare(`
-          INSERT OR REPLACE INTO grammar_lessons (
-            language_code, level, title, formula, explanation, example_source, example_meaning, audio_guide
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `);
-
-        const insertGrammarTx = db.transaction((lessons: Array<{
-          language_code: string;
-          level: string;
-          title: string;
-          formula: string;
-          explanation: string;
-          example_source: string;
-          example_meaning: string;
-          audio_guide: string;
-        }>) => {
-          for (const item of lessons) {
-            insertGrammar.run(
-              item.language_code,
-              item.level,
-              item.title,
-              item.formula,
-              item.explanation,
-              item.example_source,
-              item.example_meaning,
-              item.audio_guide
-            );
-          }
-        });
-
-        insertGrammarTx(curriculumData);
-      } catch (e) {
-        console.error('Failed to load grammar_curriculum.json:', e);
-      }
-    }
-  }
+  console.log('✅ Database schema initialized');
 }
-
-initDatabase();
 
 export default db;

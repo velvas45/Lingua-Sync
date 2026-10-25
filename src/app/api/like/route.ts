@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
 
     if (!user) {
       return NextResponse.json(
@@ -23,36 +23,59 @@ export async function POST(request: Request) {
     const subId = Number(submissionId);
 
     // Transaction to toggle like
-    const toggleTx = db.transaction(() => {
-      const existingLike = db.prepare(`
+    const transaction = await db.transaction('write');
+    
+    try {
+      const existingLikeResult = await transaction.execute({
+        sql: `
         SELECT 1 FROM submission_likes
         WHERE user_id = ? AND submission_id = ?
-      `).get(user.id, subId);
+      `,
+        args: [user.id, subId],
+      });
 
       let liked = false;
-      if (existingLike) {
+      if (existingLikeResult.rows.length > 0) {
         // Unlike (batalkan love)
-        db.prepare('DELETE FROM submission_likes WHERE user_id = ? AND submission_id = ?').run(user.id, subId);
-        db.prepare('UPDATE submissions SET likes = MAX(0, likes - 1) WHERE id = ?').run(subId);
+        await transaction.execute({
+          sql: 'DELETE FROM submission_likes WHERE user_id = ? AND submission_id = ?',
+          args: [user.id, subId],
+        });
+        await transaction.execute({
+          sql: 'UPDATE submissions SET likes = MAX(0, likes - 1) WHERE id = ?',
+          args: [subId],
+        });
         liked = false;
       } else {
         // Like (beri love)
-        db.prepare('INSERT INTO submission_likes (user_id, submission_id) VALUES (?, ?)').run(user.id, subId);
-        db.prepare('UPDATE submissions SET likes = likes + 1 WHERE id = ?').run(subId);
+        await transaction.execute({
+          sql: 'INSERT INTO submission_likes (user_id, submission_id) VALUES (?, ?)',
+          args: [user.id, subId],
+        });
+        await transaction.execute({
+          sql: 'UPDATE submissions SET likes = likes + 1 WHERE id = ?',
+          args: [subId],
+        });
         liked = true;
       }
 
-      const updated = db.prepare('SELECT likes FROM submissions WHERE id = ?').get(subId) as { likes: number } | undefined;
-      return { liked, likes: updated?.likes ?? 0 };
-    });
-
-    const result = toggleTx();
-
-    return NextResponse.json({
-      success: true,
-      liked: result.liked,
-      likes: result.likes,
-    });
+      const updatedResult = await transaction.execute({
+        sql: 'SELECT likes FROM submissions WHERE id = ?',
+        args: [subId],
+      });
+      const likes = (updatedResult.rows[0] as unknown as { likes: number })?.likes ?? 0;
+      
+      await transaction.commit();
+      
+      return NextResponse.json({
+        success: true,
+        liked,
+        likes,
+      });
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   } catch (error: unknown) {
     console.error('Error toggling like:', error);
     const msg = error instanceof Error ? error.message : 'Internal Server Error';

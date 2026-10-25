@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const search = searchParams.get('search')?.trim();
 
     let query = 'SELECT * FROM japanese_characters WHERE 1=1';
-    const params: unknown[] = [];
+    const params: (string | number)[] = [];
 
     if (type) {
       query += ' AND type = ?';
@@ -38,7 +38,8 @@ export async function GET(request: Request) {
 
     query += ' ORDER BY grade ASC, strokes ASC, id ASC';
 
-    const characters = db.prepare(query).all(...params) as JapaneseCharacterRecord[];
+    const result = await db.execute({ sql: query, args: params });
+    const characters = result.rows as unknown as JapaneseCharacterRecord[];
 
     return NextResponse.json({
       success: true,

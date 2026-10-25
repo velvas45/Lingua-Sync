@@ -8,7 +8,7 @@ export async function POST() {
     const token = cookieStore.get('lingua_session')?.value;
 
     if (token) {
-      deleteSession(token);
+      await deleteSession(token);
     }
 
     cookieStore.delete('lingua_session');

@@ -16,15 +16,15 @@ export async function GET(request: Request) {
     }
 
     // 1. Check local SQLite vocabulary_bank for exact match
-    const dbMatch = db
-      .prepare(
-        `
+    const dbMatchResult = await db.execute({
+      sql: `
       SELECT phonetic, furigana_html FROM vocabulary_bank
       WHERE language_code = ? AND lower(primary_text) = lower(?)
       LIMIT 1
-    `
-      )
-      .get(lang, text) as { phonetic: string | null; furigana_html: string | null } | undefined;
+    `,
+      args: [lang, text],
+    });
+    const dbMatch = dbMatchResult.rows[0] as unknown as { phonetic: string | null; furigana_html: string | null } | undefined;
 
     if (dbMatch) {
       return NextResponse.json({

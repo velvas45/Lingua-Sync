@@ -1,3 +1,9 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Load .env.local for Turso credentials
+config({ path: resolve(process.cwd(), '.env.local') });
+
 import fs from 'fs';
 import path from 'path';
 import db from '../src/lib/db';
@@ -267,16 +273,17 @@ async function runIngestion() {
   fs.writeFileSync(artifactPath, JSON.stringify(allLessons, null, 2), 'utf8');
   console.log(`✅ Saved full curriculum artifact to ${artifactPath}`);
 
-  // Ingest into SQLite database
-  const insertLesson = db.prepare(`
+  // Ingest into Turso database
+  const insertSql = `
     INSERT OR REPLACE INTO grammar_lessons (
       language_code, level, title, formula, explanation, example_source, example_meaning, audio_guide
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+  `;
 
-  const tx = db.transaction((lessons: GrammarSeedItem[]) => {
-    for (const l of lessons) {
-      insertLesson.run(
+  for (const l of allLessons) {
+    await db.execute({
+      sql: insertSql,
+      args: [
         l.language_code,
         l.level,
         l.title,
@@ -285,23 +292,29 @@ async function runIngestion() {
         l.example_source,
         l.example_meaning,
         l.audio_guide
-      );
-    }
-  });
+      ]
+    });
+  }
 
-  tx(allLessons);
-
-  const total = db.prepare('SELECT count(*) as count FROM grammar_lessons').get() as { count: number };
-  const totalJa = db.prepare('SELECT count(*) as count FROM grammar_lessons WHERE language_code = ?').get('ja') as { count: number };
-  const totalEn = db.prepare('SELECT count(*) as count FROM grammar_lessons WHERE language_code = ?').get('en') as { count: number };
+  const totalResult = await db.execute({ sql: 'SELECT count(*) as count FROM grammar_lessons' });
+  const total = totalResult.rows[0] as unknown as { count: number };
+  
+  const totalJaResult = await db.execute({ sql: 'SELECT count(*) as count FROM grammar_lessons WHERE language_code = ?', args: ['ja'] });
+  const totalJa = totalJaResult.rows[0] as unknown as { count: number };
+  
+  const totalEnResult = await db.execute({ sql: 'SELECT count(*) as count FROM grammar_lessons WHERE language_code = ?', args: ['en'] });
+  const totalEn = totalEnResult.rows[0] as unknown as { count: number };
 
   // Breakdown per level
-  const breakdown = db.prepare(`
-    SELECT language_code, level, count(*) as count
-    FROM grammar_lessons
-    GROUP BY language_code, level
-    ORDER BY language_code, level
-  `).all();
+  const breakdownResult = await db.execute({
+    sql: `
+      SELECT language_code, level, count(*) as count
+      FROM grammar_lessons
+      GROUP BY language_code, level
+      ORDER BY language_code, level
+    `
+  });
+  const breakdown = breakdownResult.rows as unknown as Array<{ language_code: string; level: string; count: number }>;
 
   console.log(`\n🎉 Comprehensive Curriculum Ingestion Completed!`);
   console.log(`Total Grammar Lessons in SQLite: ${total.count}`);
