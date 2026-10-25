@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AuthUser } from './AuthModal';
 import { toast } from './Toast';
+import { authService } from '@/services/authService';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -55,20 +56,10 @@ export default function EditProfileModal({
     setErrorMsg(null);
 
     try {
-      const res = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: username.trim(),
-          phone_number: phone.trim(),
-        }),
+      const data = await authService.updateProfile({
+        username: username.trim(),
+        phone_number: phone.trim(),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setErrorMsg(data.error || 'Gagal memperbarui profil');
-        return;
-      }
 
       onProfileUpdated({
         ...user,

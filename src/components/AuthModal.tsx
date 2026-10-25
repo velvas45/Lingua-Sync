@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LogIn, UserPlus, Sparkles, AlertCircle, Phone, Mail, Lock, User } from 'lucide-react';
+import { authService } from '@/services/authService';
 
 export interface AuthUser {
   id: number;
@@ -76,20 +77,10 @@ export default function AuthModal({
 
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          identifier: loginIdentifier.trim(),
-          password: loginPassword,
-        }),
+      const data = await authService.login({
+        identifier: loginIdentifier.trim(),
+        password: loginPassword,
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setErrorMsg(data.error || 'Gagal masuk');
-        return;
-      }
 
       resetForm();
       onSuccess(data.user);
@@ -118,22 +109,12 @@ export default function AuthModal({
 
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: regUsername.trim(),
-          email: regEmail.trim(),
-          phone_number: regPhone.trim(),
-          password: regPassword,
-        }),
+      const data = await authService.register({
+        username: regUsername.trim(),
+        email: regEmail.trim(),
+        phone_number: regPhone.trim(),
+        password: regPassword,
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setErrorMsg(data.error || 'Gagal mendaftar');
-        return;
-      }
 
       resetForm();
       onSuccess(data.user);

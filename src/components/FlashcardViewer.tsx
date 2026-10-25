@@ -19,6 +19,8 @@ import { toast } from './Toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
+import { cardsService } from '@/services/cardsService';
 
 export interface CardItem {
   id: number;
@@ -73,9 +75,12 @@ export default function FlashcardViewer({
   cards,
   speechLocale,
   langCode,
-  isLoggedIn = false,
+  isLoggedIn,
   onCardMutated,
 }: FlashcardViewerProps) {
+  const { isGuest } = useAuth();
+  const activeIsLoggedIn = isLoggedIn !== undefined ? isLoggedIn : !isGuest;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFurigana, setShowFurigana] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -115,17 +120,13 @@ export default function FlashcardViewer({
   const executeDeleteCard = async () => {
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/cards?id=${currentCard.id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success(`Kosakata "${currentCard.primary_text}" berhasil dihapus.`);
-        setCurrentIndex((prev) => Math.max(0, prev - 1));
-        onCardMutated?.();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Gagal menghapus kartu.');
-      }
-    } catch {
-      toast.error('Gagal menghubungi server.');
+      await cardsService.deleteCard(currentCard.id);
+      toast.success(`Kosakata "${currentCard.primary_text}" berhasil dihapus.`);
+      setCurrentIndex((prev) => Math.max(0, prev - 1));
+      onCardMutated?.();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Gagal menghapus kartu.';
+      toast.error(msg);
     } finally {
       setIsDeleting(false);
     }
@@ -164,7 +165,7 @@ export default function FlashcardViewer({
           )}
 
           {/* Edit & Delete Action Buttons (Active for logged-in user) */}
-          {isLoggedIn && (
+          {activeIsLoggedIn && (
             <div className="flex items-center gap-1 pl-1 border-l border-border/80">
               <Button
                 type="button"

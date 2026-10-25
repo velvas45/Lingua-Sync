@@ -8,12 +8,13 @@ import DailyChallengeForm from '@/components/DailyChallengeForm';
 import TeamFeed, { SubmissionItem } from '@/components/TeamFeed';
 import Leaderboard from '@/components/Leaderboard';
 import AddCardModal from '@/components/AddCardModal';
-import AuthModal, { AuthUser } from '@/components/AuthModal';
 import SidebarDrawer from '@/components/SidebarDrawer';
 import EditProfileModal from '@/components/EditProfileModal';
-import { ToastContainer } from '@/components/Toast';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 import { LevelTrack, GrammarLesson } from '@/lib/db';
+import { dataService, AppDataResponse } from '@/services/dataService';
+import { curriculumService } from '@/services/curriculumService';
 import {
   Sparkles,
   Compass,
@@ -50,17 +51,6 @@ interface LeaderboardUser {
   xp_points: number;
 }
 
-interface AppData {
-  languages: LanguageItem[];
-  currentLang: LanguageItem;
-  cards: CardItem[];
-  prompt: PromptItem | null;
-  recentSubmissions: SubmissionItem[];
-  leaderboard: LeaderboardUser[];
-  currentUser: AuthUser | null;
-  isGuest: boolean;
-}
-
 const subscribeTheme = (callback: () => void) => {
   window.addEventListener('storage', callback);
   return () => window.removeEventListener('storage', callback);
@@ -74,22 +64,22 @@ const getThemeSnapshot = (): 'dark' | 'light' => {
 const getThemeServerSnapshot = (): 'dark' | 'light' => 'dark';
 
 export default function Home() {
+  const { user: currentUser, isGuest, openAuthModal, updateUser } = useAuth();
+
   const [selectedLang, setSelectedLang] = useState('en');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [learningTab, setLearningTab] = useState<'vocab' | 'grammar'>('vocab');
 
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<AppData | null>(null);
+  const [data, setData] = useState<AppDataResponse | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [levelTracks, setLevelTracks] = useState<LevelTrack[]>([]);
   const [grammarLessons, setGrammarLessons] = useState<GrammarLesson[]>([]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
 
   // Idiomatic React 19 theme synchronization
   const storedTheme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
@@ -120,13 +110,9 @@ export default function Home() {
 
     async function loadData() {
       try {
-        const res = await fetch(`/api/data?lang=${selectedLang}`, { cache: 'no-store' });
-        if (res.ok) {
-          const json: AppData = await res.json();
-          if (!ignore) {
-            setData(json);
-            setCurrentUser(json.currentUser);
-          }
+        const json = await dataService.getAppData(selectedLang);
+        if (!ignore) {
+          setData(json);
         }
       } catch (e: unknown) {
         if (!ignore) {
@@ -152,13 +138,10 @@ export default function Home() {
 
     async function loadCurriculum() {
       try {
-        const res = await fetch(`/api/curriculum?lang=${selectedLang}&level=${selectedLevel}`);
-        if (res.ok) {
-          const json = await res.json();
-          if (!ignore) {
-            setLevelTracks(json.levels || []);
-            setGrammarLessons(json.lessons || []);
-          }
+        const json = await curriculumService.getCurriculum(selectedLang, selectedLevel);
+        if (!ignore) {
+          setLevelTracks(json.levels || []);
+          setGrammarLessons(json.lessons || []);
         }
       } catch (e) {
         console.error('Failed to load curriculum:', e);
@@ -181,21 +164,6 @@ export default function Home() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      setCurrentUser(null);
-      handleRefresh();
-    } catch (e) {
-      console.error('Failed to logout:', e);
-    }
-  };
-
-  const handleAuthSuccess = (user: AuthUser) => {
-    setCurrentUser(user);
-    handleRefresh();
-  };
-
   if (loading || !data) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary gap-3">
@@ -209,7 +177,6 @@ export default function Home() {
 
   const streakCount = currentUser?.current_streak ?? 1;
   const totalXp = currentUser?.xp_points ?? 0;
-  const isGuest = !currentUser;
 
   // Filter cards by level if level filter is active and matching cards exist
   const displayedCards =
@@ -232,9 +199,6 @@ export default function Home() {
         onSelectLang={handleLangChange}
         streakCount={streakCount}
         totalXp={totalXp}
-        currentUser={currentUser}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onLogout={handleLogout}
         onOpenDrawer={() => setIsDrawerOpen(true)}
         theme={theme}
         onToggleTheme={handleToggleTheme}
@@ -348,7 +312,7 @@ export default function Home() {
                   type="button"
                   size="sm"
                   variant="default"
-                  onClick={() => setIsAuthModalOpen(true)}
+                  onClick={openAuthModal}
                   className="h-7 text-xs font-semibold px-3 shadow-md"
                 >
                   Masuk untuk Buka Filter
@@ -383,7 +347,7 @@ export default function Home() {
                     type="button"
                     onClick={() => {
                       if (isGuest) {
-                        setIsAuthModalOpen(true);
+                        openAuthModal();
                       } else {
                         setLearningTab('grammar');
                       }
@@ -413,7 +377,6 @@ export default function Home() {
                   cards={displayedCards}
                   speechLocale={data.currentLang.speech_locale}
                   langCode={data.currentLang.code}
-                  isLoggedIn={!isGuest}
                   onCardMutated={handleRefresh}
                 />
               ) : isGuest ? (
@@ -431,7 +394,7 @@ export default function Home() {
                     <Button
                       type="button"
                       variant="default"
-                      onClick={() => setIsAuthModalOpen(true)}
+                      onClick={openAuthModal}
                       className="gap-2 font-bold text-xs shadow-md"
                     >
                       <LogIn className="h-4 w-4" />
@@ -462,9 +425,6 @@ export default function Home() {
                 languageCode={data.currentLang.code}
                 speechLocale={data.currentLang.speech_locale}
                 onSubmitted={handleRefresh}
-                isGuest={isGuest}
-                onOpenAuthModal={() => setIsAuthModalOpen(true)}
-                currentUsername={currentUser?.username}
               />
             </section>
           </div>
@@ -492,8 +452,6 @@ export default function Home() {
                 submissions={data.recentSubmissions}
                 speechLocale={data.currentLang.speech_locale}
                 onRefresh={handleRefresh}
-                isGuest={isGuest}
-                onOpenAuthModal={() => setIsAuthModalOpen(true)}
               />
             </section>
           </div>
@@ -513,18 +471,10 @@ export default function Home() {
         onCardAdded={handleRefresh}
       />
 
-      {/* Auth Modal (Login & Register) */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
-      />
-
       {/* Sidebar Navigation Drawer */}
       <SidebarDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        currentUser={currentUser}
         currentLang={data.currentLang}
         streakCount={streakCount}
         totalXp={totalXp}
@@ -533,8 +483,6 @@ export default function Home() {
         onToggleTheme={handleToggleTheme}
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onOpenEditProfile={() => setIsEditProfileOpen(true)}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onLogout={handleLogout}
       />
 
       {/* Edit User Profile Modal */}
@@ -545,14 +493,11 @@ export default function Home() {
           onClose={() => setIsEditProfileOpen(false)}
           user={currentUser}
           onProfileUpdated={(updated) => {
-            setCurrentUser(updated);
+            updateUser(updated);
             handleRefresh();
           }}
         />
       )}
-
-      {/* Toast Notification Container */}
-      <ToastContainer />
     </div>
   );
 }

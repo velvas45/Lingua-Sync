@@ -22,12 +22,11 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AuthUser } from './AuthModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  currentUser: AuthUser | null;
   currentLang: {
     code: string;
     name: string;
@@ -41,14 +40,11 @@ interface SidebarDrawerProps {
   onToggleTheme: () => void;
   onOpenAddModal: () => void;
   onOpenEditProfile: () => void;
-  onOpenAuthModal: () => void;
-  onLogout: () => void;
 }
 
 export default function SidebarDrawer({
   isOpen,
   onClose,
-  currentUser,
   currentLang,
   streakCount,
   totalXp,
@@ -57,9 +53,8 @@ export default function SidebarDrawer({
   onToggleTheme,
   onOpenAddModal,
   onOpenEditProfile,
-  onOpenAuthModal,
-  onLogout,
 }: SidebarDrawerProps) {
+  const { user: currentUser, openAuthModal: onOpenAuthModal, logout: onLogout } = useAuth();
   if (!isOpen) return null;
 
   return (

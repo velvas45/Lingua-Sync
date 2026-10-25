@@ -12,6 +12,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from './Toast';
+import { cardsService } from '@/services/cardsService';
+import { vocabBankService } from '@/services/vocabBankService';
 
 interface AddCardModalProps {
   isOpen: boolean;
@@ -224,13 +226,9 @@ export default function AddCardModal({
     if (isFetchingBatch) return;
     setIsFetchingBatch(true);
     try {
-      const excludeParam = currentSeen.slice(-30).map(encodeURIComponent).join(',');
-      const res = await fetch(`/api/vocabulary-bank/random?lang=${langCode}&batch=20&exclude=${excludeParam}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.items && data.items.length > 0) {
-          setBuffer((prev) => [...prev, ...data.items]);
-        }
+      const data = await vocabBankService.getRandomVocab(langCode, 20, currentSeen);
+      if (data.items && data.items.length > 0) {
+        setBuffer((prev) => [...prev, ...data.items]);
       }
     } catch (e) {
       console.error('Silent batch prefetch error:', e);
@@ -275,16 +273,12 @@ export default function AddCardModal({
 
     // 2. Buffer empty: fetch fresh batch of 20
     try {
-      const excludeParam = seenWords.slice(-30).map(encodeURIComponent).join(',');
-      const res = await fetch(`/api/vocabulary-bank/random?lang=${langCode}&batch=20&exclude=${excludeParam}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.items && data.items.length > 0) {
-          const [first, ...rest] = data.items;
-          setBuffer(rest);
-          applyCardToForm(first);
-          return;
-        }
+      const data = await vocabBankService.getRandomVocab(langCode, 20, seenWords);
+      if (data.items && data.items.length > 0) {
+        const [first, ...rest] = data.items;
+        setBuffer(rest);
+        applyCardToForm(first);
+        return;
       }
     } catch (e) {
       console.error('Failed to fetch from vocabulary bank API, falling back to local pool:', e);
@@ -324,34 +318,25 @@ export default function AddCardModal({
 
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/cards', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          language_code: langCode,
-          primary_text: primaryText,
-          phonetic: phonetic || null,
-          furigana_html: furiganaHtml || null,
-          meaning_id: meaningId,
-          part_of_speech: 'Vocabulary',
-          level: 'Intermediate',
-          example_source: exampleSource,
-          example_meaning: exampleMeaning,
-          audio_guide: audioGuide.trim() || null,
-        }),
+      await cardsService.createCard({
+        language_code: langCode,
+        primary_text: primaryText,
+        phonetic: phonetic || null,
+        furigana_html: furiganaHtml || null,
+        meaning_id: meaningId,
+        part_of_speech: 'Vocabulary',
+        level: 'Intermediate',
+        example_source: exampleSource,
+        example_meaning: exampleMeaning,
+        audio_guide: audioGuide.trim() || null,
       });
 
-      if (res.ok) {
-        toast.success(`Kosakata "${primaryText}" berhasil ditambahkan ke koleksi Anda!`, 'Berhasil Ditambahkan');
-        onCardAdded();
-        handleClose();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Terjadi kesalahan saat menyimpan', 'Gagal Menambahkan');
-      }
+      toast.success(`Kosakata "${primaryText}" berhasil ditambahkan ke koleksi Anda!`, 'Berhasil Ditambahkan');
+      onCardAdded();
+      handleClose();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Unknown error';
-      toast.error(msg, 'Kesalahan Jaringan');
+      const msg = e instanceof Error ? e.message : 'Terjadi kesalahan saat menyimpan';
+      toast.error(msg, 'Gagal Menambahkan');
     } finally {
       setIsSubmitting(false);
     }

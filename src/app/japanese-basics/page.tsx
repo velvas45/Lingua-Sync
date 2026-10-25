@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useSyncExternalStore } from "react";
-import Link from "next/link";
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   Sparkles,
@@ -12,16 +13,14 @@ import {
   Sun,
   Moon,
   Menu,
-  LogIn,
-  Lock,
-  } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import JapaneseCanvasPad from "@/components/japanese/JapaneseCanvasPad";
-import SidebarDrawer from "@/components/SidebarDrawer";
-import AuthModal, { AuthUser } from "@/components/AuthModal";
-import { ToastContainer, toast } from "@/components/Toast";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import JapaneseCanvasPad from '@/components/japanese/JapaneseCanvasPad';
+import SidebarDrawer from '@/components/SidebarDrawer';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/components/Toast';
 import {
   HIRAGANA_LIST,
   KATAKANA_LIST,
@@ -29,129 +28,101 @@ import {
   SENTENCE_ANATOMY,
   CharacterItem,
   KanjiItem,
-} from "@/lib/japaneseCharacters";
+} from '@/lib/japaneseCharacters';
 
-type WritingTab = "hiragana" | "katakana" | "kanji" | "guide";
+type WritingTab = 'hiragana' | 'katakana' | 'kanji' | 'guide';
 
 const subscribeTheme = (callback: () => void) => {
-  window.addEventListener("storage", callback);
-  return () => window.removeEventListener("storage", callback);
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
 };
 
-const getThemeSnapshot = (): "dark" | "light" => {
-  if (typeof window === "undefined") return "dark";
-  return (localStorage.getItem("lingua_theme") as "dark" | "light") || "dark";
+const getThemeSnapshot = (): 'dark' | 'light' => {
+  if (typeof window === 'undefined') return 'dark';
+  return (localStorage.getItem('lingua_theme') as 'dark' | 'light') || 'dark';
 };
 
-const getThemeServerSnapshot = (): "dark" | "light" => "dark";
+const getThemeServerSnapshot = (): 'dark' | 'light' => 'dark';
 
 export default function JapaneseBasicsPage() {
-  const [activeTab, setActiveTab] = useState<WritingTab>("hiragana");
-  const [selectedHiragana, setSelectedHiragana] = useState<CharacterItem>(
-    HIRAGANA_LIST[0]
-  );
-  const [selectedKatakana, setSelectedKatakana] = useState<CharacterItem>(
-    KATAKANA_LIST[0]
-  );
-  const [selectedKanji, setSelectedKanji] = useState<KanjiItem>(
-    KANJI_BASIC_LIST[0]
-  );
-  const [highlightedComponentIndex, setHighlightedComponentIndex] = useState<
-    number | null
-  >(null);
+  const router = useRouter();
+  const { user, isGuest, isLoading, openAuthModal } = useAuth();
 
-  // User auth & drawer state
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [activeTab, setActiveTab] = useState<WritingTab>('hiragana');
+  const [selectedHiragana, setSelectedHiragana] = useState<CharacterItem>(HIRAGANA_LIST[0]);
+  const [selectedKatakana, setSelectedKatakana] = useState<CharacterItem>(KATAKANA_LIST[0]);
+  const [selectedKanji, setSelectedKanji] = useState<KanjiItem>(KANJI_BASIC_LIST[0]);
+  const [highlightedComponentIndex, setHighlightedComponentIndex] = useState<number | null>(null);
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Theme synchronization
-  const storedTheme = useSyncExternalStore(
-    subscribeTheme,
-    getThemeSnapshot,
-    getThemeServerSnapshot
-  );
-  const [themeOverride, setThemeOverride] = useState<"dark" | "light" | null>(
-    null
-  );
+  const storedTheme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
+  const [themeOverride, setThemeOverride] = useState<'dark' | 'light' | null>(null);
   const theme = themeOverride ?? storedTheme;
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
+    if (typeof window !== 'undefined') {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
       } else {
-        document.documentElement.classList.remove("dark");
+        document.documentElement.classList.remove('dark');
       }
     }
   }, [theme]);
 
   const handleToggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : "dark";
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setThemeOverride(nextTheme);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("lingua_theme", nextTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lingua_theme', nextTheme);
     }
   };
 
-  // Check user session
+  // Route Guard: Redirect unauthenticated guest users back to '/' and trigger login modal
   useEffect(() => {
-    let ignore = false;
-    async function loadUser() {
-      try {
-        const res = await fetch("/api/auth/me", { cache: "no-store" });
-        if (res.ok) {
-          const json = await res.json();
-          if (!ignore && json.user) {
-            setCurrentUser(json.user);
-          }
-        }
-      } catch (e) {
-        console.error("Failed to load user:", e);
-      } finally {
-        if (!ignore) {
-          setIsAuthChecking(false);
-        }
-      }
+    if (!isLoading && isGuest) {
+      toast.info(
+        'Silakan masuk terlebih dahulu untuk mengakses modul aksara Jepang.',
+        'Akses Khusus Pengguna'
+      );
+      router.replace('/');
+      openAuthModal();
     }
-    loadUser();
-    return () => {
-      ignore = true;
-    };
-  }, []);
+  }, [isLoading, isGuest, router, openAuthModal]);
 
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      setCurrentUser(null);
-      toast.success("Anda berhasil keluar dari akun.", "Sampai Jumpa");
-    } catch (e) {
-      console.error("Failed to logout:", e);
-    }
-  };
+  // Loading state while verifying route guard
+  if (isLoading || isGuest) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary gap-3">
+        <div className="h-9 w-9 rounded-full border-3 border-border border-t-primary animate-spin" />
+        <span className="text-xs font-semibold text-muted-foreground">
+          {isLoading ? 'Memeriksa sesi akun...' : 'Mengarahkan ke halaman utama...'}
+        </span>
+      </div>
+    );
+  }
 
   // Play audio for the sample sentence
   const handlePlaySentenceAudio = () => {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(SENTENCE_ANATOMY.sentence);
-    utterance.lang = "ja-JP";
+    utterance.lang = 'ja-JP';
     utterance.rate = 0.85;
     window.speechSynthesis.speak(utterance);
   };
 
   // Determine active character for the Canvas Pad
   const currentCanvasTarget =
-    activeTab === "katakana"
+    activeTab === 'katakana'
       ? {
           char: selectedKatakana.char,
           romaji: selectedKatakana.romaji,
           meaning: `Contoh: ${selectedKatakana.exampleWord} (${selectedKatakana.exampleMeaning})`,
           strokes: selectedKatakana.strokes,
         }
-      : activeTab === "kanji"
+      : activeTab === 'kanji'
       ? {
           char: selectedKanji.kanji,
           romaji: `${selectedKanji.kunyomi} / ${selectedKanji.onyomi}`,
@@ -164,17 +135,6 @@ export default function JapaneseBasicsPage() {
           meaning: `Contoh: ${selectedHiragana.exampleWord} (${selectedHiragana.exampleMeaning})`,
           strokes: selectedHiragana.strokes,
         };
-
-  if (isAuthChecking) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-primary gap-3">
-        <div className="h-8 w-8 rounded-full border-3 border-border border-t-primary animate-spin" />
-        <span className="text-xs font-semibold text-muted-foreground">
-          Memeriksa status akun...
-        </span>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors flex flex-col">
@@ -209,21 +169,17 @@ export default function JapaneseBasicsPage() {
               size="icon"
               onClick={handleToggleTheme}
               className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              title={
-                theme === "dark"
-                  ? "Beralih ke Mode Terang"
-                  : "Beralih ke Mode Gelap"
-              }
+              title={theme === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
             >
-              {theme === "dark" ? (
+              {theme === 'dark' ? (
                 <Sun className="h-4 w-4 text-amber-500 dark:text-amber-400" />
               ) : (
                 <Moon className="h-4 w-4 text-indigo-400" />
               )}
             </Button>
 
-            {/* User Profile or Login Trigger */}
-            {currentUser ? (
+            {/* User Profile Button */}
+            {user && (
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen(true)}
@@ -231,70 +187,29 @@ export default function JapaneseBasicsPage() {
                 title="Buka Menu Akun & Profil"
               >
                 <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-[10px] text-primary-foreground font-bold shrink-0">
-                  {currentUser.username.charAt(0).toUpperCase()}
+                  {user.username.charAt(0).toUpperCase()}
                 </div>
-                <span className="hidden sm:inline max-w-[80px] truncate">
-                  {currentUser.username}
-                </span>
+                <span className="hidden sm:inline max-w-[80px] truncate">{user.username}</span>
               </button>
-            ) : (
-              <Button
-                type="button"
-                variant="default"
-                size="sm"
-                onClick={() => setIsAuthModalOpen(true)}
-                className="gap-1 font-semibold h-8 px-2 text-xs shadow-sm shadow-primary/25 hidden sm:flex"
-              >
-                <LogIn className="h-3.5 w-3.5" />
-                <span>Masuk</span>
-              </Button>
             )}
+
+            {/* Mobile / General Menu Drawer Button */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsDrawerOpen(true)}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              title="Buka Navigasi Drawer"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* If Guest: Show Locked Access Screen */}
-      {!currentUser ? (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <Card className="max-w-md w-full border-indigo-500/30 bg-card/95 shadow-2xl p-6 sm:p-9 text-center space-y-4 backdrop-blur-xl">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 shadow-inner">
-              <Lock className="h-7 w-7" />
-            </div>
-
-            <div>
-              <Badge variant="outline" className="border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs mb-2">
-                Halaman Khusus Pengguna Terdaftar
-              </Badge>
-              <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
-                Pondasi Aksara Jepang Terkunci
-              </h2>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-                Silakan masuk atau daftarkan akun LinguaSync Anda secara gratis untuk mengakses panduan aksara (Hiragana, Katakana, Kanji, Romaji) dan Papan Tulis Kanvas Interaktif.
-              </p>
-            </div>
-
-            <div className="pt-2 flex flex-col gap-2.5">
-              <Button
-                type="button"
-                onClick={() => setIsAuthModalOpen(true)}
-                className="w-full gap-2 font-bold shadow-md shadow-primary/25 h-10"
-              >
-                <Sparkles className="h-4 w-4" />
-                <span>Masuk / Buat Akun Gratis</span>
-              </Button>
-
-              <Link href="/">
-                <Button type="button" variant="ghost" className="w-full text-xs text-muted-foreground hover:text-foreground">
-                  <ArrowLeft className="h-3.5 w-3.5 mr-1" />
-                  Kembali ke Dashboard Utama
-                </Button>
-              </Link>
-            </div>
-          </Card>
-        </div>
-      ) : (
-        /* Main Content Container for Logged In User */
-        <main className="mx-auto max-w-7xl w-full flex-1 px-3 sm:px-6 py-6 sm:py-8 space-y-8">
+      {/* Main Content Container */}
+      <main className="mx-auto max-w-7xl w-full flex-1 px-3 sm:px-6 py-6 sm:py-8 space-y-8">
         {/* Hero Section: Sentence Anatomy Breakdown */}
         <section className="rounded-2xl border border-indigo-500/25 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-emerald-500/5 p-5 sm:p-7 shadow-lg backdrop-blur-md space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -306,12 +221,7 @@ export default function JapaneseBasicsPage() {
                 </h1>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
-                Bahasa Jepang menggabungkan{" "}
-                <strong className="text-foreground">Kanji</strong>,{" "}
-                <strong className="text-foreground">Hiragana</strong>, dan{" "}
-                <strong className="text-foreground">Katakana</strong> dalam satu
-                kalimat untuk membedakan konsep makna, tata bahasa, dan kata
-                serapan asing.
+                Bahasa Jepang menggabungkan <strong className="text-foreground">Kanji</strong>, <strong className="text-foreground">Hiragana</strong>, dan <strong className="text-foreground">Katakana</strong> dalam satu kalimat untuk membedakan konsep makna, tata bahasa, dan kata serapan asing.
               </p>
             </div>
 
@@ -336,27 +246,25 @@ export default function JapaneseBasicsPage() {
             <div className="flex flex-wrap items-center gap-1.5 text-2xl sm:text-3xl font-extrabold tracking-wide">
               {SENTENCE_ANATOMY.components.map((comp, idx) => {
                 const isSelected = highlightedComponentIndex === idx;
-                const isKanji = comp.type === "kanji";
-                const isHiragana = comp.type === "hiragana";
-                const isKatakana = comp.type === "katakana";
+                const isKanji = comp.type === 'kanji';
+                const isHiragana = comp.type === 'hiragana';
+                const isKatakana = comp.type === 'katakana';
 
                 return (
                   <button
                     key={idx}
                     type="button"
-                    onClick={() =>
-                      setHighlightedComponentIndex(isSelected ? null : idx)
-                    }
+                    onClick={() => setHighlightedComponentIndex(isSelected ? null : idx)}
                     className={`rounded-lg px-2 py-1 transition-all ${
                       isSelected
-                        ? "ring-2 ring-primary scale-105 bg-primary/20"
+                        ? 'ring-2 ring-primary scale-105 bg-primary/20'
                         : isKanji
-                        ? "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+                        ? 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10'
                         : isHiragana
-                        ? "text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+                        ? 'text-amber-600 dark:text-amber-400 hover:bg-amber-500/10'
                         : isKatakana
-                        ? "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10"
-                        : "text-muted-foreground"
+                        ? 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10'
+                        : 'text-muted-foreground'
                     }`}
                     title={`${comp.label}: ${comp.desc}`}
                   >
@@ -369,10 +277,7 @@ export default function JapaneseBasicsPage() {
             {/* Reading and Translation */}
             <div className="pt-2 border-t border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
               <span className="font-mono text-muted-foreground">
-                Romaji:{" "}
-                <strong className="text-foreground">
-                  {SENTENCE_ANATOMY.romaji}
-                </strong>
+                Romaji: <strong className="text-foreground">{SENTENCE_ANATOMY.romaji}</strong>
               </span>
               <span className="text-foreground font-medium italic">
                 Artinya: “{SENTENCE_ANATOMY.meaning}”
@@ -384,23 +289,11 @@ export default function JapaneseBasicsPage() {
               <div className="rounded-lg border border-primary/30 bg-primary/10 p-3 text-xs animate-in fade-in duration-200 flex items-center justify-between">
                 <div>
                   <span className="font-bold text-foreground">
-                    [
-                    {
-                      SENTENCE_ANATOMY.components[highlightedComponentIndex]
-                        .label
-                    }
-                    ] “
-                    {
-                      SENTENCE_ANATOMY.components[highlightedComponentIndex]
-                        .text
-                    }
-                    ”:
-                  </span>{" "}
+                    [{SENTENCE_ANATOMY.components[highlightedComponentIndex].label}] “
+                    {SENTENCE_ANATOMY.components[highlightedComponentIndex].text}”:
+                  </span>{' '}
                   <span className="text-muted-foreground">
-                    {
-                      SENTENCE_ANATOMY.components[highlightedComponentIndex]
-                        .desc
-                    }
+                    {SENTENCE_ANATOMY.components[highlightedComponentIndex].desc}
                   </span>
                 </div>
                 <button
@@ -423,57 +316,42 @@ export default function JapaneseBasicsPage() {
             <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
               <Button
                 type="button"
-                variant={activeTab === "hiragana" ? "default" : "secondary"}
+                variant={activeTab === 'hiragana' ? 'default' : 'secondary'}
                 size="sm"
-                onClick={() => setActiveTab("hiragana")}
+                onClick={() => setActiveTab('hiragana')}
                 className="gap-1.5 text-xs font-bold"
               >
                 <span>Hiragana (平仮名)</span>
-                <Badge
-                  variant="outline"
-                  className="text-[10px] ml-1 bg-background/20"
-                >
-                  46
-                </Badge>
+                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">46</Badge>
               </Button>
 
               <Button
                 type="button"
-                variant={activeTab === "katakana" ? "default" : "secondary"}
+                variant={activeTab === 'katakana' ? 'default' : 'secondary'}
                 size="sm"
-                onClick={() => setActiveTab("katakana")}
+                onClick={() => setActiveTab('katakana')}
                 className="gap-1.5 text-xs font-bold"
               >
                 <span>Katakana (片仮名)</span>
-                <Badge
-                  variant="outline"
-                  className="text-[10px] ml-1 bg-background/20"
-                >
-                  46
-                </Badge>
+                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">46</Badge>
               </Button>
 
               <Button
                 type="button"
-                variant={activeTab === "kanji" ? "default" : "secondary"}
+                variant={activeTab === 'kanji' ? 'default' : 'secondary'}
                 size="sm"
-                onClick={() => setActiveTab("kanji")}
+                onClick={() => setActiveTab('kanji')}
                 className="gap-1.5 text-xs font-bold"
               >
                 <span>Kanji Dasar (漢字)</span>
-                <Badge
-                  variant="outline"
-                  className="text-[10px] ml-1 bg-background/20"
-                >
-                  20 N5
-                </Badge>
+                <Badge variant="outline" className="text-[10px] ml-1 bg-background/20">20 N5</Badge>
               </Button>
 
               <Button
                 type="button"
-                variant={activeTab === "guide" ? "default" : "secondary"}
+                variant={activeTab === 'guide' ? 'default' : 'secondary'}
                 size="sm"
-                onClick={() => setActiveTab("guide")}
+                onClick={() => setActiveTab('guide')}
                 className="gap-1.5 text-xs font-bold"
               >
                 <HelpCircle className="h-3.5 w-3.5" />
@@ -482,16 +360,11 @@ export default function JapaneseBasicsPage() {
             </div>
 
             {/* TAB 1: HIRAGANA GRID */}
-            {activeTab === "hiragana" && (
+            {activeTab === 'hiragana' && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>
-                    Klik karakter di bawah untuk memuat di papan kanvas:
-                  </span>
-                  <span className="font-semibold text-primary">
-                    Karakter Terpilih: {selectedHiragana.char} (
-                    {selectedHiragana.romaji})
-                  </span>
+                  <span>Klik karakter di bawah untuk memuat di papan kanvas:</span>
+                  <span className="font-semibold text-primary">Karakter Terpilih: {selectedHiragana.char} ({selectedHiragana.romaji})</span>
                 </div>
 
                 <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-2">
@@ -504,16 +377,12 @@ export default function JapaneseBasicsPage() {
                         onClick={() => setSelectedHiragana(item)}
                         className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all ${
                           isSelected
-                            ? "border-primary bg-primary/15 text-primary shadow-md ring-2 ring-primary scale-105"
-                            : "border-border bg-card/60 text-foreground hover:bg-secondary hover:border-border/80"
+                            ? 'border-primary bg-primary/15 text-primary shadow-md ring-2 ring-primary scale-105'
+                            : 'border-border bg-card/60 text-foreground hover:bg-secondary hover:border-border/80'
                         }`}
                       >
-                        <span className="text-xl sm:text-2xl font-extrabold">
-                          {item.char}
-                        </span>
-                        <span className="text-[11px] font-bold text-muted-foreground uppercase">
-                          {item.romaji}
-                        </span>
+                        <span className="text-xl sm:text-2xl font-extrabold">{item.char}</span>
+                        <span className="text-[11px] font-bold text-muted-foreground uppercase">{item.romaji}</span>
                       </button>
                     );
                   })}
@@ -522,16 +391,11 @@ export default function JapaneseBasicsPage() {
             )}
 
             {/* TAB 2: KATAKANA GRID */}
-            {activeTab === "katakana" && (
+            {activeTab === 'katakana' && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>
-                    Klik karakter katakana untuk latihan kata serapan asing:
-                  </span>
-                  <span className="font-semibold text-indigo-500">
-                    Karakter: {selectedKatakana.char} ({selectedKatakana.romaji}
-                    )
-                  </span>
+                  <span>Klik karakter katakana untuk latihan kata serapan asing:</span>
+                  <span className="font-semibold text-indigo-500">Karakter: {selectedKatakana.char} ({selectedKatakana.romaji})</span>
                 </div>
 
                 <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-2">
@@ -544,16 +408,12 @@ export default function JapaneseBasicsPage() {
                         onClick={() => setSelectedKatakana(item)}
                         className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all ${
                           isSelected
-                            ? "border-indigo-500 bg-indigo-500/15 text-indigo-500 shadow-md ring-2 ring-indigo-500 scale-105"
-                            : "border-border bg-card/60 text-foreground hover:bg-secondary hover:border-border/80"
+                            ? 'border-indigo-500 bg-indigo-500/15 text-indigo-500 shadow-md ring-2 ring-indigo-500 scale-105'
+                            : 'border-border bg-card/60 text-foreground hover:bg-secondary hover:border-border/80'
                         }`}
                       >
-                        <span className="text-xl sm:text-2xl font-extrabold">
-                          {item.char}
-                        </span>
-                        <span className="text-[11px] font-bold text-muted-foreground uppercase">
-                          {item.romaji}
-                        </span>
+                        <span className="text-xl sm:text-2xl font-extrabold">{item.char}</span>
+                        <span className="text-[11px] font-bold text-muted-foreground uppercase">{item.romaji}</span>
                       </button>
                     );
                   })}
@@ -565,29 +425,18 @@ export default function JapaneseBasicsPage() {
                     💡 Aturan Khas Katakana: Tanda Vokal Panjang (ー) Chōonpu
                   </span>
                   <p className="text-muted-foreground leading-relaxed">
-                    Dalam katakana, vokal panjang tidak ditulis dengan huruf
-                    dobel, melainkan menggunakan garis strip horizontal{" "}
-                    <strong className="text-foreground">“ー”</strong>. Contoh:{" "}
-                    <strong className="text-foreground">コーヒー</strong> (Kōhī
-                    = Kopi), <strong className="text-foreground">ケーキ</strong>{" "}
-                    (Kēki = Kue),{" "}
-                    <strong className="text-foreground">メール</strong> (Mēru =
-                    Email).
+                    Dalam katakana, vokal panjang tidak ditulis dengan huruf dobel, melainkan menggunakan garis strip horizontal <strong className="text-foreground">“ー”</strong>. Contoh: <strong className="text-foreground">コーヒー</strong> (Kōhī = Kopi), <strong className="text-foreground">ケーキ</strong> (Kēki = Kue), <strong className="text-foreground">メール</strong> (Mēru = Email).
                   </p>
                 </div>
               </div>
             )}
 
             {/* TAB 3: BASIC KANJI N5 GRID */}
-            {activeTab === "kanji" && (
+            {activeTab === 'kanji' && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>
-                    20 Kanji Piktograf Alam & Fondasi Kehidupan (JLPT N5):
-                  </span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                    Kanji: {selectedKanji.kanji}
-                  </span>
+                  <span>20 Kanji Piktograf Alam & Fondasi Kehidupan (JLPT N5):</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">Kanji: {selectedKanji.kanji}</span>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -600,24 +449,17 @@ export default function JapaneseBasicsPage() {
                         onClick={() => setSelectedKanji(item)}
                         className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
                           isSelected
-                            ? "border-emerald-500 bg-emerald-500/15 shadow-md ring-2 ring-emerald-500 scale-[1.02]"
-                            : "border-border bg-card/60 hover:bg-secondary"
+                            ? 'border-emerald-500 bg-emerald-500/15 shadow-md ring-2 ring-emerald-500 scale-[1.02]'
+                            : 'border-border bg-card/60 hover:bg-secondary'
                         }`}
                       >
                         <div className="flex items-center justify-between w-full mb-1">
-                          <span className="text-2xl font-black text-foreground">
-                            {item.kanji}
-                          </span>
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] text-muted-foreground"
-                          >
+                          <span className="text-2xl font-black text-foreground">{item.kanji}</span>
+                          <Badge variant="outline" className="text-[10px] text-muted-foreground">
                             {item.strokes} Gores
                           </Badge>
                         </div>
-                        <span className="text-xs font-bold text-foreground leading-tight">
-                          {item.meaning}
-                        </span>
+                        <span className="text-xs font-bold text-foreground leading-tight">{item.meaning}</span>
                         <span className="text-[10px] text-muted-foreground mt-1 truncate w-full">
                           K: {item.kunyomi}
                         </span>
@@ -631,48 +473,30 @@ export default function JapaneseBasicsPage() {
                   <CardContent className="p-4 sm:p-5 space-y-3 text-xs">
                     <div className="flex items-center justify-between border-b border-border/80 pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-3xl font-black text-foreground">
-                          {selectedKanji.kanji}
-                        </span>
+                        <span className="text-3xl font-black text-foreground">{selectedKanji.kanji}</span>
                         <div>
-                          <span className="text-sm font-bold text-foreground block">
-                            {selectedKanji.meaning}
-                          </span>
-                          <span className="text-[11px] text-muted-foreground">
-                            Asal Bentuk: {selectedKanji.origin}
-                          </span>
+                          <span className="text-sm font-bold text-foreground block">{selectedKanji.meaning}</span>
+                          <span className="text-[11px] text-muted-foreground">Asal Bentuk: {selectedKanji.origin}</span>
                         </div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div className="rounded-lg bg-secondary/50 p-2.5">
-                        <span className="font-bold text-muted-foreground block text-[10px] uppercase">
-                          Kun&apos;yomi (Bacaan Asli Jepang):
-                        </span>
-                        <span className="font-bold text-foreground text-xs">
-                          {selectedKanji.kunyomi}
-                        </span>
+                        <span className="font-bold text-muted-foreground block text-[10px] uppercase">Kun&apos;yomi (Bacaan Asli Jepang):</span>
+                        <span className="font-bold text-foreground text-xs">{selectedKanji.kunyomi}</span>
                       </div>
                       <div className="rounded-lg bg-secondary/50 p-2.5">
-                        <span className="font-bold text-muted-foreground block text-[10px] uppercase">
-                          On&apos;yomi (Bacaan Serapan Cina):
-                        </span>
-                        <span className="font-bold text-foreground text-xs">
-                          {selectedKanji.onyomi}
-                        </span>
+                        <span className="font-bold text-muted-foreground block text-[10px] uppercase">On&apos;yomi (Bacaan Serapan Cina):</span>
+                        <span className="font-bold text-foreground text-xs">{selectedKanji.onyomi}</span>
                       </div>
                     </div>
 
                     <div className="rounded-lg border border-border bg-background/50 p-2.5 flex items-center justify-between">
                       <div>
-                        <span className="text-[10px] text-muted-foreground block">
-                          Contoh Kata:
-                        </span>
+                        <span className="text-[10px] text-muted-foreground block">Contoh Kata:</span>
                         <span className="text-xs font-bold text-foreground">
-                          {selectedKanji.exampleWord} (
-                          {selectedKanji.exampleReading}) —{" "}
-                          {selectedKanji.exampleMeaning}
+                          {selectedKanji.exampleWord} ({selectedKanji.exampleReading}) — {selectedKanji.exampleMeaning}
                         </span>
                       </div>
                     </div>
@@ -682,7 +506,7 @@ export default function JapaneseBasicsPage() {
             )}
 
             {/* TAB 4: ROMAJI & READING GUIDE */}
-            {activeTab === "guide" && (
+            {activeTab === 'guide' && (
               <div className="space-y-4 text-xs">
                 <Card className="border-border bg-card/90">
                   <CardContent className="p-5 space-y-4">
@@ -694,59 +518,26 @@ export default function JapaneseBasicsPage() {
                     </div>
 
                     <p className="text-muted-foreground leading-relaxed">
-                      Bahasa Jepang menggunakan standar Hepburn dalam
-                      transkripsi alfabet internasional agar pembaca non-Jepang
-                      dapat membunyikannya secara akurat sesuai lafal aslinya:
+                      Bahasa Jepang menggunakan standar Hepburn dalam transkripsi alfabet internasional agar pembaca non-Jepang dapat membunyikannya secara akurat sesuai lafal aslinya:
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="rounded-xl border border-border p-3 space-y-1 bg-secondary/30">
-                        <span className="font-bold text-foreground block">
-                          1. Huruf dengan Bunyi Khusus:
-                        </span>
+                        <span className="font-bold text-foreground block">1. Huruf dengan Bunyi Khusus:</span>
                         <ul className="list-disc list-inside text-muted-foreground space-y-0.5 text-[11px]">
-                          <li>
-                            <strong className="text-foreground">し</strong>{" "}
-                            dilafalkan <em>“shi”</em> (bukan si).
-                          </li>
-                          <li>
-                            <strong className="text-foreground">ち</strong>{" "}
-                            dilafalkan <em>“chi”</em> (bukan ti).
-                          </li>
-                          <li>
-                            <strong className="text-foreground">つ</strong>{" "}
-                            dilafalkan <em>“tsu”</em> (bukan tu).
-                          </li>
-                          <li>
-                            <strong className="text-foreground">ふ</strong>{" "}
-                            dilafalkan <em>“fu”</em> (bukan hu kaku).
-                          </li>
+                          <li><strong className="text-foreground">し</strong> dilafalkan <em>“shi”</em> (bukan si).</li>
+                          <li><strong className="text-foreground">ち</strong> dilafalkan <em>“chi”</em> (bukan ti).</li>
+                          <li><strong className="text-foreground">つ</strong> dilafalkan <em>“tsu”</em> (bukan tu).</li>
+                          <li><strong className="text-foreground">ふ</strong> dilafalkan <em>“fu”</em> (bukan hu kaku).</li>
                         </ul>
                       </div>
 
                       <div className="rounded-xl border border-border p-3 space-y-1 bg-secondary/30">
-                        <span className="font-bold text-foreground block">
-                          2. Pengecualian Partikel Gramatikal:
-                        </span>
+                        <span className="font-bold text-foreground block">2. Pengecualian Partikel Gramatikal:</span>
                         <ul className="list-disc list-inside text-muted-foreground space-y-0.5 text-[11px]">
-                          <li>
-                            Partikel{" "}
-                            <strong className="text-foreground">は</strong>{" "}
-                            ditulis <em>ha</em> tapi dibaca{" "}
-                            <strong>“wa”</strong>.
-                          </li>
-                          <li>
-                            Partikel{" "}
-                            <strong className="text-foreground">へ</strong>{" "}
-                            ditulis <em>he</em> tapi dibaca <strong>“e”</strong>
-                            .
-                          </li>
-                          <li>
-                            Partikel{" "}
-                            <strong className="text-foreground">を</strong>{" "}
-                            ditulis <em>wo</em> tapi dibaca <strong>“o”</strong>{" "}
-                            murni.
-                          </li>
+                          <li>Partikel <strong className="text-foreground">は</strong> ditulis <em>ha</em> tapi dibaca <strong>“wa”</strong>.</li>
+                          <li>Partikel <strong className="text-foreground">へ</strong> ditulis <em>he</em> tapi dibaca <strong>“e”</strong>.</li>
+                          <li>Partikel <strong className="text-foreground">を</strong> ditulis <em>wo</em> tapi dibaca <strong>“o”</strong> murni.</li>
                         </ul>
                       </div>
                     </div>
@@ -756,12 +547,7 @@ export default function JapaneseBasicsPage() {
                         3. Bunyi Sengau Konsonan Mati (ん / n)
                       </span>
                       <p className="text-muted-foreground text-[11px] leading-relaxed">
-                        Huruf <strong className="text-foreground">ん</strong>{" "}
-                        adalah satu-satunya konsonan tanpa vokal. Bunyinya
-                        beradaptasi secara alami: menjadi <em>“m”</em> sebelum
-                        p/b/m (contoh: <em>shinbun</em> sering terdengar{" "}
-                        <em>shim-bun</em>), dan menjadi <em>“ng”</em> sebelum
-                        k/g.
+                        Huruf <strong className="text-foreground">ん</strong> adalah satu-satunya konsonan tanpa vokal. Bunyinya beradaptasi secara alami: menjadi <em>“m”</em> sebelum p/b/m (contoh: <em>shinbun</em> sering terdengar <em>shim-bun</em>), dan menjadi <em>“ng”</em> sebelum k/g.
                       </p>
                     </div>
                   </CardContent>
@@ -775,12 +561,9 @@ export default function JapaneseBasicsPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <GraduationCap className="h-4 w-4 text-indigo-500" /> Papan
-                  Latihan Menulis
+                  <GraduationCap className="h-4 w-4 text-indigo-500" /> Papan Latihan Menulis
                 </span>
-                <span className="text-muted-foreground text-[11px]">
-                  Interaktif HTML5 Canvas
-                </span>
+                <span className="text-muted-foreground text-[11px]">Interaktif HTML5 Canvas</span>
               </div>
 
               {/* Mounted Canvas Pad */}
@@ -794,42 +577,25 @@ export default function JapaneseBasicsPage() {
           </div>
         </div>
       </main>
-      )}
 
       {/* Sidebar Navigation Drawer */}
       <SidebarDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
-        currentUser={currentUser}
         currentLang={{
-          code: "ja",
-          name: "Bahasa Jepang",
-          native_name: "日本語",
-          flag: "🇯🇵",
+          code: 'ja',
+          name: 'Bahasa Jepang',
+          native_name: '日本語',
+          flag: '🇯🇵',
         }}
-        streakCount={currentUser?.current_streak ?? 1}
-        totalXp={currentUser?.xp_points ?? 0}
+        streakCount={user?.current_streak ?? 1}
+        totalXp={user?.xp_points ?? 0}
         cardsCount={0}
         theme={theme}
         onToggleTheme={handleToggleTheme}
         onOpenAddModal={() => {}}
         onOpenEditProfile={() => {}}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onLogout={handleLogout}
       />
-
-      {/* Auth Modal for Guests */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          toast.success(`Selamat datang, ${user.username}!`, "Berhasil Masuk");
-        }}
-      />
-
-      {/* Global Toast Container */}
-      <ToastContainer />
     </div>
   );
 }

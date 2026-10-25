@@ -14,6 +14,8 @@ import SpeechRecorder from "./SpeechRecorder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "./Toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { communityService } from "@/services/communityService";
 
 interface DailyChallengeFormProps {
   prompt: {
@@ -25,9 +27,6 @@ interface DailyChallengeFormProps {
   languageCode: string;
   speechLocale: string;
   onSubmitted: () => void;
-  isGuest?: boolean;
-  onOpenAuthModal?: () => void;
-  currentUsername?: string;
 }
 
 export default function DailyChallengeForm({
@@ -35,10 +34,9 @@ export default function DailyChallengeForm({
   languageCode,
   speechLocale,
   onSubmitted,
-  isGuest = false,
-  onOpenAuthModal,
-  currentUsername,
 }: DailyChallengeFormProps) {
+  const { user, isGuest, openAuthModal: onOpenAuthModal } = useAuth();
+
   const savedName = useSyncExternalStore(
     (callback) => {
       window.addEventListener("storage", callback);
@@ -53,7 +51,7 @@ export default function DailyChallengeForm({
 
   const [inputName, setInputName] = useState<string | null>(null);
   const userName =
-    currentUsername || (inputName !== null ? inputName : savedName);
+    user?.username || (inputName !== null ? inputName : savedName);
 
   const [textResponse, setTextResponse] = useState("");
   const [speakingPracticed, setSpeakingPracticed] = useState(false);
@@ -88,42 +86,29 @@ export default function DailyChallengeForm({
     setSuccessMsg(null);
 
     try {
-      const res = await fetch("/api/submissions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userName: userName.trim(),
-          languageCode,
-          promptId: prompt.id,
-          textResponse: textResponse.trim(),
-          speakingPracticed,
-        }),
+      const data = await communityService.submitChallenge({
+        userName: userName.trim(),
+        languageCode,
+        promptId: prompt.id,
+        textResponse: textResponse.trim(),
+        speakingPracticed,
       });
 
-      const data = (await res.json()) as {
-        earnedXp?: number;
-        error?: string;
-        isRepeat?: boolean;
-      };
-      if (res.ok) {
-        if (data.isRepeat) {
-          const msg = `Latihan tambahan berhasil tersimpan! +${data.earnedXp ?? 5} XP ditambahkan.`;
-          setSuccessMsg(msg);
-          toast.success(msg, "Latihan Tambahan");
-        } else {
-          const msg = `Tantangan harian berhasil diselesaikan! +${data.earnedXp ?? 15} XP ditambahkan.`;
-          setSuccessMsg(msg);
-          toast.success(msg, "Tantangan Harian Selesai");
-        }
-        setTextResponse("");
-        setSpeakingPracticed(false);
-        onSubmitted();
-        setTimeout(() => setSuccessMsg(null), 6000);
+      if (data.isRepeat) {
+        const msg = `Latihan tambahan berhasil tersimpan! +${data.earnedXp ?? 5} XP ditambahkan.`;
+        setSuccessMsg(msg);
+        toast.success(msg, "Latihan Tambahan");
       } else {
-        toast.error(data.error || "Terjadi kesalahan", "Gagal Mengirim");
+        const msg = `Tantangan harian berhasil diselesaikan! +${data.earnedXp ?? 15} XP ditambahkan.`;
+        setSuccessMsg(msg);
+        toast.success(msg, "Tantangan Harian Selesai");
       }
+      setTextResponse("");
+      setSpeakingPracticed(false);
+      onSubmitted();
+      setTimeout(() => setSuccessMsg(null), 6000);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unknown error";
+      const msg = err instanceof Error ? err.message : "Gagal Mengirim";
       toast.error(msg, "Gagal Mengirim Jawaban");
     } finally {
       setIsSubmitting(false);
@@ -217,7 +202,7 @@ export default function DailyChallengeForm({
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="Contoh: Helmi / Sarah / Budi"
                 className="pl-9"
-                disabled={Boolean(currentUsername)}
+                disabled={Boolean(user?.username)}
                 required
               />
               <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />

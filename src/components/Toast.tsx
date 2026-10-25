@@ -26,8 +26,10 @@ const subscribe = (listener: () => void) => {
   };
 };
 
+const EMPTY_TOASTS: ToastItem[] = [];
+
 const getSnapshot = () => toasts;
-const getServerSnapshot = () => [];
+const getServerSnapshot = () => EMPTY_TOASTS;
 
 export const removeToast = (id: string) => {
   toasts = toasts.filter((t) => t.id !== id);

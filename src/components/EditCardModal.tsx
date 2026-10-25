@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { CardItem } from './FlashcardViewer';
 import { generateHeuristicAudioGuide } from './AddCardModal';
 import { toast } from './Toast';
+import { cardsService } from '@/services/cardsService';
 
 interface EditCardModalProps {
   isOpen: boolean;
@@ -59,34 +60,25 @@ export default function EditCardModal({
 
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/cards', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: card.id,
-          primary_text: primaryText,
-          phonetic: phonetic || null,
-          furigana_html: furiganaHtml || null,
-          meaning_id: meaningId,
-          part_of_speech: card.part_of_speech || 'Vocabulary',
-          level: card.level || 'Intermediate',
-          example_source: exampleSource,
-          example_meaning: exampleMeaning,
-          audio_guide: audioGuide.trim() || null,
-        }),
+      await cardsService.updateCard({
+        id: card.id,
+        primary_text: primaryText,
+        phonetic: phonetic || null,
+        furigana_html: furiganaHtml || null,
+        meaning_id: meaningId,
+        part_of_speech: card.part_of_speech || 'Vocabulary',
+        level: card.level || 'Intermediate',
+        example_source: exampleSource,
+        example_meaning: exampleMeaning,
+        audio_guide: audioGuide.trim() || null,
       });
 
-      if (res.ok) {
-        toast.success(`Kosakata "${primaryText}" berhasil diperbarui!`, 'Perubahan Tersimpan');
-        onCardUpdated();
-        onClose();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Terjadi kesalahan saat mengubah kartu', 'Gagal Memperbarui');
-      }
+      toast.success(`Kosakata "${primaryText}" berhasil diperbarui!`, 'Perubahan Tersimpan');
+      onCardUpdated();
+      onClose();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Unknown error';
-      toast.error(msg, 'Kesalahan Jaringan');
+      const msg = e instanceof Error ? e.message : 'Terjadi kesalahan saat mengubah kartu';
+      toast.error(msg, 'Gagal Memperbarui');
     } finally {
       setIsSubmitting(false);
     }

@@ -14,7 +14,7 @@ import {
   Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AuthUser } from "@/components/AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   currentLang: {
@@ -34,9 +34,6 @@ interface HeaderProps {
   onSelectLang: (code: string) => void;
   streakCount: number;
   totalXp: number;
-  currentUser: AuthUser | null;
-  onOpenAuthModal: () => void;
-  onLogout: () => void;
   onOpenDrawer: () => void;
   theme: "dark" | "light";
   onToggleTheme: () => void;
@@ -48,12 +45,11 @@ export default function Header({
   onSelectLang,
   streakCount,
   totalXp,
-  currentUser,
-  onOpenAuthModal,
   onOpenDrawer,
   theme,
   onToggleTheme,
 }: HeaderProps) {
+  const { user: currentUser, openAuthModal: onOpenAuthModal } = useAuth();
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-xl px-3 sm:px-6 py-2.5 sm:py-3 transition-colors">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-3">

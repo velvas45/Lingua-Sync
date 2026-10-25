@@ -6,6 +6,8 @@ import AudioButton from './AudioButton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { communityService } from '@/services/communityService';
 
 export interface SubmissionItem {
   id: number;
@@ -23,17 +25,14 @@ interface TeamFeedProps {
   submissions: SubmissionItem[];
   speechLocale: string;
   onRefresh: () => void;
-  isGuest?: boolean;
-  onOpenAuthModal?: () => void;
 }
 
 export default function TeamFeed({
   submissions,
   speechLocale,
   onRefresh,
-  isGuest = false,
-  onOpenAuthModal,
 }: TeamFeedProps) {
+  const { isGuest, openAuthModal: onOpenAuthModal } = useAuth();
   // Local optimistic overrides: map of submissionId -> { liked: boolean, count: number }
   const [likeOverrides, setLikeOverrides] = useState<Record<number, { liked: boolean; count: number }>>({});
   const [pendingIds, setPendingIds] = useState<number[]>([]);
@@ -56,26 +55,12 @@ export default function TeamFeed({
     setPendingIds((prev) => [...prev, id]);
 
     try {
-      const res = await fetch('/api/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ submissionId: id }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setLikeOverrides((prev) => ({
-          ...prev,
-          [id]: { liked: data.liked, count: data.likes },
-        }));
-        onRefresh();
-      } else {
-        // Revert on error
-        setLikeOverrides((prev) => ({
-          ...prev,
-          [id]: { liked: currentLiked, count: currentLikes },
-        }));
-      }
+      const data = await communityService.toggleLike(id);
+      setLikeOverrides((prev) => ({
+        ...prev,
+        [id]: { liked: data.liked, count: data.likes },
+      }));
+      onRefresh();
     } catch (e: unknown) {
       console.error('Failed to toggle like:', e);
       // Revert on error
