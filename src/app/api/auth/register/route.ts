@@ -34,12 +34,12 @@ export async function POST(request: Request) {
     }
 
     // Check if email or username already registered
-    const existing = db.prepare(`
-      SELECT id FROM users
-      WHERE email = ? OR LOWER(username) = ?
-    `).get(cleanEmail, cleanUsername.toLowerCase());
+    const existingResult = await db.execute({
+      sql: `SELECT id FROM users WHERE email = ? OR LOWER(username) = ?`,
+      args: [cleanEmail, cleanUsername.toLowerCase()],
+    });
 
-    if (existing) {
+    if (existingResult.rows.length > 0) {
       return NextResponse.json(
         { error: 'Email atau username sudah terdaftar' },
         { status: 409 }
@@ -48,28 +48,31 @@ export async function POST(request: Request) {
 
     const { hash, salt } = hashPassword(cleanPassword);
 
-    const insertUser = db.prepare(`
-      INSERT INTO users (username, email, phone_number, password_hash, salt)
-      VALUES (?, ?, ?, ?, ?)
-    `);
+    const result = await db.execute({
+      sql: `INSERT INTO users (username, email, phone_number, password_hash, salt) VALUES (?, ?, ?, ?, ?)`,
+      args: [cleanUsername, cleanEmail, cleanPhone, hash, salt],
+    });
 
-    const result = insertUser.run(cleanUsername, cleanEmail, cleanPhone, hash, salt);
     const userId = Number(result.lastInsertRowid);
 
     // Seed 5 default flashcards per language for new user
-    cloneDefaultCardsForUser(userId);
+    await cloneDefaultCardsForUser(userId);
 
     // Initialize user_stats row if not exists
-    const existingStats = db.prepare('SELECT user_name FROM user_stats WHERE user_name = ?').get(cleanUsername);
-    if (!existingStats) {
-      db.prepare(`
-        INSERT INTO user_stats (user_name, current_streak, total_submissions, last_active_date, xp_points)
-        VALUES (?, 1, 0, NULL, 0)
-      `).run(cleanUsername);
+    const statsResult = await db.execute({
+      sql: 'SELECT user_name FROM user_stats WHERE user_name = ?',
+      args: [cleanUsername],
+    });
+    
+    if (statsResult.rows.length === 0) {
+      await db.execute({
+        sql: `INSERT INTO user_stats (user_name, current_streak, total_submissions, last_active_date, xp_points) VALUES (?, 1, 0, NULL, 0)`,
+        args: [cleanUsername],
+      });
     }
 
     // Create session
-    const { token, expiresAt } = createSession(userId);
+    const { token, expiresAt } = await createSession(userId);
 
     const cookieStore = await cookies();
     cookieStore.set('lingua_session', token, {

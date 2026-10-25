@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
 
     if (!user) {
       return NextResponse.json(
@@ -46,10 +46,14 @@ export async function POST(request: Request) {
     const today = new Date().toISOString().split('T')[0];
 
     // Strictly 1x attempt per day: check if user already completed this language today
-    const existingTodaySubmission = db.prepare(`
+    const existingTodayResult = await db.execute({
+      sql: `
       SELECT id FROM submissions
       WHERE user_name = ? AND language_code = ? AND date(created_at) = ?
-    `).get(cleanName, languageCode, today);
+    `,
+      args: [cleanName, languageCode, today],
+    });
+    const existingTodaySubmission = existingTodayResult.rows[0];
 
     if (existingTodaySubmission) {
       return NextResponse.json(
@@ -61,7 +65,11 @@ export async function POST(request: Request) {
     }
 
     // Retrieve prompt to perform linguistic & keyword analysis
-    const prompt = db.prepare('SELECT * FROM daily_prompts WHERE id = ?').get(promptId) as {
+    const promptResult = await db.execute({
+      sql: 'SELECT * FROM daily_prompts WHERE id = ?',
+      args: [promptId],
+    });
+    const prompt = promptResult.rows[0] as unknown as {
       id: number;
       prompt_question: string;
       hint: string;
@@ -110,22 +118,28 @@ export async function POST(request: Request) {
     const calculatedXp = Math.round((baseXp + voiceXp + grammarBonusXp) * timeMultiplier);
 
     // Insert submission
-    const insert = db.prepare(`
+    const insertResult = await db.execute({
+      sql: `
       INSERT INTO submissions (user_name, language_code, prompt_id, text_response, speaking_practiced, completion_seconds, earned_xp)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `);
-    const result = insert.run(
-      cleanName,
-      languageCode,
-      promptId,
-      cleanResponse,
-      speakingPracticed ? 1 : 0,
-      validDurationSeconds,
-      calculatedXp
-    );
+    `,
+      args: [
+        cleanName,
+        languageCode,
+        promptId,
+        cleanResponse,
+        speakingPracticed ? 1 : 0,
+        validDurationSeconds,
+        calculatedXp,
+      ],
+    });
 
     // Update user stats, streak, and fastest completion time
-    const existingUser = db.prepare('SELECT * FROM user_stats WHERE user_name = ?').get(cleanName) as {
+    const existingUserResult = await db.execute({
+      sql: 'SELECT * FROM user_stats WHERE user_name = ?',
+      args: [cleanName],
+    });
+    const existingUser = existingUserResult.rows[0] as unknown as {
       user_name: string;
       current_streak: number;
       total_submissions: number;
@@ -137,10 +151,13 @@ export async function POST(request: Request) {
     let currentStreak = 1;
 
     if (!existingUser) {
-      db.prepare(`
+      await db.execute({
+        sql: `
         INSERT INTO user_stats (user_name, current_streak, total_submissions, last_active_date, xp_points, fastest_completion_seconds)
         VALUES (?, 1, 1, ?, ?, ?)
-      `).run(cleanName, today, calculatedXp, validDurationSeconds);
+      `,
+        args: [cleanName, today, calculatedXp, validDurationSeconds],
+      });
     } else {
       currentStreak = existingUser.current_streak;
       if (existingUser.last_active_date !== today) {
@@ -151,7 +168,8 @@ export async function POST(request: Request) {
       const prevFastest = existingUser.fastest_completion_seconds ?? 9999;
       const newFastest = Math.min(prevFastest > 0 ? prevFastest : 9999, validDurationSeconds);
 
-      db.prepare(`
+      await db.execute({
+        sql: `
         UPDATE user_stats
         SET current_streak = ?,
             total_submissions = total_submissions + 1,
@@ -159,12 +177,14 @@ export async function POST(request: Request) {
             xp_points = xp_points + ?,
             fastest_completion_seconds = ?
         WHERE user_name = ?
-      `).run(currentStreak, today, calculatedXp, newFastest, cleanName);
+      `,
+        args: [currentStreak, today, calculatedXp, newFastest, cleanName],
+      });
     }
 
     return NextResponse.json({
       success: true,
-      submissionId: result.lastInsertRowid,
+      submissionId: insertResult.lastInsertRowid,
       earnedXp: calculatedXp,
       durationSeconds: validDurationSeconds,
       timeTierLabel,

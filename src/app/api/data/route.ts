@@ -11,37 +11,55 @@ export async function GET(request: Request) {
 
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
 
-    const languages = db.prepare('SELECT * FROM languages').all();
-    const currentLang = db.prepare('SELECT * FROM languages WHERE code = ?').get(lang) || languages[0];
+    const languagesResult = await db.execute({ sql: 'SELECT * FROM languages', args: [] });
+    const languages = languagesResult.rows;
+    
+    const currentLangResult = await db.execute({
+      sql: 'SELECT * FROM languages WHERE code = ?',
+      args: [lang],
+    });
+    const currentLang = currentLangResult.rows[0] || languages[0];
 
     // Cards scoping: authenticated user gets their own cards; guest gets 5 template cards
     let cards: Card[] = [];
     if (user) {
-      cards = db.prepare(`
+      const userCardsResult = await db.execute({
+        sql: `
         SELECT * FROM cards
         WHERE user_id = ? AND language_code = ?
         ORDER BY id ASC
-      `).all(user.id, lang) as Card[];
+      `,
+        args: [user.id, lang],
+      });
+      cards = userCardsResult.rows as unknown as Card[];
 
       // Fallback to default template cards if user doesn't have any yet in this language
       if (cards.length === 0) {
-        cards = db.prepare(`
+        const templateCardsResult = await db.execute({
+          sql: `
           SELECT * FROM cards
           WHERE user_id IS NULL AND language_code = ?
           ORDER BY id ASC
           LIMIT 5
-        `).all(lang) as Card[];
+        `,
+          args: [lang],
+        });
+        cards = templateCardsResult.rows as unknown as Card[];
       }
     } else {
       // Guest: only 5 initial default cards, no user-specific cards
-      cards = db.prepare(`
+      const guestCardsResult = await db.execute({
+        sql: `
         SELECT * FROM cards
         WHERE user_id IS NULL AND language_code = ?
         ORDER BY id ASC
         LIMIT 5
-      `).all(lang) as Card[];
+      `,
+        args: [lang],
+      });
+      cards = guestCardsResult.rows as unknown as Card[];
     }
 
     // Dynamic Daily Challenge Prompt based on user's personal cards
@@ -70,20 +88,25 @@ export async function GET(request: Request) {
       };
     } else {
       // Fallback prompt for guest or empty deck
-      prompt = db.prepare(`
+      const promptResult = await db.execute({
+        sql: `
         SELECT dp.*, c.primary_text as card_text
         FROM daily_prompts dp
         LEFT JOIN cards c ON dp.card_id = c.id
         WHERE dp.language_code = ?
         ORDER BY dp.id DESC
         LIMIT 1
-      `).get(lang) as typeof prompt;
+      `,
+        args: [lang],
+      });
+      prompt = promptResult.rows[0] as unknown as typeof prompt;
     }
 
     // Submissions: community feed up to 50 items with like statuses
     let recentSubmissions = [];
     if (user) {
-      recentSubmissions = db.prepare(`
+      const submissionsResult = await db.execute({
+        sql: `
         SELECT s.*, COALESCE(dp.prompt_question, 'Tantangan Harian Kosakata') as prompt_question,
                CASE WHEN sl.user_id IS NOT NULL THEN 1 ELSE 0 END as has_liked
         FROM submissions s
@@ -92,19 +115,27 @@ export async function GET(request: Request) {
         WHERE s.language_code = ?
         ORDER BY s.created_at DESC
         LIMIT 50
-      `).all(user.id, lang);
+      `,
+        args: [user.id, lang],
+      });
+      recentSubmissions = submissionsResult.rows;
     } else {
-      recentSubmissions = db.prepare(`
+      const submissionsResult = await db.execute({
+        sql: `
         SELECT s.*, COALESCE(dp.prompt_question, 'Tantangan Harian Kosakata') as prompt_question, 0 as has_liked
         FROM submissions s
         LEFT JOIN daily_prompts dp ON s.prompt_id = dp.id
         WHERE s.language_code = ?
         ORDER BY s.created_at DESC
         LIMIT 50
-      `).all(lang);
+      `,
+        args: [lang],
+      });
+      recentSubmissions = submissionsResult.rows;
     }
 
-    const leaderboard = db.prepare(`
+    const leaderboardResult = await db.execute({
+      sql: `
       SELECT user_name, current_streak, total_submissions, last_active_date, xp_points,
              COALESCE(fastest_completion_seconds, 9999) as fastest_completion_seconds
       FROM user_stats
@@ -112,14 +143,21 @@ export async function GET(request: Request) {
                (CASE WHEN fastest_completion_seconds > 0 THEN fastest_completion_seconds ELSE 9999 END) ASC,
                current_streak DESC
       LIMIT 10
-    `).all();
+    `,
+      args: [],
+    });
+    const leaderboard = leaderboardResult.rows;
 
     let userProfile = null;
     let hasCompletedToday = false;
     let todaySubmission = null;
 
     if (user) {
-      const stats = db.prepare('SELECT current_streak, total_submissions, xp_points, fastest_completion_seconds FROM user_stats WHERE user_name = ?').get(user.username) as UserStats | undefined;
+      const statsResult = await db.execute({
+        sql: 'SELECT current_streak, total_submissions, xp_points, fastest_completion_seconds FROM user_stats WHERE user_name = ?',
+        args: [user.username],
+      });
+      const stats = statsResult.rows[0] as unknown as UserStats | undefined;
       userProfile = {
         ...user,
         current_streak: stats?.current_streak ?? 1,
@@ -129,13 +167,17 @@ export async function GET(request: Request) {
       };
 
       const today = new Date().toISOString().split('T')[0];
-      const existing = db.prepare(`
+      const existingResult = await db.execute({
+        sql: `
         SELECT id, text_response, earned_xp, completion_seconds, created_at
         FROM submissions
         WHERE user_name = ? AND language_code = ? AND date(created_at) = ?
         ORDER BY created_at DESC
         LIMIT 1
-      `).get(user.username, lang, today) as { id: number; text_response: string; earned_xp: number; completion_seconds: number; created_at: string } | undefined;
+      `,
+        args: [user.username, lang, today],
+      });
+      const existing = existingResult.rows[0] as unknown as { id: number; text_response: string; earned_xp: number; completion_seconds: number; created_at: string } | undefined;
 
       if (existing) {
         hasCompletedToday = true;

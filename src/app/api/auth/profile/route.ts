@@ -6,7 +6,7 @@ export async function PUT(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
 
     if (!user) {
       return NextResponse.json(
@@ -43,16 +43,15 @@ export async function PUT(request: Request) {
     }
 
     // Check if new username is already used by someone else
-    const duplicate = db
-      .prepare(
-        `
+    const duplicateResult = await db.execute({
+      sql: `
       SELECT id FROM users
       WHERE LOWER(username) = LOWER(?) AND id != ?
-    `
-      )
-      .get(cleanUsername, user.id);
+    `,
+      args: [cleanUsername, user.id],
+    });
 
-    if (duplicate) {
+    if (duplicateResult.rows.length > 0) {
       return NextResponse.json(
         { error: 'Username sudah digunakan oleh akun lain' },
         { status: 409 }
@@ -62,37 +61,45 @@ export async function PUT(request: Request) {
     const oldUsername = user.username;
 
     // Atomic transaction across users, user_stats, and submissions
-    const updateTx = db.transaction(() => {
-      db.prepare(
-        `
+    const transaction = await db.transaction('write');
+    
+    try {
+      await transaction.execute({
+        sql: `
         UPDATE users
         SET username = ?, phone_number = ?
         WHERE id = ?
-      `
-      ).run(cleanUsername, cleanPhone, user.id);
+      `,
+        args: [cleanUsername, cleanPhone, user.id],
+      });
 
       if (oldUsername !== cleanUsername) {
         // Update user_stats to maintain streak & XP
-        db.prepare(
-          `
+        await transaction.execute({
+          sql: `
           UPDATE user_stats
           SET user_name = ?
           WHERE user_name = ?
-        `
-        ).run(cleanUsername, oldUsername);
+        `,
+          args: [cleanUsername, oldUsername],
+        });
 
         // Update submissions author name
-        db.prepare(
-          `
+        await transaction.execute({
+          sql: `
           UPDATE submissions
           SET user_name = ?
           WHERE user_name = ?
-        `
-        ).run(cleanUsername, oldUsername);
+        `,
+          args: [cleanUsername, oldUsername],
+        });
       }
-    });
-
-    updateTx();
+      
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
 
     return NextResponse.json({
       success: true,

@@ -10,38 +10,38 @@ export async function GET(request: Request) {
     const level = searchParams.get('level');
 
     // Get available level tracks for this language
-    const levels = db
-      .prepare(
-        `
+    const levelsResult = await db.execute({
+      sql: `
       SELECT * FROM level_tracks
       WHERE language_code = ?
       ORDER BY order_num ASC
-    `
-      )
-      .all(lang) as LevelTrack[];
+    `,
+      args: [lang],
+    });
+    const levels = levelsResult.rows as unknown as LevelTrack[];
 
     // Get grammar lessons (filtered by level if provided)
     let lessons: GrammarLesson[] = [];
     if (level && level !== 'all') {
-      lessons = db
-        .prepare(
-          `
+      const lessonsResult = await db.execute({
+        sql: `
         SELECT * FROM grammar_lessons
         WHERE language_code = ? AND level = ?
         ORDER BY id ASC
-      `
-        )
-        .all(lang, level) as GrammarLesson[];
+      `,
+        args: [lang, level],
+      });
+      lessons = lessonsResult.rows as unknown as GrammarLesson[];
     } else {
-      lessons = db
-        .prepare(
-          `
+      const lessonsResult = await db.execute({
+        sql: `
         SELECT * FROM grammar_lessons
         WHERE language_code = ?
         ORDER BY id ASC
-      `
-        )
-        .all(lang) as GrammarLesson[];
+      `,
+        args: [lang],
+      });
+      lessons = lessonsResult.rows as unknown as GrammarLesson[];
     }
 
     return NextResponse.json({

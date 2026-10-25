@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
 
     if (!user) {
       return NextResponse.json(
@@ -40,24 +40,25 @@ export async function POST(request: Request) {
     const cleanExampleMeaning = String(example_meaning).trim();
     const sanitizedFurigana = sanitizeFuriganaInput(furigana_html);
 
-    const insert = db.prepare(`
-      INSERT INTO cards (user_id, language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    const result = insert.run(
-      user.id,
-      String(language_code).trim(),
-      cleanPrimaryText,
-      phonetic ? String(phonetic).trim() : null,
-      sanitizedFurigana,
-      cleanMeaningId,
-      part_of_speech ? String(part_of_speech).trim() : 'General',
-      level ? String(level).trim() : 'Intermediate',
-      cleanExampleSource,
-      cleanExampleMeaning,
-      audio_guide ? String(audio_guide).trim() : null
-    );
+    const result = await db.execute({
+      sql: `
+        INSERT INTO cards (user_id, language_code, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      args: [
+        user.id,
+        String(language_code).trim(),
+        cleanPrimaryText,
+        phonetic ? String(phonetic).trim() : null,
+        sanitizedFurigana,
+        cleanMeaningId,
+        part_of_speech ? String(part_of_speech).trim() : 'General',
+        level ? String(level).trim() : 'Intermediate',
+        cleanExampleSource,
+        cleanExampleMeaning,
+        audio_guide ? String(audio_guide).trim() : null,
+      ],
+    });
 
     return NextResponse.json({ success: true, cardId: result.lastInsertRowid });
   } catch (error: unknown) {
@@ -70,7 +71,7 @@ export async function PUT(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
 
     if (!user) {
       return NextResponse.json(
@@ -103,35 +104,36 @@ export async function PUT(request: Request) {
     const cleanExampleMeaning = String(example_meaning).trim();
     const sanitizedFurigana = sanitizeFuriganaInput(furigana_html);
 
-    const update = db.prepare(`
-      UPDATE cards
-      SET primary_text = ?,
-          phonetic = ?,
-          furigana_html = ?,
-          meaning_id = ?,
-          part_of_speech = ?,
-          level = ?,
-          example_source = ?,
-          example_meaning = ?,
-          audio_guide = ?
-      WHERE id = ? AND user_id = ?
-    `);
+    const result = await db.execute({
+      sql: `
+        UPDATE cards
+        SET primary_text = ?,
+            phonetic = ?,
+            furigana_html = ?,
+            meaning_id = ?,
+            part_of_speech = ?,
+            level = ?,
+            example_source = ?,
+            example_meaning = ?,
+            audio_guide = ?
+        WHERE id = ? AND user_id = ?
+      `,
+      args: [
+        cleanPrimaryText,
+        phonetic ? String(phonetic).trim() : null,
+        sanitizedFurigana,
+        cleanMeaningId,
+        part_of_speech ? String(part_of_speech).trim() : 'General',
+        level ? String(level).trim() : 'Intermediate',
+        cleanExampleSource,
+        cleanExampleMeaning,
+        audio_guide ? String(audio_guide).trim() : null,
+        Number(id),
+        user.id,
+      ],
+    });
 
-    const result = update.run(
-      cleanPrimaryText,
-      phonetic ? String(phonetic).trim() : null,
-      sanitizedFurigana,
-      cleanMeaningId,
-      part_of_speech ? String(part_of_speech).trim() : 'General',
-      level ? String(level).trim() : 'Intermediate',
-      cleanExampleSource,
-      cleanExampleMeaning,
-      audio_guide ? String(audio_guide).trim() : null,
-      Number(id),
-      user.id
-    );
-
-    if (result.changes === 0) {
+    if (result.rowsAffected === 0) {
       return NextResponse.json(
         { error: 'Kartu tidak ditemukan atau Anda tidak memiliki hak akses' },
         { status: 404 }
@@ -149,7 +151,7 @@ export async function DELETE(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
 
     if (!user) {
       return NextResponse.json(
@@ -165,14 +167,12 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID kartu wajib disertakan' }, { status: 400 });
     }
 
-    const deleteCard = db.prepare(`
-      DELETE FROM cards
-      WHERE id = ? AND user_id = ?
-    `);
+    const result = await db.execute({
+      sql: `DELETE FROM cards WHERE id = ? AND user_id = ?`,
+      args: [Number(id), user.id],
+    });
 
-    const result = deleteCard.run(Number(id), user.id);
-
-    if (result.changes === 0) {
+    if (result.rowsAffected === 0) {
       return NextResponse.json(
         { error: 'Kartu tidak ditemukan atau Anda tidak memiliki hak akses' },
         { status: 404 }

@@ -1,3 +1,9 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Load .env.local for Turso credentials
+config({ path: resolve(process.cwd(), '.env.local') });
+
 import db from '../src/lib/db';
 import { HIRAGANA_LIST, KATAKANA_LIST, KANJI_BASIC_LIST } from '../src/lib/japaneseCharacters';
 import fs from 'fs';
@@ -149,8 +155,8 @@ async function runOfficialIngestion() {
   console.log('========================================================================\n');
 
   // 1. Prepare SQLite Tables
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS japanese_characters (
+  await db.execute({
+    sql: `CREATE TABLE IF NOT EXISTS japanese_characters (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       type TEXT NOT NULL,
       sub_category TEXT DEFAULT 'gojuon',
@@ -167,12 +173,24 @@ async function runOfficialIngestion() {
       example_reading TEXT,
       example_meaning TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
+    )`,
+    args: []
+  });
 
-    CREATE INDEX IF NOT EXISTS idx_jap_chars_type ON japanese_characters(type);
-    CREATE INDEX IF NOT EXISTS idx_jap_chars_char ON japanese_characters(character);
-    CREATE INDEX IF NOT EXISTS idx_jap_chars_sub_cat ON japanese_characters(type, sub_category);
-  `);
+  await db.execute({
+    sql: 'CREATE INDEX IF NOT EXISTS idx_jap_chars_type ON japanese_characters(type)',
+    args: []
+  });
+
+  await db.execute({
+    sql: 'CREATE INDEX IF NOT EXISTS idx_jap_chars_char ON japanese_characters(character)',
+    args: []
+  });
+
+  await db.execute({
+    sql: 'CREATE INDEX IF NOT EXISTS idx_jap_chars_sub_cat ON japanese_characters(type, sub_category)',
+    args: []
+  });
 
   // 2. Fetch Official Kanji List (Grade 1 & Grade 2 Joyo Kanji -> JLPT N5 & N4)
   let grade1List: string[] = [];
@@ -194,102 +212,108 @@ async function runOfficialIngestion() {
   const kanjiDetails = await fetchKanjiDetails(allKanjiTargets);
 
   // 3. Upsert Japanese Characters (Hiragana, Katakana, Kanji)
-  const upsertChar = db.prepare(`
-    INSERT OR REPLACE INTO japanese_characters (
-      type, sub_category, character, romaji, meaning, onyomi, kunyomi, strokes, jlpt_level, grade, origin, example_word, example_reading, example_meaning
-    ) VALUES (
-      @type, @sub_category, @character, @romaji, @meaning, @onyomi, @kunyomi, @strokes, @jlpt_level, @grade, @origin, @example_word, @example_reading, @example_meaning
-    )
-  `);
-
   console.log('\n📦 Memulai transaksi penyimpanan karakter ke SQLite (lingua_drill.db)...');
 
-  const ingestCharactersTx = db.transaction(() => {
-    // 1. Idempotent purge to prevent duplicate/stale records
-    db.exec('DELETE FROM japanese_characters;');
-
-    let countHira = 0;
-    let countKata = 0;
-    let countKanji = 0;
-
-    // A. Hiragana
-    for (const h of HIRAGANA_LIST) {
-      upsertChar.run({
-        type: 'hiragana',
-        sub_category: h.subCategory || 'gojuon',
-        character: h.char,
-        romaji: h.romaji,
-        meaning: null,
-        onyomi: null,
-        kunyomi: null,
-        strokes: h.strokes,
-        jlpt_level: 'N5',
-        grade: null,
-        origin: null,
-        example_word: h.exampleWord || null,
-        example_reading: h.exampleReading || null,
-        example_meaning: h.exampleMeaning || null,
-      });
-      countHira++;
-    }
-
-    // B. Katakana
-    for (const k of KATAKANA_LIST) {
-      upsertChar.run({
-        type: 'katakana',
-        sub_category: k.subCategory || 'gojuon',
-        character: k.char,
-        romaji: k.romaji,
-        meaning: null,
-        onyomi: null,
-        kunyomi: null,
-        strokes: k.strokes,
-        jlpt_level: 'N5',
-        grade: null,
-        origin: null,
-        example_word: k.exampleWord || null,
-        example_reading: k.exampleReading || null,
-        example_meaning: k.exampleMeaning || null,
-      });
-      countKata++;
-    }
-
-    // C. Official KANJIDIC Kanji (Grade 1 N5 + Grade 2 N4)
-    const curatedKanjiMap = new Map(KANJI_BASIC_LIST.map((k) => [k.kanji, k]));
-
-    for (const detail of kanjiDetails) {
-      const curated = curatedKanjiMap.get(detail.kanji);
-      const meaningId = KANJI_ID_TRANSLATIONS[detail.kanji] || detail.meanings.slice(0, 3).join(', ');
-      const kunStr = detail.kun_readings.join(', ');
-      const onStr = detail.on_readings.join(', ');
-      const primaryRomaji = detail.kun_readings[0] || detail.on_readings[0] || '';
-      const isN5 = (detail.grade === 1 || detail.jlpt === 5);
-      const levelLabel = isN5 ? 'N5' : 'N4';
-      const subCat = isN5 ? 'kanji_n5' : 'kanji_n4';
-
-      upsertChar.run({
-        type: 'kanji',
-        sub_category: subCat,
-        character: detail.kanji,
-        romaji: primaryRomaji,
-        meaning: meaningId,
-        onyomi: onStr || null,
-        kunyomi: kunStr || null,
-        strokes: detail.stroke_count,
-        jlpt_level: levelLabel,
-        grade: detail.grade || (isN5 ? 1 : 2),
-        origin: curated?.origin || `Kanji resmi KANJIDIC kelas ${detail.grade || 1} (JLPT ${levelLabel}).`,
-        example_word: curated?.exampleWord || detail.kanji,
-        example_reading: curated?.exampleReading || primaryRomaji,
-        example_meaning: curated?.exampleMeaning || meaningId,
-      });
-      countKanji++;
-    }
-
-    return { countHira, countKata, countKanji };
+  // 1. Idempotent purge to prevent duplicate/stale records
+  await db.execute({
+    sql: 'DELETE FROM japanese_characters',
+    args: []
   });
 
-  const charStats = ingestCharactersTx();
+  let countHira = 0;
+  let countKata = 0;
+  let countKanji = 0;
+
+  // A. Hiragana
+  for (const h of HIRAGANA_LIST) {
+    await db.execute({
+      sql: `INSERT OR REPLACE INTO japanese_characters (
+        type, sub_category, character, romaji, meaning, onyomi, kunyomi, strokes, jlpt_level, grade, origin, example_word, example_reading, example_meaning
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        'hiragana',
+        h.subCategory || 'gojuon',
+        h.char,
+        h.romaji,
+        null,
+        null,
+        null,
+        h.strokes,
+        'N5',
+        null,
+        null,
+        h.exampleWord || null,
+        h.exampleReading || null,
+        h.exampleMeaning || null,
+      ]
+    });
+    countHira++;
+  }
+
+  // B. Katakana
+  for (const k of KATAKANA_LIST) {
+    await db.execute({
+      sql: `INSERT OR REPLACE INTO japanese_characters (
+        type, sub_category, character, romaji, meaning, onyomi, kunyomi, strokes, jlpt_level, grade, origin, example_word, example_reading, example_meaning
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        'katakana',
+        k.subCategory || 'gojuon',
+        k.char,
+        k.romaji,
+        null,
+        null,
+        null,
+        k.strokes,
+        'N5',
+        null,
+        null,
+        k.exampleWord || null,
+        k.exampleReading || null,
+        k.exampleMeaning || null,
+      ]
+    });
+    countKata++;
+  }
+
+  // C. Official KANJIDIC Kanji (Grade 1 N5 + Grade 2 N4)
+  const curatedKanjiMap = new Map(KANJI_BASIC_LIST.map((k) => [k.kanji, k]));
+
+  for (const detail of kanjiDetails) {
+    const curated = curatedKanjiMap.get(detail.kanji);
+    const meaningId = KANJI_ID_TRANSLATIONS[detail.kanji] || detail.meanings.slice(0, 3).join(', ');
+    const kunStr = detail.kun_readings.join(', ');
+    const onStr = detail.on_readings.join(', ');
+    const primaryRomaji = detail.kun_readings[0] || detail.on_readings[0] || '';
+    const isN5 = (detail.grade === 1 || detail.jlpt === 5);
+    const levelLabel = isN5 ? 'N5' : 'N4';
+    const subCat = isN5 ? 'kanji_n5' : 'kanji_n4';
+
+    await db.execute({
+      sql: `INSERT OR REPLACE INTO japanese_characters (
+        type, sub_category, character, romaji, meaning, onyomi, kunyomi, strokes, jlpt_level, grade, origin, example_word, example_reading, example_meaning
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      args: [
+        'kanji',
+        subCat,
+        detail.kanji,
+        primaryRomaji,
+        meaningId,
+        onStr || null,
+        kunStr || null,
+        detail.stroke_count,
+        levelLabel,
+        detail.grade || (isN5 ? 1 : 2),
+        curated?.origin || `Kanji resmi KANJIDIC kelas ${detail.grade || 1} (JLPT ${levelLabel}).`,
+        curated?.exampleWord || detail.kanji,
+        curated?.exampleReading || primaryRomaji,
+        curated?.exampleMeaning || meaningId,
+      ]
+    });
+    countKanji++;
+  }
+
+  const charStats = { countHira, countKata, countKanji };
   console.log(`   ✨ Hiragana tersimpan : ${charStats.countHira} karakter`);
   console.log(`   ✨ Katakana tersimpan : ${charStats.countKata} karakter`);
   console.log(`   ✨ Kanji tersimpan     : ${charStats.countKanji} karakter resmi KANJIDIC`);
@@ -302,49 +326,45 @@ async function runOfficialIngestion() {
     const rawData = fs.readFileSync(curriculumPath, 'utf8');
     const grammarLessons = JSON.parse(rawData) as GrammarLessonSeed[];
 
-    const upsertGrammar = db.prepare(`
-      INSERT OR REPLACE INTO grammar_lessons (
-        language_code, level, title, formula, explanation, example_source, example_meaning, audio_guide
-      ) VALUES (
-        @language_code, @level, @title, @formula, @explanation, @example_source, @example_meaning, @audio_guide
-      )
-    `);
-
-    const ingestGrammarTx = db.transaction(() => {
-      // Idempotent purge to prevent duplicate lessons
-      db.exec('DELETE FROM grammar_lessons;');
-
-      let countJa = 0;
-      let countEn = 0;
-
-      for (const lesson of grammarLessons) {
-        upsertGrammar.run({
-          language_code: lesson.language_code,
-          level: lesson.level,
-          title: lesson.title,
-          formula: lesson.formula,
-          explanation: lesson.explanation,
-          example_source: lesson.example_source,
-          example_meaning: lesson.example_meaning,
-          audio_guide: lesson.audio_guide || null,
-        });
-
-        if (lesson.language_code === 'ja') countJa++;
-        if (lesson.language_code === 'en') countEn++;
-      }
-
-      return { countJa, countEn };
+    // Idempotent purge to prevent duplicate lessons
+    await db.execute({
+      sql: 'DELETE FROM grammar_lessons',
+      args: []
     });
 
-    const grammarStats = ingestGrammarTx();
+    let countJa = 0;
+    let countEn = 0;
+
+    for (const lesson of grammarLessons) {
+      await db.execute({
+        sql: `INSERT OR REPLACE INTO grammar_lessons (
+          language_code, level, title, formula, explanation, example_source, example_meaning, audio_guide
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+          lesson.language_code,
+          lesson.level,
+          lesson.title,
+          lesson.formula,
+          lesson.explanation,
+          lesson.example_source,
+          lesson.example_meaning,
+          lesson.audio_guide || null,
+        ]
+      });
+
+      if (lesson.language_code === 'ja') countJa++;
+      if (lesson.language_code === 'en') countEn++;
+    }
+
+    const grammarStats = { countJa, countEn };
     console.log(`   ✨ Tata Bahasa Jepang (JLPT N5–N1) : ${grammarStats.countJa} modul pelajaran`);
     console.log(`   ✨ Tata Bahasa Inggris (CEFR A1–C2)  : ${grammarStats.countEn} modul pelajaran`);
   }
 
   // 5. Verification Final Output
-  const totalCharacters = db.prepare('SELECT count(*) as count FROM japanese_characters').get() as { count: number };
-  const totalGrammar = db.prepare('SELECT count(*) as count FROM grammar_lessons').get() as { count: number };
-  const totalVocab = db.prepare('SELECT count(*) as count FROM vocabulary_bank').get() as { count: number };
+  const totalCharacters = (await db.execute({ sql: 'SELECT count(*) as count FROM japanese_characters', args: [] })).rows[0] as unknown as { count: number };
+  const totalGrammar = (await db.execute({ sql: 'SELECT count(*) as count FROM grammar_lessons', args: [] })).rows[0] as unknown as { count: number };
+  const totalVocab = (await db.execute({ sql: 'SELECT count(*) as count FROM vocabulary_bank', args: [] })).rows[0] as unknown as { count: number };
 
   console.log('\n========================================================================');
   console.log('🎉 INGESTION SUMMARY: STATUS DATABASE LINGUASYNC (lingua_drill.db)');

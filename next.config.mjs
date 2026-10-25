@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['better-sqlite3'],
+  // No need for serverExternalPackages with Turso (@libsql/client)
 };
 
 export default nextConfig;

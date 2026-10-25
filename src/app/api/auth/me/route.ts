@@ -7,13 +7,17 @@ export async function GET() {
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
 
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
     if (!user) {
       return NextResponse.json({ user: null });
     }
 
     // Get user stats (streak, xp)
-    const stats = db.prepare('SELECT current_streak, total_submissions, xp_points FROM user_stats WHERE user_name = ?').get(user.username) as {
+    const statsResult = await db.execute({
+      sql: 'SELECT current_streak, total_submissions, xp_points FROM user_stats WHERE user_name = ?',
+      args: [user.username],
+    });
+    const stats = statsResult.rows[0] as unknown as {
       current_streak: number;
       total_submissions: number;
       xp_points: number;

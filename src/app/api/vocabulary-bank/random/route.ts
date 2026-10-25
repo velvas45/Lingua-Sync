@@ -21,15 +21,17 @@ export async function GET(request: Request) {
 
     const cookieStore = await cookies();
     const token = cookieStore.get('lingua_session')?.value;
-    const user = getSessionUser(token);
+    const user = await getSessionUser(token);
 
     let items: VocabularyBankItem[] = [];
 
     if (user) {
       // Exclude words already saved in user's deck
-      const userCardWords = db
-        .prepare('SELECT primary_text FROM cards WHERE user_id = ?')
-        .all(user.id) as Array<{ primary_text: string }>;
+      const userCardWordsResult = await db.execute({
+        sql: 'SELECT primary_text FROM cards WHERE user_id = ?',
+        args: [user.id],
+      });
+      const userCardWords = userCardWordsResult.rows as unknown as Array<{ primary_text: string }>;
 
       const allExcluded = Array.from(
         new Set([...userCardWords.map((c) => c.primary_text), ...excludeList])
@@ -37,70 +39,70 @@ export async function GET(request: Request) {
 
       if (allExcluded.length > 0) {
         const placeholders = allExcluded.map(() => '?').join(',');
-        items = db
-          .prepare(
-            `
+        const itemsResult = await db.execute({
+          sql: `
             SELECT * FROM vocabulary_bank
             WHERE language_code = ?
               AND primary_text NOT IN (${placeholders})
             ORDER BY RANDOM()
             LIMIT ?
-          `
-          )
-          .all(lang, ...allExcluded, batch) as VocabularyBankItem[];
+          `,
+          args: [lang, ...allExcluded, batch],
+        });
+        items = itemsResult.rows as unknown as VocabularyBankItem[];
       } else {
-        items = db
-          .prepare(
-            `
+        const itemsResult = await db.execute({
+          sql: `
             SELECT * FROM vocabulary_bank
             WHERE language_code = ?
             ORDER BY RANDOM()
             LIMIT ?
-          `
-          )
-          .all(lang, batch) as VocabularyBankItem[];
+          `,
+          args: [lang, batch],
+        });
+        items = itemsResult.rows as unknown as VocabularyBankItem[];
       }
     } else {
       // Guest: exclude session-seen words
       if (excludeList.length > 0) {
         const placeholders = excludeList.map(() => '?').join(',');
-        items = db
-          .prepare(
-            `
+        const itemsResult = await db.execute({
+          sql: `
             SELECT * FROM vocabulary_bank
             WHERE language_code = ?
               AND primary_text NOT IN (${placeholders})
             ORDER BY RANDOM()
             LIMIT ?
-          `
-          )
-          .all(lang, ...excludeList, batch) as VocabularyBankItem[];
+          `,
+          args: [lang, ...excludeList, batch],
+        });
+        items = itemsResult.rows as unknown as VocabularyBankItem[];
       } else {
-        items = db
-          .prepare(
-            `
+        const itemsResult = await db.execute({
+          sql: `
             SELECT * FROM vocabulary_bank
             WHERE language_code = ?
             ORDER BY RANDOM()
             LIMIT ?
-          `
-          )
-          .all(lang, batch) as VocabularyBankItem[];
+          `,
+          args: [lang, batch],
+        });
+        items = itemsResult.rows as unknown as VocabularyBankItem[];
       }
     }
 
     // Fallback if all exclusions exhausted the pool
     if (items.length === 0) {
-      items = db
-        .prepare(
-          `
+      const fallbackResult = await db.execute({
+        sql: `
           SELECT * FROM vocabulary_bank
           WHERE language_code = ?
           ORDER BY RANDOM()
           LIMIT ?
-        `
-        )
-        .all(lang, batch) as VocabularyBankItem[];
+        `,
+        args: [lang, batch],
+      });
+      items = fallbackResult.rows as unknown as VocabularyBankItem[];
     }
 
     if (items.length === 0) {

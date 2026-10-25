@@ -1,6 +1,14 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Load .env.local for Turso credentials
+config({ path: resolve(process.cwd(), '.env.local') });
+
 import fs from 'fs';
 import path from 'path';
 import db from '../src/lib/db';
+
+// This script now works with Turso async client
 import { generateHeuristicAudioGuide } from '../src/components/AddCardModal';
 
 const seedsDir = path.join(process.cwd(), 'data', 'seeds');
@@ -499,51 +507,60 @@ function generateJapaneseBank(): SeedItem[] {
 }
 
 // ----------------- MAIN RUNNER -----------------
-console.log('--- Generating 1,000 EN and 1,000 JA Vocabulary Seeds ---');
-const enItems = generateEnglishBank();
-const jaItems = generateJapaneseBank();
+async function main() {
+  console.log('--- Generating 1,000 EN and 1,000 JA Vocabulary Seeds ---');
+  const enItems = generateEnglishBank();
+  const jaItems = generateJapaneseBank();
 
-console.log(`Generated English items: ${enItems.length}`);
-console.log(`Generated Japanese items: ${jaItems.length}`);
+  console.log(`Generated English items: ${enItems.length}`);
+  console.log(`Generated Japanese items: ${jaItems.length}`);
 
-// Write JSON files
-fs.writeFileSync(path.join(seedsDir, 'vocab_en.json'), JSON.stringify(enItems, null, 2));
-fs.writeFileSync(path.join(seedsDir, 'vocab_ja.json'), JSON.stringify(jaItems, null, 2));
-console.log('✅ Successfully wrote data/seeds/vocab_en.json and data/seeds/vocab_ja.json');
+  // Write JSON files
+  fs.writeFileSync(path.join(seedsDir, 'vocab_en.json'), JSON.stringify(enItems, null, 2));
+  fs.writeFileSync(path.join(seedsDir, 'vocab_ja.json'), JSON.stringify(jaItems, null, 2));
+  console.log('✅ Successfully wrote data/seeds/vocab_en.json and data/seeds/vocab_ja.json');
 
-// Insert into SQLite database in transaction
-console.log('--- Ingesting into SQLite vocabulary_bank table ---');
+  // Insert into Turso database
+  console.log('--- Ingesting into Turso vocabulary_bank table ---');
 
-const insertStmt = db.prepare(`
-  INSERT OR REPLACE INTO vocabulary_bank (
-    language_code, category, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`);
+  const insertSql = `
+    INSERT OR REPLACE INTO vocabulary_bank (
+      language_code, category, primary_text, phonetic, furigana_html, meaning_id, part_of_speech, level, example_source, example_meaning, audio_guide
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
-const bulkInsert = db.transaction((allItems: SeedItem[]) => {
+  const allItems = [...enItems, ...jaItems];
   for (const item of allItems) {
-    insertStmt.run(
-      item.language_code,
-      item.category,
-      item.primary_text,
-      item.phonetic,
-      item.furigana_html,
-      item.meaning_id,
-      item.part_of_speech,
-      item.level,
-      item.example_source,
-      item.example_meaning,
-      item.audio_guide
-    );
+    await db.execute({
+      sql: insertSql,
+      args: [
+        item.language_code,
+        item.category,
+        item.primary_text,
+        item.phonetic,
+        item.furigana_html,
+        item.meaning_id,
+        item.part_of_speech,
+        item.level,
+        item.example_source,
+        item.example_meaning,
+        item.audio_guide
+      ]
+    });
   }
-});
 
-bulkInsert([...enItems, ...jaItems]);
+  const totalCountResult = await db.execute({ sql: 'SELECT count(*) as count FROM vocabulary_bank' });
+  const totalCount = totalCountResult.rows[0] as unknown as { count: number };
 
-const totalCount = db.prepare('SELECT count(*) as count FROM vocabulary_bank').get() as { count: number };
-const totalEn = db.prepare('SELECT count(*) as count FROM vocabulary_bank WHERE language_code = ?').get('en') as { count: number };
-const totalJa = db.prepare('SELECT count(*) as count FROM vocabulary_bank WHERE language_code = ?').get('ja') as { count: number };
+  const totalEnResult = await db.execute({ sql: 'SELECT count(*) as count FROM vocabulary_bank WHERE language_code = ?', args: ['en'] });
+  const totalEn = totalEnResult.rows[0] as unknown as { count: number };
 
-console.log(`✅ SQLite vocabulary_bank total rows: ${totalCount.count}`);
-console.log(`   - English: ${totalEn.count}`);
-console.log(`   - Japanese: ${totalJa.count}`);
+  const totalJaResult = await db.execute({ sql: 'SELECT count(*) as count FROM vocabulary_bank WHERE language_code = ?', args: ['ja'] });
+  const totalJa = totalJaResult.rows[0] as unknown as { count: number };
+
+  console.log(`✅ Turso vocabulary_bank total rows: ${totalCount.count}`);
+  console.log(`   - English: ${totalEn.count}`);
+  console.log(`   - Japanese: ${totalJa.count}`);
+}
+
+main().catch(console.error);

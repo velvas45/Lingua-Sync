@@ -18,11 +18,16 @@ export async function POST(request: Request) {
     const cleanPassword = String(password);
 
     // Look up user by email OR username
-    const user = db.prepare(`
-      SELECT id, username, email, phone_number, password_hash, salt
-      FROM users
-      WHERE email = ? OR LOWER(username) = ?
-    `).get(cleanIdentifier, cleanIdentifier) as {
+    const result = await db.execute({
+      sql: `
+        SELECT id, username, email, phone_number, password_hash, salt
+        FROM users
+        WHERE email = ? OR LOWER(username) = ?
+      `,
+      args: [cleanIdentifier, cleanIdentifier],
+    });
+
+    const user = result.rows[0] as unknown as {
       id: number;
       username: string;
       email: string;
@@ -47,7 +52,7 @@ export async function POST(request: Request) {
     }
 
     // Create session
-    const { token, expiresAt } = createSession(user.id);
+    const { token, expiresAt } = await createSession(user.id);
 
     const cookieStore = await cookies();
     cookieStore.set('lingua_session', token, {
