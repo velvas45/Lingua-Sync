@@ -10,15 +10,23 @@ import {
   Sparkles,
   Pencil,
   Trash2,
+  PenTool,
 } from 'lucide-react';
 import AudioButton from './AudioButton';
 import RubyText from './RubyText';
 import EditCardModal from './EditCardModal';
 import ConfirmDialog from './ConfirmDialog';
+import JapaneseCanvasPad from '@/components/japanese/JapaneseCanvasPad';
 import { toast } from './Toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { cardsService } from '@/services/cardsService';
 
@@ -86,6 +94,7 @@ export default function FlashcardViewer({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCanvasModalOpen, setIsCanvasModalOpen] = useState(false);
 
   if (!cards || cards.length === 0) {
     return (
@@ -151,17 +160,31 @@ export default function FlashcardViewer({
 
         <div className="flex items-center gap-1.5">
           {langCode === 'ja' && (
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowFurigana(!showFurigana)}
-              className="gap-1.5 text-xs border border-border h-8"
-              title="Toggle Furigana (Hiragana di atas Kanji)"
-            >
-              {showFurigana ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-              <span>{showFurigana ? 'Sembunyikan Furigana' : 'Tampilkan Furigana'}</span>
-            </Button>
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowFurigana(!showFurigana)}
+                className="gap-1.5 text-xs border border-border h-8"
+                title="Toggle Furigana (Hiragana di atas Kanji)"
+              >
+                {showFurigana ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                <span className="hidden sm:inline">{showFurigana ? 'Sembunyikan Furigana' : 'Tampilkan Furigana'}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCanvasModalOpen(true)}
+                className="gap-1.5 text-xs border-indigo-500/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 h-8 font-semibold shadow-sm"
+                title="Latihan menulis karakter/kosakata ini di kanvas"
+              >
+                <PenTool className="h-3.5 w-3.5" />
+                <span>Latihan Tulis</span>
+              </Button>
+            </>
           )}
 
           {/* Edit & Delete Action Buttons (Active for logged-in user) */}
@@ -353,6 +376,29 @@ export default function FlashcardViewer({
         variant="destructive"
         isLoading={isDeleting}
       />
+
+      {/* Writing Practice Modal for Japanese Flashcard */}
+      {langCode === 'ja' && (
+        <Dialog open={isCanvasModalOpen} onOpenChange={setIsCanvasModalOpen}>
+          <DialogContent className="max-w-[95vw] sm:max-w-xl md:max-w-2xl border-border bg-card/95 backdrop-blur-xl p-4 sm:p-6 max-h-[92vh] overflow-y-auto">
+            <DialogHeader className="border-b border-border/80 pb-2.5">
+              <DialogTitle className="flex items-center gap-2 text-base font-extrabold text-foreground">
+                <PenTool className="h-4 w-4 text-primary" />
+                <span>Papan Latihan Tulis & Goresan: &ldquo;{currentCard.primary_text}&rdquo;</span>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="pt-2">
+              <JapaneseCanvasPad
+                character={currentCard.primary_text}
+                romaji={currentCard.phonetic || ''}
+                meaning={currentCard.meaning_id}
+                strokes={3}
+                className="border-0 shadow-none bg-transparent p-0"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

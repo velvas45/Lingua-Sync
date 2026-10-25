@@ -35,6 +35,7 @@ interface JapaneseCanvasPadProps {
   romaji: string;
   meaning?: string;
   strokes?: number;
+  className?: string;
 }
 
 type PadMode = 'practice' | 'animation';
@@ -316,6 +317,7 @@ export default function JapaneseCanvasPad({
   romaji,
   meaning,
   strokes = 3,
+  className,
 }: JapaneseCanvasPadProps) {
   const [activeMode, setActiveMode] = useState<PadMode>('practice');
 
@@ -472,7 +474,13 @@ export default function JapaneseCanvasPad({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card/90 p-4 sm:p-6 shadow-xl backdrop-blur-xl w-full">
+    <div
+      className={
+        className
+          ? `flex flex-col items-center gap-4 w-full ${className}`
+          : 'flex flex-col items-center gap-4 rounded-2xl border border-border bg-card/90 p-4 sm:p-6 shadow-xl backdrop-blur-xl w-full'
+      }
+    >
       {/* 1. Header Information Bar */}
       <div className="flex w-full items-center justify-between border-b border-border/80 pb-3">
         <div className="flex items-center gap-3">

@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useSyncExternalStore } from 'react';
-import Header from '@/components/Header';
-import FlashcardViewer, { CardItem } from '@/components/FlashcardViewer';
-import GrammarViewer from '@/components/GrammarViewer';
-import DailyChallengeForm from '@/components/DailyChallengeForm';
-import TeamFeed, { SubmissionItem } from '@/components/TeamFeed';
-import Leaderboard from '@/components/Leaderboard';
-import AddCardModal from '@/components/AddCardModal';
-import SidebarDrawer from '@/components/SidebarDrawer';
-import EditProfileModal from '@/components/EditProfileModal';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { LevelTrack, GrammarLesson } from '@/lib/db';
-import { dataService, AppDataResponse } from '@/services/dataService';
-import { curriculumService } from '@/services/curriculumService';
+import React, { useState, useEffect, useSyncExternalStore } from "react";
+import Header from "@/components/Header";
+import FlashcardViewer, { CardItem } from "@/components/FlashcardViewer";
+import GrammarViewer from "@/components/GrammarViewer";
+import DailyChallengeForm from "@/components/DailyChallengeForm";
+import TeamFeed, { SubmissionItem } from "@/components/TeamFeed";
+import Leaderboard from "@/components/Leaderboard";
+import AddCardModal from "@/components/AddCardModal";
+import SidebarDrawer from "@/components/SidebarDrawer";
+import EditProfileModal from "@/components/EditProfileModal";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { LevelTrack, GrammarLesson } from "@/lib/db";
+import { dataService, AppDataResponse } from "@/services/dataService";
+import { curriculumService } from "@/services/curriculumService";
 import {
   Sparkles,
   Compass,
@@ -24,7 +24,7 @@ import {
   BookOpen,
   Lock,
   LogIn,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface LanguageItem {
   code: string;
@@ -52,23 +52,23 @@ interface LeaderboardUser {
 }
 
 const subscribeTheme = (callback: () => void) => {
-  window.addEventListener('storage', callback);
-  return () => window.removeEventListener('storage', callback);
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
 };
 
-const getThemeSnapshot = (): 'dark' | 'light' => {
-  if (typeof window === 'undefined') return 'dark';
-  return (localStorage.getItem('lingua_theme') as 'dark' | 'light') || 'dark';
+const getThemeSnapshot = (): "dark" | "light" => {
+  if (typeof window === "undefined") return "dark";
+  return (localStorage.getItem("lingua_theme") as "dark" | "light") || "dark";
 };
 
-const getThemeServerSnapshot = (): 'dark' | 'light' => 'dark';
+const getThemeServerSnapshot = (): "dark" | "light" => "dark";
 
 export default function Home() {
   const { user: currentUser, isGuest, openAuthModal, updateUser } = useAuth();
 
-  const [selectedLang, setSelectedLang] = useState('en');
-  const [selectedLevel, setSelectedLevel] = useState('all');
-  const [learningTab, setLearningTab] = useState<'vocab' | 'grammar'>('vocab');
+  const [selectedLang, setSelectedLang] = useState("en");
+  const [selectedLevel, setSelectedLevel] = useState("all");
+  const [learningTab, setLearningTab] = useState<"vocab" | "grammar">("vocab");
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AppDataResponse | null>(null);
@@ -82,25 +82,31 @@ export default function Home() {
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   // Idiomatic React 19 theme synchronization
-  const storedTheme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
-  const [themeOverride, setThemeOverride] = useState<'dark' | 'light' | null>(null);
+  const storedTheme = useSyncExternalStore(
+    subscribeTheme,
+    getThemeSnapshot,
+    getThemeServerSnapshot
+  );
+  const [themeOverride, setThemeOverride] = useState<"dark" | "light" | null>(
+    null
+  );
   const theme = themeOverride ?? storedTheme;
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
+    if (typeof window !== "undefined") {
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
       } else {
-        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.remove("dark");
       }
     }
   }, [theme]);
 
   const handleToggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    const nextTheme = theme === "dark" ? "light" : "dark";
     setThemeOverride(nextTheme);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lingua_theme', nextTheme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lingua_theme", nextTheme);
     }
   };
 
@@ -116,7 +122,7 @@ export default function Home() {
         }
       } catch (e: unknown) {
         if (!ignore) {
-          console.error('Failed to load data:', e);
+          console.error("Failed to load data:", e);
         }
       } finally {
         if (!ignore) {
@@ -138,13 +144,16 @@ export default function Home() {
 
     async function loadCurriculum() {
       try {
-        const json = await curriculumService.getCurriculum(selectedLang, selectedLevel);
+        const json = await curriculumService.getCurriculum(
+          selectedLang,
+          selectedLevel
+        );
         if (!ignore) {
           setLevelTracks(json.levels || []);
           setGrammarLessons(json.lessons || []);
         }
       } catch (e) {
-        console.error('Failed to load curriculum:', e);
+        console.error("Failed to load curriculum:", e);
       }
     }
 
@@ -157,7 +166,7 @@ export default function Home() {
 
   const handleLangChange = (code: string) => {
     setSelectedLang(code);
-    setSelectedLevel('all'); // reset level filter when language changes
+    setSelectedLevel("all"); // reset level filter when language changes
   };
 
   const handleRefresh = () => {
@@ -180,13 +189,13 @@ export default function Home() {
 
   // Filter cards by level if level filter is active and matching cards exist
   const displayedCards =
-    selectedLevel === 'all'
+    selectedLevel === "all"
       ? data.cards
       : data.cards.filter((c) =>
-          (c.level || '').toUpperCase().includes(selectedLevel.toUpperCase())
+          (c.level || "").toUpperCase().includes(selectedLevel.toUpperCase())
         ).length > 0
       ? data.cards.filter((c) =>
-          (c.level || '').toUpperCase().includes(selectedLevel.toUpperCase())
+          (c.level || "").toUpperCase().includes(selectedLevel.toUpperCase())
         )
       : data.cards;
 
@@ -212,11 +221,15 @@ export default function Home() {
             <div className="mb-1 flex items-center gap-2">
               <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-foreground">
-                Target Belajar: {data.currentLang.name} ({data.currentLang.flag})
+                Target Belajar: {data.currentLang.name} ({data.currentLang.flag}
+                )
               </h2>
             </div>
             <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">
-              Metode <strong className="text-foreground">Hybrid Micro-Drill</strong>: Pelajari kosakata praktis & pola tata bahasa berstandar internasional, lalu selesaikan tantangan harian!
+              Metode{" "}
+              <strong className="text-foreground">Hybrid Micro-Drill</strong>:
+              Pelajari kosakata praktis & pola tata bahasa berstandar
+              internasional, lalu selesaikan tantangan harian!
             </p>
           </div>
 
@@ -226,7 +239,7 @@ export default function Home() {
                 {displayedCards.length}
               </span>
               <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground">
-                {isGuest ? 'Kartu Publik' : 'Koleksi Kartu'}
+                {isGuest ? "Kartu Publik" : "Koleksi Kartu"}
               </span>
             </div>
             <div className="h-7 w-px bg-border" />
@@ -252,17 +265,27 @@ export default function Home() {
 
         {/* Level Track Selector Bar */}
         <div className="relative mb-6 rounded-2xl border border-border bg-card/60 p-3.5 sm:p-4 backdrop-blur-md overflow-hidden">
-          <div className={`flex flex-wrap items-center justify-between gap-3 ${isGuest ? 'blur-[3px] opacity-35 pointer-events-none select-none' : ''}`}>
+          <div
+            className={`flex flex-wrap items-center justify-between gap-3 ${
+              isGuest
+                ? "blur-[3px] opacity-35 pointer-events-none select-none"
+                : ""
+            }`}
+          >
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400">
                 <GraduationCap className="h-4 w-4" />
               </div>
               <div>
                 <span className="text-xs font-bold text-foreground block">
-                  Target Tingkatan ({data.currentLang.code === 'ja' ? 'Standar Resmi JLPT' : 'Standar Resmi CEFR'}):
+                  Target Tingkatan (
+                  {data.currentLang.code === "ja"
+                    ? "Standar Resmi JLPT"
+                    : "Standar Resmi CEFR"}
+                  ):
                 </span>
                 <span className="text-[11px] text-muted-foreground">
-                  Pilih tingkatan untuk memfilter kosakata dan pelajaran tata bahasa
+                  Pilih tingkatan untuk memfilter pelajaran tata bahasa
                 </span>
               </div>
             </div>
@@ -270,11 +293,11 @@ export default function Home() {
             <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => setSelectedLevel('all')}
+                onClick={() => setSelectedLevel("all")}
                 className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
-                  selectedLevel === 'all'
-                    ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25'
-                    : 'bg-secondary/60 text-muted-foreground hover:text-foreground'
+                  selectedLevel === "all"
+                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                    : "bg-secondary/60 text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Semua Level
@@ -288,8 +311,8 @@ export default function Home() {
                     onClick={() => setSelectedLevel(lvl.code)}
                     className={`rounded-lg px-2.5 py-1 text-xs font-bold transition-all ${
                       isActive
-                        ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/25'
-                        : 'bg-secondary/60 text-muted-foreground hover:text-foreground'
+                        ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/25"
+                        : "bg-secondary/60 text-muted-foreground hover:text-foreground"
                     }`}
                     title={lvl.description}
                   >
@@ -332,11 +355,11 @@ export default function Home() {
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => setLearningTab('vocab')}
+                    onClick={() => setLearningTab("vocab")}
                     className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
-                      learningTab === 'vocab'
-                        ? 'bg-secondary text-foreground shadow-sm border border-border'
-                        : 'text-muted-foreground hover:text-foreground'
+                      learningTab === "vocab"
+                        ? "bg-secondary text-foreground shadow-sm border border-border"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     <Layers className="h-3.5 w-3.5 text-cyan-700 dark:text-cyan-400" />
@@ -349,29 +372,31 @@ export default function Home() {
                       if (isGuest) {
                         openAuthModal();
                       } else {
-                        setLearningTab('grammar');
+                        setLearningTab("grammar");
                       }
                     }}
                     className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
-                      learningTab === 'grammar'
-                        ? 'bg-secondary text-foreground shadow-sm border border-border'
-                        : 'text-muted-foreground hover:text-foreground'
+                      learningTab === "grammar"
+                        ? "bg-secondary text-foreground shadow-sm border border-border"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     <BookOpen className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                     <span>Tata Bahasa ({grammarLessons.length})</span>
-                    {isGuest && <Lock className="h-3 w-3 text-amber-500 ml-0.5" />}
+                    {isGuest && (
+                      <Lock className="h-3 w-3 text-amber-500 ml-0.5" />
+                    )}
                   </button>
                 </div>
 
-                {learningTab === 'vocab' && isGuest && (
+                {learningTab === "vocab" && isGuest && (
                   <span className="rounded-full bg-cyan-500/10 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-cyan-700 dark:text-cyan-400 border border-cyan-500/30">
                     5 Kartu Dasar
                   </span>
                 )}
               </div>
 
-              {learningTab === 'vocab' ? (
+              {learningTab === "vocab" ? (
                 <FlashcardViewer
                   key={`${data.currentLang.code}-${selectedLevel}`}
                   cards={displayedCards}
@@ -388,7 +413,9 @@ export default function Home() {
                     Akses Tata Bahasa Terkunci
                   </h3>
                   <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
-                    Pelajari 362+ pola rumus kalimat resmi JLPT (N5–N1) dan CEFR (A1–C2) lengkap dengan contoh nyata dan audio tips. Masuk sekarang untuk membuka modul ini!
+                    Pelajari 362+ pola rumus kalimat resmi JLPT (N5–N1) dan CEFR
+                    (A1–C2) lengkap dengan contoh nyata dan audio tips. Masuk
+                    sekarang untuk membuka modul ini!
                   </p>
                   <div className="pt-2 flex justify-center">
                     <Button
@@ -411,24 +438,26 @@ export default function Home() {
               )}
             </section>
 
-            {/* Daily Challenge Form */}
-            <section>
-              <div className="mb-3.5 flex items-center gap-2">
-                <Compass className="h-5 w-5 text-primary" />
-                <h3 className="text-base sm:text-lg font-bold text-foreground">
-                  2. Latihan Output (Tulis & Ucapkan)
-                </h3>
-              </div>
-              <DailyChallengeForm
-                key={`${data.currentLang.code}-${currentUser?.id || 'guest'}`}
-                prompt={data.prompt}
-                languageCode={data.currentLang.code}
-                speechLocale={data.currentLang.speech_locale}
-                hasCompletedToday={Boolean(data.hasCompletedToday)}
-                todaySubmission={data.todaySubmission}
-                onSubmitted={handleRefresh}
-              />
-            </section>
+            {/* Daily Challenge Form (Only active when Flashcard Kosakata tab is active) */}
+            {learningTab === "vocab" && (
+              <section className="animate-in fade-in duration-200">
+                <div className="mb-3.5 flex items-center gap-2">
+                  <Compass className="h-5 w-5 text-primary" />
+                  <h3 className="text-base sm:text-lg font-bold text-foreground">
+                    2. Latihan Output (Tulis & Ucapkan)
+                  </h3>
+                </div>
+                <DailyChallengeForm
+                  key={`${data.currentLang.code}-${currentUser?.id || "guest"}`}
+                  prompt={data.prompt}
+                  languageCode={data.currentLang.code}
+                  speechLocale={data.currentLang.speech_locale}
+                  hasCompletedToday={Boolean(data.hasCompletedToday)}
+                  todaySubmission={data.todaySubmission}
+                  onSubmitted={handleRefresh}
+                />
+              </section>
+            )}
           </div>
 
           {/* Right Column: Leaderboard & Team Feed */}
@@ -462,7 +491,10 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-border/80 py-6 text-center text-xs text-muted-foreground">
-        <p>LinguaSync • Platform Pembelajar Bahasa Komunitas • English (🇺🇸) & 日本語 (🇯🇵)</p>
+        <p>
+          LinguaSync • Platform Pembelajar Bahasa Komunitas • English (🇺🇸) &
+          日本語 (🇯🇵)
+        </p>
       </footer>
 
       {/* Add Card Modal */}
